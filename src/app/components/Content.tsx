@@ -249,6 +249,23 @@ export default function Content() {
               <button className="inline-flex items-center gap-3 bg-gradient-to-r from-[#00A86B] to-[#0077CC] text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:scale-[1.02] transition-transform">
                 JOIN FOR FREE
               </button></Link>
+                 {/* Sankranti form */}
+                <Link href="https://forms.gle/EK6ScmSd65bBH2X5A">
+                  <button className="
+                   relative overflow-hidden
+                   bg-gradient-to-r from-[#FFB703] to-[#FFD166]
+                   text-[#4A2C00] font-semibold
+                   px-6 py-3
+                   rounded-full
+                   shadow-[0_0_18px_rgba(255,183,3,0.35)]
+                   hover:shadow-[0_0_26px_rgba(255,183,3,0.55)]
+                   transition-all duration-300
+                   "
+                  >
+                    🪁 Fill Sankranti Form
+               </button>
+               </Link>
+                
             </div>
           </div>
 
