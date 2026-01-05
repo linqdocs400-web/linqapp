@@ -33,7 +33,7 @@ export default function Hero() {
           </Link>
 
           {/* Sankranti villages form */}
-          <Link href="https://forms.gle/EK6ScmSd65bBH2X5A">
+          <Link href="https://forms.gle/BJ8ESYihASH47e8i8">
             <button className="border border-[#0077CC] text-[#0077CC] font-semibold px-8 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#0077CC]/5 transition">
               Travel to Villages this Sankranti
             </button>
