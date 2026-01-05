@@ -250,7 +250,7 @@ export default function Content() {
                 JOIN FOR FREE
               </button></Link>
                  {/* Sankranti form */}
-                <Link href="https://forms.gle/EK6ScmSd65bBH2X5A">
+                <Link href="https://forms.gle/FGmHDfHM8sW3bPVW8">
                   <button className="
                    relative overflow-hidden
                    bg-gradient-to-r from-[#FFB703] to-[#FFD166]
