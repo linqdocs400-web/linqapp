@@ -202,12 +202,12 @@ export default function Content() {
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm">
-                <strong className="block text-sm text-gray-800">30K+</strong>
+                <strong className="block text-sm text-gray-800">34K+</strong>
                 <span className="text-xs text-gray-500">followers</span>
               </div>
 
               <div className="px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm">
-                <strong className="block text-sm text-gray-800">5K</strong>
+                <strong className="block text-sm text-gray-800">8K</strong>
                 <span className="text-xs text-gray-500">daily users</span>
               </div>
 
