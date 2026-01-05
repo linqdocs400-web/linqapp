@@ -34,22 +34,26 @@ export default function Hero() {
 
           {/* Sankranti villages form */}
           <Link href="https://forms.gle/EK6ScmSd65bBH2X5A">
-            <button className="
-              relative overflow-hidden
-              bg-gradient-to-r from-[#FFB703] via-[#FFD166] to-[#FF9F1C]
-              text-[#4A2C00] font-bold
-              px-8 sm:px-10 py-3 sm:py-4
-              rounded-full
-              shadow-[0_0_25px_rgba(255,183,3,0.45)]
-              hover:shadow-[0_0_35px_rgba(255,183,3,0.7)]
-              transition-all duration-300
-              animate-pulse ">
-              🪁 Travel to Villages this Sankranti
-              <span className="ml-1">🌾</span>
-              {/* subtle shine effect */}
-              <span className="absolute inset-0 bg-white/20 rotate-12 translate-x-[-150%] animate-[shine_3s_infinite]" />
-             </button>
-            </Link>
+            <button
+              className="
+                relative overflow-hidden
+                bg-gradient-to-r from-[#FFB703] via-[#FFD166] to-[#FF9F1C]
+                text-[#4A2C00] font-bold
+                px-8 sm:px-10 py-3 sm:py-4
+                rounded-full
+                shadow-[0_0_25px_rgba(255,183,3,0.45)]
+                hover:shadow-[0_0_35px_rgba(255,183,3,0.7)]
+                transition-all duration-300
+                hover:scale-[1.04]
+              "
+            >
+              🪁 Travel to Villages this Sankranti <span className="ml-1">🌾</span>
+
+              {/* subtle shine */}
+              <span className="pointer-events-none absolute inset-0 bg-white/20 rotate-12 translate-x-[-150%] animate-[shine_3s_infinite]" />
+            </button>
+          </Link>
+        </div>
 
         {/* Small note */}
         <p className="mt-2 sm:mt-4 text-sm sm:text-md text-gray-500 max-w-xs sm:max-w-full mx-auto px-2">
