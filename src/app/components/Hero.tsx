@@ -47,7 +47,7 @@ export default function Hero() {
                 hover:scale-[1.04]
               "
             >
-              🪁🌾Travel to Villages this Sankranti <span className="ml-1">🚙🏍️</span>
+              🪁🌾Sankranti Travel Form<span className="ml-1">🚙🏍️</span>
 
               {/* subtle shine */}
               <span className="pointer-events-none absolute inset-0 bg-white/20 rotate-12 translate-x-[-150%] animate-[shine_3s_infinite]" />
