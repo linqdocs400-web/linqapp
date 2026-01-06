@@ -33,7 +33,7 @@ export default function Hero() {
           </Link>
 
           {/* Sankranti villages form */}
-          <Link href="https://forms.gle/EK6ScmSd65bBH2X5A">
+          <Link href="https://forms.gle/FGmHDfHM8sW3bPVW8">
             <button
               className="
                 relative overflow-hidden
