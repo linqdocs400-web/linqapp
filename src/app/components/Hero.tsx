@@ -19,7 +19,7 @@ export default function Hero() {
         {/* Paragraph */}
         <p className="mt-3 sm:mt-6 text-gray-600 max-w-md sm:max-w-2xl mx-auto text-base sm:text-lg">
           We&apos;re already a thriving community — over{" "}
-          <span className="text-[#2F5EEA] font-semibold">35K+ followers</span> and{" "}
+          <span className="text-[#2F5EEA] font-semibold">34K+ followers</span> and{" "}
           <span className="text-[#2F5EEA] font-semibold">8K+ daily active users</span>
           {" "}— united by one goal: smarter, cleaner, affordable commuting.
         </p>
