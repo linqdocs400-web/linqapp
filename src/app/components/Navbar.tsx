@@ -209,6 +209,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface NavbarProps {
   refs: {
@@ -238,62 +240,85 @@ const Navbar: React.FC<NavbarProps> = ({ refs }) => {
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out ${
         scrolled
-          ? "max-w-[92%] left-[4%] bg-gradient-to-r from-[#0f2027]/95 via-[#203a43]/95 to-[#2c5364]/95 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl rounded-[2.5rem] mt-4 translate-y-3 border border-[#00E676]/20"
+          ? "max-w-[92%] left-[4%] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] backdrop-blur-xl rounded-[2.5rem] mt-4 translate-y-3 border border-gray-200"
           : "bg-transparent max-w-full left-0 mt-0 translate-y-0"
       }`}
     >
-      <div className="flex justify-between items-center max-w-7xl mx-auto px-10 py-5 relative">
+      <div className="flex justify-between items-center max-w-7xl mx-auto px-10 py-3 relative">
         {/* Logo */}
-        <h1 className="text-3xl font-extrabold bg-gradient-to-r from-[#00E676] to-[#00C9FF] bg-clip-text text-transparent select-none">
-          LinQ
-        </h1>
+        <div className="flex items-center h-10">
+          <Image
+            src="/logo.png"
+            alt="LinQ Logo"
+            width={140}
+            height={32}
+            className="h-8 w-auto object-contain select-none"
+            priority
+          />
+        </div>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex gap-14 ml-10 text-[#7a7b7c] font-medium">
+        <ul
+          className={`hidden md:flex gap-14 ml-10 font-medium transition-colors ${
+            scrolled ? "text-gray-700" : "text-gray-600"
+          }`}
+        >
           <li
-            className="hover:text-[#00E676] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.home)}
           >
             Home
           </li>
           <li
-            className="hover:text-[#00C9FF] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.features)}
           >
             Features
           </li>
           <li
-            className="hover:text-[#00E676] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.content)}
           >
             About
           </li>
           <li
-            className="hover:text-[#00C9FF] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.footer)}
           >
             Careers
           </li>
         </ul>
 
-        {/* Desktop Button */}
-        <button
-          onClick={() => scrollToSection(refs.features)}
-          className="hidden md:block bg-gradient-to-r from-[#00E676] to-[#00C9FF] text-black font-semibold px-6 py-2 rounded-full hover:shadow-[0_0_20px_#00E676] transition"
-        >
-          JOIN FOR FREE
-        </button>
+        {/* Desktop Buttons */}
+        <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={() => scrollToSection(refs.features)}
+            className="bg-[#2F5EEA] text-white font-semibold px-6 py-2 rounded-full hover:bg-[#1E3FAE] transition"
+          >
+            JOIN FOR FREE
+          </button>
+
+          {/* Sankranti villages form */}
+          <Link href="https://forms.gle/FGmHDfHM8sW3bPVW8">
+            <button
+              className="relative overflow-hidden bg-gradient-to-r from-[#FFB703] via-[#FFD166] to-[#FF9F1C] text-[#4A2C00] font-bold px-4 py-2 rounded-full shadow-[0_0_20px_rgba(255,183,3,0.45)] hover:shadow-[0_0_28px_rgba(255,183,3,0.7)] transition-all duration-300 hover:scale-[1.04] text-sm"
+            >
+              🪁🌾Sankranti Travel Form<span className="ml-1">🚙🏍️</span>
+              <span className="pointer-events-none absolute inset-0 bg-white/20 animate-shine" />
+            </button>
+          </Link>
+        </div>
 
         {/* Mobile Hamburger */}
         <div className="md:hidden absolute right-8">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="p-2 bg-gradient-to-r from-[#00E676]/20 to-[#00C9FF]/20 rounded-full border border-[#00E676]/30 shadow-lg transition hover:scale-105"
+            className="p-2 bg-[#5FA9FF]/20 rounded-full border border-[#2F5EEA]/30 shadow-lg transition hover:bg-[#5FA9FF]/30"
           >
             {menuOpen ? (
-              <X className="text-[#00E676] w-6 h-6" />
+              <X className="text-[#2F5EEA] w-6 h-6" />
             ) : (
-              <Menu className="text-[#00E676] w-6 h-6" />
+              <Menu className="text-[#2F5EEA] w-6 h-6" />
             )}
           </button>
         </div>
@@ -305,32 +330,36 @@ const Navbar: React.FC<NavbarProps> = ({ refs }) => {
           menuOpen ? "max-h-64 opacity-100 py-4" : "max-h-0 opacity-0 py-0"
         } mx-8 mb-4 ${
           scrolled
-            ? "bg-transparent border-none shadow-none rounded-none"
-            : "bg-gradient-to-r from-[#0f2027]/95 via-[#203a43]/95 to-[#2c5364]/95 border border-[#00E676]/20 shadow-[0_10px_25px_rgba(0,0,0,0.5)] rounded-2xl"
+            ? "bg-white border border-gray-200 shadow-[0_10px_25px_rgba(0,0,0,0.1)] rounded-2xl"
+            : "bg-white border border-gray-200 shadow-[0_10px_25px_rgba(0,0,0,0.1)] rounded-2xl"
         }`}
         style={{ transformOrigin: "top center" }}
       >
-        <ul className="flex flex-col items-center gap-4 text-[#d0d0d0] font-medium">
+        <ul
+          className={`flex flex-col items-center gap-4 font-medium transition-colors ${
+            scrolled ? "text-gray-700" : "text-gray-600"
+          }`}
+        >
           <li
-            className="hover:text-[#00E676] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.home)}
           >
             Home
           </li>
           <li
-            className="hover:text-[#00C9FF] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.features)}
           >
             Features
           </li>
           <li
-            className="hover:text-[#00E676] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.content)}
           >
             About
           </li>
           <li
-            className="hover:text-[#00C9FF] transition cursor-pointer"
+            className="hover:text-[#2F5EEA] transition cursor-pointer"
             onClick={() => scrollToSection(refs.footer)}
           >
             Careers
@@ -342,4 +371,3 @@ const Navbar: React.FC<NavbarProps> = ({ refs }) => {
 };
 
 export default Navbar;
-
