@@ -145,7 +145,7 @@ export default function Content() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
-      color: "bg-[#00A86B]",
+      color: "bg-[#2F5EEA]",
       title: "Advanced Matching",
       description: "Advanced algorithms connect you with compatible riders on your route in real-time."
     },
@@ -155,7 +155,7 @@ export default function Content() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      color: "bg-[#00E676]",
+      color: "bg-[#2F5EEA]",
       title: "Carbon Footprint Tracker",
       description: "See your environmental impact with live CO₂ savings and eco-badges for milestones."
     },
@@ -165,7 +165,7 @@ export default function Content() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      color: "bg-[#0077CC]",
+      color: "bg-[#2F5EEA]",
       title: "Gamified Rewards",
       description: "Level up with every ride! Earn LinQ coins, unlock perks, and compete on leaderboards."
     },
@@ -175,23 +175,23 @@ export default function Content() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
         </svg>
       ),
-      color: "bg-[#00C9FF]",
+      color: "bg-[#2F5EEA]",
       title: "Safety First Network",
       description: "Verified IDs, SOS alerts, live GPS tracking, and 24/7 support for secure journeys."
     }
   ];
 
   return (
-    <section className="relative py-6 md:py-20 px-6 md:px-12 bg-gradient-to-b from-white to-gray-50 text-gray-900 overflow-hidden">
+    <section className="relative py-6 md:py-20 px-6 md:px-12 bg-white text-gray-900 overflow-hidden">
       {/* decorative gradient circles */}
-      <div className="pointer-events-none absolute -right-12 md:-right-24 -top-16 w-72 h-72 rounded-full bg-gradient-to-br from-[#00E676]/20 to-[#00C9FF]/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-12 md:-right-24 -top-16 w-72 h-72 rounded-full bg-[#5FA9FF]/10 blur-3xl" />
 
       <div className="max-w-6xl mx-auto relative">
         <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
           {/* Left content column */}
           <div className="lg:w-1/2 z-10">
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-600 leading-tight mb-4">
-              What is <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#00E676] to-[#00C9FF]">LinQ</span>?
+              What is <span className="text-[#2F5EEA]">LinQ</span>?
             </h2>
 
             <p className="text-lg text-gray-600 mb-6">
@@ -219,7 +219,7 @@ export default function Content() {
 
             <div className="grid grid-cols-1 gap-3">
               <div className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#00E676] text-white">
+                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#2F5EEA] text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
@@ -231,7 +231,7 @@ export default function Content() {
               </div>
 
               <div className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#00C9FF] text-white">
+                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#2F5EEA] text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v2" />
@@ -244,28 +244,32 @@ export default function Content() {
               </div>
             </div>
 
-            <div className="mt-8">
-                <Link href="https://forms.gle/EK6ScmSd65bBH2X5A" passHref>
-              <button className="inline-flex items-center gap-3 bg-gradient-to-r from-[#00A86B] to-[#0077CC] text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:scale-[1.02] transition-transform">
-                JOIN FOR FREE
-              </button></Link>
-                 {/* Sankranti form */}
-                <Link href="https://forms.gle/FGmHDfHM8sW3bPVW8">
-                  <button className="
-                   relative overflow-hidden
-                   bg-gradient-to-r from-[#FFB703] to-[#FFD166]
-                   text-[#4A2C00] font-semibold
-                   px-6 py-3
-                   rounded-full
-                   shadow-[0_0_18px_rgba(255,183,3,0.35)]
-                   hover:shadow-[0_0_26px_rgba(255,183,3,0.55)]
-                   transition-all duration-300
-                   "
-                  >
-                    🪁 Fill Sankranti Form
-               </button>
-               </Link>
-                
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
+              <Link href="https://forms.gle/EK6ScmSd65bBH2X5A" passHref>
+                <button className="inline-flex items-center gap-3 bg-[#2F5EEA] text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-[#1E3FAE] transition">
+                  JOIN FOR FREE
+                </button>
+              </Link>
+
+              {/* Sankranti villages form */}
+              <Link href="https://forms.gle/FGmHDfHM8sW3bPVW8">
+                <button
+                  className="
+                    relative overflow-hidden
+                    bg-gradient-to-r from-[#FFB703] via-[#FFD166] to-[#FF9F1C]
+                    text-[#4A2C00] font-bold
+                    px-6 py-3
+                    rounded-full
+                    shadow-[0_0_20px_rgba(255,183,3,0.45)]
+                    hover:shadow-[0_0_28px_rgba(255,183,3,0.7)]
+                    transition-all duration-300
+                    hover:scale-[1.04] text-sm
+                  "
+                >
+                  🪁🌾Sankranti Travel Form<span className="ml-1">🚙🏍️</span>
+                  <span className="pointer-events-none absolute inset-0 bg-white/20 animate-shine" />
+                </button>
+              </Link>
             </div>
           </div>
 
@@ -296,7 +300,7 @@ export default function Content() {
               </div>
 
               {/* floating badge */}
-              <div className="absolute -left-2 sm:-left-6 -top-6 bg-gradient-to-r from-[#00E676] to-[#00C9FF] text-white px-3 sm:px-4 py-2 rounded-xl shadow-xl text-xs sm:text-sm font-medium">
+              <div className="absolute -left-2 sm:-left-6 -top-6 bg-[#2F5EEA] text-white px-3 sm:px-4 py-2 rounded-xl shadow-xl text-xs sm:text-sm font-medium">
                 Community-first mobility
               </div>
             </div>
