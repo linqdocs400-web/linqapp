@@ -5,7 +5,7 @@ const CoreFeatures = () => {
   const features = [
     {
       title: "Smart HubSpots™",
-      gradient: "from-[#00E676] to-[#00C9FF]",
+      gradient: "from-[#2F5EEA] to-[#5FA9FF]",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -151,7 +151,7 @@ function Carousel({ items }: { items: any[] }) {
                       <ul className="grid grid-cols-1 gap-2 mb-4">
                         {item.benefits.map((b: string, idx: number) => (
                           <li key={idx} className="flex items-start gap-3">
-                            <svg className="w-5 h-5 mt-1 text-[#00E676]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-5 h-5 mt-1 text-[#2F5EEA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4" />
                             </svg>
                             <span className="text-gray-700 text-sm">{b}</span>
@@ -183,7 +183,7 @@ function Carousel({ items }: { items: any[] }) {
             key={i}
             aria-label={`Go to page ${i + 1}`}
             onClick={() => setIndex(i)}
-            className={`w-3 h-3 rounded-full ${i === index ? 'bg-[#0077CC]' : 'bg-gray-300'} transition-all`}
+            className={`w-3 h-3 rounded-full ${i === index ? 'bg-[#2F5EEA]' : 'bg-gray-300'} transition-all`}
           />
         ))}
       </div>
