@@ -81,7 +81,7 @@ export default function Differences() {
   ];
 
   return (
-  <section className="py-6 md:py-16 px-6 md:px-12 bg-gradient-to-b from-gray-50 to-white">
+  <section className="py-6 md:py-16 px-6 md:px-12 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -97,19 +97,19 @@ export default function Differences() {
           {comparisons.map((item, index) => (
             <div key={index} className="relative">
               {/* Category label */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#00E676] to-[#00C9FF] text-white px-4 py-1 rounded-full text-sm font-medium z-10">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2F5EEA] text-white px-4 py-1 rounded-full text-sm font-medium z-10">
                 {item.category}
               </div>
 
               {/* Comparison cards */}
               <div className="grid md:grid-cols-2 gap-4 pt-8">
                 {/* Our Platform */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-[#00E676]/20 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#00E676]/10 to-[#00C9FF]/5 rounded-bl-[100px] -z-0" />
+                <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-[#5FA9FF]/30 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#5FA9FF]/5 rounded-bl-[100px] -z-0" />
                   
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-gradient-to-r from-[#00E676] to-[#00C9FF] rounded-lg text-white">
+                      <div className="p-2 bg-[#2F5EEA] rounded-lg text-white">
                         {item.us.icon}
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900">{item.us.title}</h3>
@@ -118,7 +118,7 @@ export default function Differences() {
                     <ul className="space-y-3">
                       {item.us.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <svg className="w-5 h-5 text-[#00E676] mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-5 h-5 text-[#2F5EEA] mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                           </svg>
                           <span className="text-gray-600">{feature}</span>
@@ -129,7 +129,7 @@ export default function Differences() {
                 </div>
 
                 {/* Others */}
-                <div className="bg-gray-50 rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                   <h3 className="text-xl font-semibold text-gray-700 mb-4">{item.others.title}</h3>
                   <ul className="space-y-3">
                     {item.others.features.map((feature, idx) => (
