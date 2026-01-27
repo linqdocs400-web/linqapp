@@ -298,17 +298,7 @@ const Navbar: React.FC<NavbarProps> = ({ refs }) => {
             JOIN FOR FREE
           </button>
 
-          {/* Sankranti villages form */}
-          <Link href="https://forms.gle/FGmHDfHM8sW3bPVW8">
-            <button
-              className="relative overflow-hidden bg-gradient-to-r from-[#FFB703] via-[#FFD166] to-[#FF9F1C] text-[#4A2C00] font-bold px-4 py-2 rounded-full shadow-[0_0_20px_rgba(255,183,3,0.45)] hover:shadow-[0_0_28px_rgba(255,183,3,0.7)] transition-all duration-300 hover:scale-[1.04] text-sm"
-            >
-              🪁🌾Sankranti Travel Form<span className="ml-1">🚙🏍️</span>
-              <span className="pointer-events-none absolute inset-0 bg-white/20 animate-shine" />
-            </button>
-          </Link>
-        </div>
-
+     
         {/* Mobile Hamburger */}
         <div className="md:hidden absolute right-8">
           <button
