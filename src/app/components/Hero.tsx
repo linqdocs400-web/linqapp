@@ -26,20 +26,17 @@ export default function Hero() {
 
         {/* Primary CTAs */}
         <div className="mt-5 sm:mt-10 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-          <Link href="https://forms.gle/EK6ScmSd65bBH2X5A" passHref>
+          <Link href="https://forms.gle/EK6ScmSd65bBH2X5A">
             <button className="bg-[#2F5EEA] text-white font-semibold px-8 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#1E3FAE] transition">
               JOIN FOR FREE
             </button>
           </Link>
-
-         
+        </div>
 
         {/* Small note */}
         <p className="mt-2 sm:mt-4 text-sm sm:text-md text-gray-500 max-w-xs sm:max-w-full mx-auto px-2">
           Register for early access and get 3 months of free cost-sharing connections.
         </p>
-
-        {/* winners removed per request */}
       </div>
     </section>
   );
