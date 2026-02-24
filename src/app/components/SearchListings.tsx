@@ -251,7 +251,7 @@ export default function SearchListings() {
         <div className="flex flex-wrap gap-3">
 
           {/* GIVE DETAILS */}
-          <Link href="/connect/new">
+          <Link href="/connect">
             <button className="bg-[#2F5EEA] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#1E3FAE] transition">
               Give your details directly
             </button>
@@ -349,7 +349,7 @@ export default function SearchListings() {
           If exact matches aren't found, "Give your details directly" — we'll match you shortly.
         </p>
         <div className="text-center">
-          <Link href="/connect/new">
+          <Link href="/connect">
             <button className="bg-[#2F5EEA] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#1E3FAE] transition">
               Give your details directly
             </button>
@@ -443,7 +443,7 @@ export default function SearchListings() {
                           )}
                         </div>
                         
-                        <Link href={`/connect/${person.id}`}>
+                        <Link href={`/connect?partner_id=${person.id}`}>
                           <button className="shrink-0 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700 transition">
                             Connect
                           </button>
