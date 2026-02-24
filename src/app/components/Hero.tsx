@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function Hero() {
   const startNumber = 28000;
@@ -99,13 +100,18 @@ export default function Hero() {
           </p>
         </div>
 
-        {/* BUTTON */}
-        <div className="mt-4 sm:mt-6">
+        {/* BUTTONS */}
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <a href="#search">
             <button className="bg-[#2F5EEA] text-white font-semibold px-7 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#1E3FAE] transition text-base sm:text-lg shadow-md hover:shadow-lg">
               Find a Ride partner
             </button>
           </a>
+          <Link href="/connect">
+            <button className="bg-white text-[#2F5EEA] border-2 border-[#2F5EEA] font-semibold px-7 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#2F5EEA] hover:text-white transition text-base sm:text-lg shadow-md hover:shadow-lg">
+              Give Your Details
+            </button>
+          </Link>
         </div>
 
         <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
