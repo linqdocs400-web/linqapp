@@ -76,7 +76,12 @@ export default function Navbar({ refs }: NavbarProps) {
         </ul>
 
         {/* CTA — normal size */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center gap-3">
+          <Link href="/admin">
+            <button className="bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-full hover:bg-gray-200 transition text-sm">
+              Admin
+            </button>
+          </Link>
           <Link href="/#search">
             <button className="bg-[#2F5EEA] text-white font-semibold px-6 py-2 rounded-full hover:bg-[#1E3FAE] transition text-sm">
               Find a Ride
@@ -109,6 +114,12 @@ export default function Navbar({ refs }: NavbarProps) {
           <li onClick={() => scrollToSection(refs.home)}>Home</li>
           <li onClick={() => scrollToSection(refs.features)}>Features</li>
           <li onClick={() => scrollToSection(refs.career)}>Careers</li>
+          
+          <Link href="/admin" onClick={() => setMenuOpen(false)}>
+            <button className="bg-gray-100 text-gray-700 px-6 py-2 rounded-full text-sm">
+              Admin
+            </button>
+          </Link>
 
           <Link href="/#search" onClick={() => setMenuOpen(false)}>
             <button className="bg-[#2F5EEA] text-white px-6 py-2 rounded-full text-sm">
