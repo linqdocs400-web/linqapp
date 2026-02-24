@@ -42,11 +42,15 @@ export default function AdminDashboard() {
   useEffect(() => {
     // Check authentication
     const isAuthenticated = sessionStorage.getItem('admin_authenticated');
+    console.log("Admin dashboard - isAuthenticated:", isAuthenticated);
+    
     if (isAuthenticated !== 'true') {
+      console.log("Not authenticated, redirecting to login...");
       router.push('/admin');
       return;
     }
 
+    console.log("Authenticated, fetching customers...");
     fetchCustomers();
   }, [router]);
 

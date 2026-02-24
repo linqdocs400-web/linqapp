@@ -26,9 +26,13 @@ export default function AdminAuth() {
     setLoading(true);
     setError("");
 
+    console.log("Password submitted:", password);
+    console.log("Expected password:", ADMIN_PASSWORD);
+
     if (password === ADMIN_PASSWORD) {
       // Set authentication flag
       sessionStorage.setItem('admin_authenticated', 'true');
+      console.log("Authentication successful, redirecting to dashboard...");
       router.push('/admin/dashboard');
     } else {
       setError("Invalid password. Please try again.");
