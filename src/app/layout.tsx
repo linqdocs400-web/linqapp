@@ -12,6 +12,14 @@ const sora = Sora({
 export const metadata: Metadata = {
   title: "LinQ",
   description: "LinQ ride sharing platform",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 /* 🔴 THIS FIXES ZOOMED-OUT MOBILE */
