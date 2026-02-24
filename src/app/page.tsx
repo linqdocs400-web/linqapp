@@ -2,19 +2,16 @@
 import { useRef } from "react";
 import Hero from "./components/Hero";
 import Navbar from "./components/Navbar";
-import Features from "./components/Features";
-import CareersCTA from "./components/CareersCTA";
 import Footer from "./components/Footer";
-import Content from "./components/Content";
 import Testimonials from "./components/Testimonials";
-import Differences from "./components/Differences";
-import CoreFeatures from "./components/CoreFeatures";
+import SearchListings from "./components/SearchListings";
+import WhyLinq from "./components/WhyLinq";
+import CareerCTA from "./components/CareerCTA";
 
 export default function Home() {
-  // Refs for scrollable sections
   const heroRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const featuresRef = useRef<HTMLDivElement | null>(null);
+  const whyRef = useRef<HTMLDivElement | null>(null);
+  const careerRef = useRef<HTMLDivElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -22,31 +19,35 @@ export default function Home() {
       <Navbar
         refs={{
           home: heroRef,
-          content: contentRef,
-          features: featuresRef,
+          features: whyRef,
+          career: careerRef,
           footer: footerRef,
         }}
       />
 
+      {/* HERO */}
       <div ref={heroRef}>
         <Hero />
       </div>
 
-      <div ref={contentRef}>
-        <Content />
+      {/* SEARCH */}
+      <section className="scroll-mt-24">
+        <SearchListings />
+      </section>
+
+      {/* WHY LINQ */}
+      <div ref={whyRef}>
+        <WhyLinq />
       </div>
 
-      <Differences />
-      <CoreFeatures />
-
-      <div ref={featuresRef}>
-        <Features />
+      {/* CAREER CTA */}
+      <div ref={careerRef}>
+        <CareerCTA />
       </div>
 
       <Testimonials />
 
-      <CareersCTA />
-
+      {/* FOOTER */}
       <div ref={footerRef}>
         <Footer />
       </div>

@@ -1,41 +1,115 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
 
 export default function Hero() {
+  const startNumber = 28000;
+  const endNumber = 35000;
+  const duration = 1500;
+
+  const [count, setCount] = useState(startNumber);
+  const [index, setIndex] = useState(0);
+
+  const texts = [
+    "Turning Empty Seats Into Shared Journeys.",
+    "ఖాళీ సీట్లను ప్రయాణాలుగా మార్చే చిన్న ప్రయత్నం..",
+  ];
+
+  /* COUNT ANIMATION */
+  useEffect(() => {
+    let startTime: number | null = null;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = timestamp - startTime;
+
+      const percent = Math.min(progress / duration, 1);
+      const current = Math.floor(
+        startNumber + (endNumber - startNumber) * percent
+      );
+
+      setCount(current);
+
+      if (percent < 1) requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+  }, []);
+
+  /* TEXT SWITCH */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % texts.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className="relative flex flex-col items-center justify-center text-center min-h-screen px-6 md:px-2 bg-white pt-8 md:pt-24">
-      {/* Background gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(0,233,255,0.06),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(0,230,118,0.06),transparent_40%)] pointer-events-none"></div>
+    <section className="relative flex flex-col items-center justify-center text-center min-h-[90vh] md:min-h-screen px-4 sm:px-6 bg-white pt-24 md:pt-28 overflow-hidden">
 
-      <div className="z-10 text-center flex flex-col items-center">
-        {/* Heading */}
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold max-w-xl sm:max-w-3xl leading-tight text-gray-900 text-center mx-auto">
-          Connect. Commute.
-          <br />
-          <span className="text-[#2F5EEA]">
-            Telangana&apos;s First Open Travel Platform.
-          </span>
-        </h2>
+      {/* ================= BACKGROUND IMAGES (DESKTOP ONLY) ================= */}
+      <div className="hidden md:block absolute inset-0 z-0 pointer-events-none">
 
-        {/* Paragraph */}
-        <p className="mt-3 sm:mt-6 text-gray-600 max-w-md sm:max-w-2xl mx-auto text-base sm:text-lg">
-          We&apos;re already a thriving community — over{" "}
-          <span className="text-[#2F5EEA] font-semibold">34K+ followers</span> and{" "}
-          <span className="text-[#2F5EEA] font-semibold">8K+ daily active users</span>
-          {" "}— united by one goal: smarter, cleaner, affordable commuting.
+        <img
+          src="/chat1.jpeg"
+          className="absolute left-6 top-40 w-[240px] opacity-40 rotate-[-8deg] shadow-xl"
+        />
+
+        <img
+          src="/chat2.jpeg"
+          className="absolute left-10 bottom-24 w-[240px] opacity-40 rotate-[6deg] shadow-xl"
+        />
+
+        <img
+          src="/chat3.jpeg"
+          className="absolute right-10 top-44 w-[240px] opacity-40 rotate-[8deg] shadow-xl"
+        />
+
+        <img
+          src="/chat4.jpeg"
+          className="absolute right-10 bottom-24 w-[240px] opacity-40 rotate-[-6deg] shadow-xl"
+        />
+      </div>
+
+      {/* ================= CONTENT ================= */}
+      <div className="relative z-10 flex flex-col items-center max-w-4xl">
+
+        <p className="text-xs sm:text-sm font-semibold tracking-wide text-[#2F5EEA] uppercase mb-5 sm:mb-6">
+          Telangana’s No.1 Ride Sharing Community
         </p>
 
-        {/* Primary CTAs */}
-        <div className="mt-5 sm:mt-10 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-          <Link href="https://forms.gle/EK6ScmSd65bBH2X5A">
-            <button className="bg-[#2F5EEA] text-white font-semibold px-8 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#1E3FAE] transition">
-              JOIN FOR FREE
-            </button>
-          </Link>
+        {/* TEXT SWITCH */}
+        <div className="h-[90px] sm:h-[110px] flex items-center justify-center mb-4 sm:mb-6 px-2">
+          <h1
+            key={index}
+            className="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-gray-900 transition-all duration-700"
+          >
+            {texts[index]}
+          </h1>
         </div>
 
-        {/* Small note */}
-        <p className="mt-2 sm:mt-4 text-sm sm:text-md text-gray-500 max-w-xs sm:max-w-full mx-auto px-2">
-          Register for early access and get 3 months of free cost-sharing connections.
+        {/* COUNT */}
+        <div className="mt-4 mb-4 sm:mb-6">
+          <div className="text-5xl sm:text-6xl md:text-8xl font-extrabold text-[#2F5EEA]">
+            {count.toLocaleString()}+
+          </div>
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg mt-2 sm:mt-3">
+            people already riding smarter across Telangana
+          </p>
+        </div>
+
+        {/* BUTTON */}
+        <div className="mt-4 sm:mt-6">
+          <a href="#search">
+            <button className="bg-[#2F5EEA] text-white font-semibold px-7 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#1E3FAE] transition text-base sm:text-lg shadow-md hover:shadow-lg">
+              Find a Ride partner
+            </button>
+          </a>
+        </div>
+
+        <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
+          It's Free 😉 • Verified users • No commission
         </p>
       </div>
     </section>
