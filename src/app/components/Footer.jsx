@@ -83,9 +83,19 @@ export default function Footer() {
         </div>
 
         {/* COPYRIGHT */}
-        <p className="text-blue-100 text-sm">
+        <p className="text-blue-100 text-sm mb-2">
           © 2025 Go Together Rides • Built for Telangana commuters
         </p>
+
+        {/* Hidden Admin Link - Only for owner */}
+        <div className="text-center">
+          <a
+            href="/admin"
+            className="text-blue-200 text-xs hover:text-blue-100 transition opacity-60 hover:opacity-100"
+          >
+            Admin Access
+          </a>
+        </div>
       </div>
     </footer>
   );
