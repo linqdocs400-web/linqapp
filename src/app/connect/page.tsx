@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
 
 interface FormData {
@@ -20,11 +19,10 @@ interface FormData {
   message_to_partner: string;
   travel_frequency: string;
   travel_days: string[];
+  partner_id: string;
 }
 
 export default function ConnectPage() {
-  const { partnerId } = useParams();
-
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -45,6 +43,7 @@ export default function ConnectPage() {
     message_to_partner: "",
     travel_frequency: "",
     travel_days: [],
+    partner_id: "",
   });
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
@@ -167,27 +166,6 @@ export default function ConnectPage() {
     else setToSuggestions(data);
   }
 
-  // ===== DUPLICATE CHECK =====
-  async function checkDuplicate(submissionData: any): Promise<boolean> {
-    try {
-      const response = await fetch(process.env.NEXT_PUBLIC_API_URL as string);
-      const existingData = await response.json();
-
-      return existingData.some((row: any) => {
-        const matchName = row.name?.toLowerCase().trim() === submissionData.name.toLowerCase().trim();
-        const matchPhone = row.phone?.toLowerCase().trim() === submissionData.phone.toLowerCase().trim();
-        const matchFrom = row.from?.toLowerCase().trim() === submissionData.from.toLowerCase().trim();
-        const matchTo = row.to?.toLowerCase().trim() === submissionData.to.toLowerCase().trim();
-        const matchTime = row.morning_time?.toLowerCase().trim() === submissionData.morning_time.toLowerCase().trim();
-
-        return matchName && matchPhone && matchFrom && matchTo && matchTime;
-      });
-    } catch (err) {
-      console.error("Duplicate check error:", err);
-      return false;
-    }
-  }
-
   // ===== SUBMIT =====
   const API = process.env.NEXT_PUBLIC_API_URL as string;
 
@@ -218,6 +196,7 @@ export default function ConnectPage() {
         message: form.message_to_partner,
         travel_frequency: form.travel_frequency,
         travel_days: form.travel_days.join(","),
+        partner_id: form.partner_id,
         status: "active",
         created_at: new Date().toISOString(),
         from_lat: fromCoords?.lat || "",
@@ -251,11 +230,11 @@ export default function ConnectPage() {
       alert("Submitted successfully");
       setSubmitting(false);
 
-      // Handle success based on route
-      if (partnerId) {
+      // Handle success based on whether partner ID is provided
+      if (form.partner_id) {
         setTimeout(() => {
           const whatsappMessage = encodeURIComponent(
-            `Hi LinQ 👋\n\nI want to connect with Partner ID: ${partnerId}\n\nMy details submitted on website.` 
+            `Hi LinQ 👋\n\nI want to connect with Partner ID: ${form.partner_id}\n\nMy details submitted on website.` 
           );
           window.location.href = `https://wa.me/9494823941?text=${whatsappMessage}`;
         }, 2000);
@@ -282,11 +261,9 @@ export default function ConnectPage() {
 
         <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 mt-6">
           <h1 className="text-2xl md:text-3xl font-bold mb-6">
-            {partnerId ? "Share your details" : "Share Your Details"}
+            Share Your Details
           </h1>
-          {partnerId && (
-            <p className="text-gray-600 mb-8">Connect with Partner ID: {partnerId}</p>
-          )}
+          <p className="text-gray-600 mb-8">Connect with LinQ partners</p>
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
@@ -301,6 +278,21 @@ export default function ConnectPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Partner ID (Optional) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Partner ID (if connecting with specific partner)
+              </label>
+              <input
+                type="text"
+                name="partner_id"
+                value={form.partner_id}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2F5EEA] focus:border-transparent"
+                placeholder="Enter Partner ID (optional)"
+              />
+            </div>
+
             {/* Basic Information */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
@@ -682,7 +674,7 @@ export default function ConnectPage() {
                 disabled={submitting}
                 className="bg-[#2F5EEA] text-white px-8 py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#1E3FAE] transition"
               >
-                {submitting ? "Submitting..." : (partnerId ? "Submit & Continue on WhatsApp" : "Submit Details")}
+                {submitting ? "Submitting..." : (form.partner_id ? "Submit & Continue on WhatsApp" : "Submit Details")}
               </button>
             </div>
           </form>
