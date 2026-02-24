@@ -197,7 +197,7 @@ export default function ConnectPage() {
         travel_frequency: form.travel_frequency,
         travel_days: form.travel_days.join(","),
         partner_id: form.partner_id,
-        status: "active",
+        status: "New", // Default status for new submissions
         created_at: new Date().toISOString(),
         from_lat: fromCoords?.lat || "",
         from_lng: fromCoords?.lng || "",
