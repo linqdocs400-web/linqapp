@@ -34,7 +34,7 @@ export default function Footer() {
           </a>
 
           <a
-            href="/connect/new"
+            href="/connect"
             className="bg-[#1E3FAE] px-7 py-3 rounded-full font-semibold shadow hover:scale-105 transition inline-block"
           >
             Post a Ride
