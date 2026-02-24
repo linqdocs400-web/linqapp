@@ -92,10 +92,10 @@ export default function PrivateAdminDashboard() {
   };
 
   const filteredCustomers = customers.filter(customer => 
-    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone?.includes(searchTerm) ||
-    customer.from?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.to?.toLowerCase().includes(searchTerm.toLowerCase())
+    String(customer.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(customer.phone || "").includes(searchTerm) ||
+    String(customer.from || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(customer.to || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const uncheckedCustomers = filteredCustomers.filter(c => c.status === "New");
@@ -293,7 +293,7 @@ function CustomerCard({ customer, updating, onUpdateStatus, actionLabel, actionC
               <span className="font-medium">Email:</span> {customer.email || "Not provided"}
             </p>
             <p className="text-gray-600">
-              <span className="font-medium">Phone:</span> {customer.phone}
+              <span className="font-medium">Phone:</span> {String(customer.phone || "")}
             </p>
             <p className="text-gray-600">
               <span className="font-medium">Gender:</span> {customer.gender || "Not specified"}
@@ -311,21 +311,21 @@ function CustomerCard({ customer, updating, onUpdateStatus, actionLabel, actionC
           <h4 className="font-medium text-gray-900 mb-2">Travel Details</h4>
           <div className="space-y-1 text-sm">
             <p className="text-gray-600">
-              <span className="font-medium">From:</span> {customer.from}
+              <span className="font-medium">From:</span> {customer.from || "Not specified"}
             </p>
             <p className="text-gray-600">
-              <span className="font-medium">To:</span> {customer.to}
+              <span className="font-medium">To:</span> {customer.to || "Not specified"}
             </p>
             <p className="text-gray-600">
-              <span className="font-medium">Time:</span> {customer.morning_time}
+              <span className="font-medium">Time:</span> {customer.morning_time || "Not specified"}
             </p>
             {customer.evening_connect === "Yes" && (
               <p className="text-gray-600">
-                <span className="font-medium">Return:</span> {customer.evening_time}
+                <span className="font-medium">Return:</span> {customer.evening_time || "Not specified"}
               </p>
             )}
             <p className="text-gray-600">
-              <span className="font-medium">Vehicle:</span> {customer.has_vehicle}
+              <span className="font-medium">Vehicle:</span> {customer.has_vehicle || "Not specified"}
             </p>
             {customer.has_vehicle === "Yes" && customer.vehicle_type && (
               <p className="text-gray-600">
