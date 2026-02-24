@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface Customer {
@@ -19,7 +18,6 @@ interface Customer {
   evening_connect: string;
   evening_time: string;
   message: string;
-  travel_frequency: string;
   travel_days: string;
   partner_id: string;
   status: string;
@@ -30,29 +28,22 @@ interface Customer {
   to_lng: string;
 }
 
-export default function AdminDashboard() {
-  const router = useRouter();
+export default function PrivateAdminDashboard() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const API = process.env.NEXT_PUBLIC_API_URL as string;
 
   useEffect(() => {
-    // Check authentication
-    const isAuthenticated = sessionStorage.getItem('admin_authenticated');
-    console.log("Admin dashboard - isAuthenticated:", isAuthenticated);
-    
-    if (isAuthenticated !== 'true') {
-      console.log("Not authenticated, redirecting to login...");
-      router.push('/admin');
-      return;
-    }
-
-    console.log("Authenticated, fetching customers...");
     fetchCustomers();
-  }, [router]);
+    
+    // Auto refresh every 30 seconds
+    const interval = setInterval(fetchCustomers, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchCustomers = async () => {
     try {
@@ -60,6 +51,7 @@ export default function AdminDashboard() {
       if (!response.ok) throw new Error("Failed to fetch customers");
       const data = await response.json();
       setCustomers(data);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load customers");
     } finally {
@@ -70,11 +62,11 @@ export default function AdminDashboard() {
   const updateCustomerStatus = async (customerId: string, newStatus: string) => {
     setUpdating(customerId);
     try {
-      // Find the customer to get their row index
+      // Find customer to get their row index
       const customer = customers.find(c => c.id === customerId);
       if (!customer) throw new Error("Customer not found");
 
-      // Update the customer in Google Sheets
+      // Update customer in Google Sheets via Apps Script
       const response = await fetch(`${API}/${customerId}`, {
         method: "PUT",
         headers: {
@@ -99,13 +91,25 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('admin_authenticated');
-    router.push('/admin');
-  };
+  const filteredCustomers = customers.filter(customer => 
+    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.phone?.includes(searchTerm) ||
+    customer.from?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.to?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const uncheckedCustomers = customers.filter(c => c.status === "New");
-  const contactedCustomers = customers.filter(c => c.status === "Contacted");
+  const uncheckedCustomers = filteredCustomers.filter(c => c.status === "New");
+  const contactedCustomers = filteredCustomers.filter(c => c.status === "Contacted");
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   if (loading) {
     return (
@@ -126,6 +130,15 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto">
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             Error: {error}
+            <button 
+              onClick={() => {
+                setError(null);
+                fetchCustomers();
+              }}
+              className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </main>
@@ -134,22 +147,20 @@ export default function AdminDashboard() {
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-12">
+      <head>
+        <meta name="robots" content="noindex" />
+      </head>
+      
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
-            <Link href="/" className="text-sm text-gray-600 hover:text-[#2F5EEA] transition">
-              ← Back to Home
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mt-4">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
             <p className="text-gray-600 mt-2">Manage customer inquiries and track contact status</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition"
-          >
-            Logout
-          </button>
+          <Link href="/" className="text-sm text-gray-600 hover:text-[#2F5EEA] transition">
+            ← Back to Home
+          </Link>
         </div>
 
         {/* Stats */}
@@ -161,6 +172,22 @@ export default function AdminDashboard() {
             </div>
             <div className="bg-[#2F5EEA] text-white rounded-full px-6 py-3">
               <span className="text-2xl font-bold">{uncheckedCustomers.length}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex items-center gap-4">
+            <input
+              type="text"
+              placeholder="Search by name, phone, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2F5EEA] focus:border-transparent"
+            />
+            <div className="text-sm text-gray-500">
+              {filteredCustomers.length} of {customers.length} customers
             </div>
           </div>
         </div>
