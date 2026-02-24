@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface FormData {
@@ -22,7 +23,10 @@ interface FormData {
   partner_id: string;
 }
 
-export default function ConnectPage() {
+function ConnectPageContent() {
+  const searchParams = useSearchParams();
+  const partnerId = searchParams.get('partner_id');
+  
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -43,7 +47,7 @@ export default function ConnectPage() {
     message_to_partner: "",
     travel_frequency: "",
     travel_days: [],
-    partner_id: "",
+    partner_id: partnerId || "",
   });
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
@@ -681,5 +685,22 @@ export default function ConnectPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ConnectPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gray-50 px-6 md:px-12 pt-28 pb-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F5EEA]"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </main>
+    }>
+      <ConnectPageContent />
+    </Suspense>
   );
 }
