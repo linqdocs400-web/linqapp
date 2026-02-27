@@ -86,7 +86,7 @@ export default function Hero() {
           <h1
             key={index}
             className={`text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-gray-900 transition-all duration-700 animate-smooth-blink ${
-              index === 2 ? 'text-base sm:text-lg md:text-xl' : ''
+              index === 2 ? 'text-xs sm:text-base md:text-2xl' : ''
             }`}
           >
             {texts[index]}
