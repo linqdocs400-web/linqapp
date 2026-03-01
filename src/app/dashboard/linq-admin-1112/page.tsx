@@ -91,6 +91,29 @@ export default function PrivateAdminDashboard() {
     }
   };
 
+  const deleteCustomer = async (customerId: string) => {
+    if (!confirm("Are you sure you want to delete this customer? This action cannot be undone.")) {
+      return;
+    }
+    
+    setUpdating(customerId);
+    try {
+      // Delete customer from Google Sheets via Apps Script
+      const response = await fetch(`${API}/${customerId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete customer");
+
+      // Remove from local state
+      setCustomers(prev => prev.filter(c => c.id !== customerId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete customer");
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const filteredCustomers = customers.filter(customer => 
     String(customer.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     String(customer.phone || "").includes(searchTerm) ||
@@ -100,6 +123,7 @@ export default function PrivateAdminDashboard() {
 
   const uncheckedCustomers = filteredCustomers.filter(c => c.status === "New");
   const contactedCustomers = filteredCustomers.filter(c => c.status === "Contacted");
+  const inactiveCustomers = filteredCustomers.filter(c => c.status === "Inactive");
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -221,29 +245,62 @@ export default function PrivateAdminDashboard() {
           )}
         </div>
 
-        {/* Contacted Customers Section */}
-        <div>
+        {/* Inactive Customers Section */}
+        <div className="mb-12">
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-            <span className="bg-green-100 text-green-700 rounded-full px-3 py-1 text-sm font-medium mr-3">
-              Contacted
+            <span className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-sm font-medium mr-3">
+              Inactive
             </span>
-            Contacted Customers ({contactedCustomers.length})
+            Inactive Customers ({inactiveCustomers.length})
           </h2>
 
-          {contactedCustomers.length === 0 ? (
+          {inactiveCustomers.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-              <p className="text-gray-500">No contacted customers yet</p>
+              <p className="text-gray-500">No inactive customers</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {contactedCustomers.map((customer) => (
+              {inactiveCustomers.map((customer) => (
                 <CustomerCard
                   key={customer.id}
                   customer={customer}
                   updating={false}
-                  onUpdateStatus={null}
-                  actionLabel="Contacted"
-                  actionColor="green"
+                  onUpdateStatus={() => updateCustomerStatus(customer.id, "New")}
+                  actionLabel="Make Active"
+                  actionColor="gray"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* All Customers Section */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <span className="bg-purple-100 text-purple-700 rounded-full px-3 py-1 text-sm font-medium mr-3">
+              All Users
+            </span>
+            All Customers ({filteredCustomers.length})
+          </h2>
+
+          {filteredCustomers.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+              <p className="text-gray-500">No customers found</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredCustomers.map((customer) => (
+                <CustomerCard
+                  key={customer.id}
+                  customer={customer}
+                  updating={updating === customer.id}
+                  onUpdateStatus={customer.status === "Inactive" ? () => updateCustomerStatus(customer.id, "New") : 
+                                   customer.status === "New" ? () => updateCustomerStatus(customer.id, "Contacted") : null}
+                  actionLabel={customer.status === "Inactive" ? "Make Active" : 
+                              customer.status === "New" ? "Mark as Contacted" : "Contacted"}
+                  actionColor={customer.status === "Inactive" ? "gray" : 
+                              customer.status === "New" ? "blue" : "green"}
+                  onDelete={() => deleteCustomer(customer.id)}
                 />
               ))}
             </div>
@@ -258,11 +315,12 @@ interface CustomerCardProps {
   customer: Customer;
   updating: boolean;
   onUpdateStatus: (() => void) | null;
+  onDelete?: () => void;
   actionLabel: string;
-  actionColor: "blue" | "green";
+  actionColor: "blue" | "green" | "gray" | "purple";
 }
 
-function CustomerCard({ customer, updating, onUpdateStatus, actionLabel, actionColor }: CustomerCardProps) {
+function CustomerCard({ customer, updating, onUpdateStatus, onDelete, actionLabel, actionColor }: CustomerCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -273,12 +331,44 @@ function CustomerCard({ customer, updating, onUpdateStatus, actionLabel, actionC
     });
   };
 
+  const formatTime = (timeString: string) => {
+    if (!timeString || timeString === "Not specified") return "Not specified";
+    
+    try {
+      if (timeString.includes('T')) {
+        const date = new Date(timeString);
+        return date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        });
+      }
+      
+      const [hours, minutes] = timeString.split(':');
+      const date = new Date();
+      date.setHours(parseInt(hours));
+      date.setMinutes(parseInt(minutes || '0'));
+      
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+    } catch (error) {
+      return timeString;
+    }
+  };
+
   const getActionButtonClasses = () => {
     const baseClasses = "px-4 py-2 rounded-lg font-medium text-sm transition-colors";
     if (actionColor === "blue") {
       return `${baseClasses} bg-[#2F5EEA] text-white hover:bg-[#1E3FAE] disabled:opacity-50 disabled:cursor-not-allowed`;
-    } else {
+    } else if (actionColor === "green") {
       return `${baseClasses} bg-green-100 text-green-700 cursor-default`;
+    } else if (actionColor === "gray") {
+      return `${baseClasses} bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed`;
+    } else {
+      return `${baseClasses} bg-purple-100 text-purple-700 cursor-default`;
     }
   };
 
@@ -317,11 +407,11 @@ function CustomerCard({ customer, updating, onUpdateStatus, actionLabel, actionC
               <span className="font-medium">To:</span> {customer.to || "Not specified"}
             </p>
             <p className="text-gray-600">
-              <span className="font-medium">Time:</span> {customer.morning_time || "Not specified"}
+              <span className="font-medium">Time:</span> {formatTime(customer.morning_time)}
             </p>
             {customer.evening_connect === "Yes" && (
               <p className="text-gray-600">
-                <span className="font-medium">Return:</span> {customer.evening_time || "Not specified"}
+                <span className="font-medium">Return:</span> {formatTime(customer.evening_time)}
               </p>
             )}
             <p className="text-gray-600">
@@ -350,10 +440,14 @@ function CustomerCard({ customer, updating, onUpdateStatus, actionLabel, actionC
                 {updating ? "Updating..." : actionLabel}
               </button>
             )}
-            {!onUpdateStatus && (
-              <div className={getActionButtonClasses()}>
-                {actionLabel}
-              </div>
+            {onDelete && (
+              <button
+                onClick={onDelete}
+                disabled={updating}
+                className="ml-2 px-3 py-2 rounded-lg font-medium text-sm bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Delete
+              </button>
             )}
           </div>
         </div>
