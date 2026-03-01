@@ -14,7 +14,6 @@ export default function Hero() {
   const texts = [
     "Turning Empty Seats Into Shared Journeys.",
     "ఖాళీ సీట్లను ప్రయాణాలుగా మార్చే చిన్న ప్రయత్నం..",
-    "காலியான இருக்கைகளை பயணங்களாக மாற்றும் ஒரு சிறிய முயற்சி.",
   ];
 
   /* COUNT ANIMATION */
@@ -85,9 +84,7 @@ export default function Hero() {
         <div className="h-[90px] sm:h-[110px] flex items-center justify-center mb-4 sm:mb-6 px-2">
           <h1
             key={index}
-            className={`text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-gray-900 transition-all duration-700 animate-smooth-blink ${
-              index === 2 ? 'text-xs sm:text-base md:text-2xl' : ''
-            }`}
+            className="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-gray-900 transition-all duration-700 animate-smooth-blink"
           >
             {texts[index]}
           </h1>
