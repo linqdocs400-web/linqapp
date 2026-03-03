@@ -49,6 +49,9 @@ export default function Navbar({ refs }: NavbarProps) {
             className="h-12 w-auto"
             priority
           />
+          <span className="ml-3 text-lg font-semibold text-gray-800 hidden sm:block">
+            GoTogetherRides Pvt Limited
+          </span>
         </div>
 
         {/* DESKTOP MENU — normal readable size */}
