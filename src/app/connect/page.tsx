@@ -665,8 +665,11 @@ function ConnectPageContent() {
                 disabled={submitting}
                 className="bg-[#2F5EEA] text-white px-8 py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#1E3FAE] transition"
               >
-                {submitting ? "Submitting..." : (form.partner_id ? "Submit & Continue on WhatsApp" : "Submit Details")}
+                {submitting ? "Submitting..." : (form.partner_id ? "Submit & Unlock My Ride Match" : "Submit & Unlock My Ride Match")}
               </button>
+              <p className="mt-3 text-sm text-gray-600">
+                Talk to us directly on Instagram
+              </p>
             </div>
           </form>
         </div>
