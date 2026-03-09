@@ -30,6 +30,8 @@ function ConnectPageContent() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [submissionData, setSubmissionData] = useState<any>(null);
 
   const [form, setForm] = useState<FormData>({
     name: "",
@@ -209,19 +211,16 @@ function ConnectPageContent() {
         to_lng: toCoords?.lng || ""
       };
 
-      // duplicate check
+      // duplicate check - check for phone OR email
       const existingRes = await fetch(API);
       const existing = await existingRes.json();
 
-      const already = existing.some((r: any) =>
-        r.phone === submissionData.phone &&
-        r.from === submissionData.from &&
-        r.to === submissionData.to &&
-        r.morning_time === submissionData.morning_time
+      const alreadyExists = existing.some((r: any) =>
+        r.phone === submissionData.phone || r.email === submissionData.email
       );
 
-      if (already) {
-        alert("You already submitted this route");
+      if (alreadyExists) {
+        setError("You have already submitted your ride details. Please wait while we connect you.");
         setSubmitting(false);
         return;
       }
@@ -231,22 +230,10 @@ function ConnectPageContent() {
         body: JSON.stringify(submissionData)
       });
 
-      alert("Submitted successfully");
+      // Store submission data for success screen
+      setSubmissionData(submissionData);
+      setShowSuccessScreen(true);
       setSubmitting(false);
-
-      // Handle success based on whether partner ID is provided
-      if (form.partner_id) {
-        setTimeout(() => {
-          const whatsappMessage = encodeURIComponent(
-            `Hi LinQ 👋\n\nI want to connect with Partner ID: ${form.partner_id}\n\nMy details submitted on website.` 
-          );
-          window.location.href = `https://wa.me/9494823941?text=${whatsappMessage}`;
-        }, 2000);
-      } else {
-        setTimeout(() => {
-          window.location.href = "/#search";
-        }, 1000);
-      }
 
     } catch (err) {
       console.error(err);
@@ -684,6 +671,71 @@ function ConnectPageContent() {
           </form>
         </div>
       </div>
+
+      {/* Success Screen */}
+      {showSuccessScreen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="text-6xl mb-4">✅</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Your ride details were submitted successfully.
+              </h2>
+              <p className="text-gray-600 mb-6">
+                To get matched faster, send us a message on Instagram.
+              </p>
+              
+              {/* Instagram Button */}
+              <a
+                href="https://ig.me/m/gotogetherrides"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition transform hover:scale-105 shadow-lg mb-6"
+              >
+                Message us on Instagram
+              </a>
+              
+              {/* Suggested Message */}
+              <div className="bg-gray-50 rounded-xl p-4 text-left mb-6">
+                <p className="text-sm text-gray-600 mb-2">Suggested message to copy & send:</p>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-sm text-gray-800">
+                    Hi, I just submitted my ride details on LinQ.<br />
+                    Route: {submissionData?.from} → {submissionData?.to}<br />
+                    Time: {submissionData?.morning_time}<br />
+                    Looking for someone travelling on the same way.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const message = `Hi, I just submitted my ride details on LinQ.\nRoute: ${submissionData?.from} → ${submissionData?.to}\nTime: ${submissionData?.morning_time}\nLooking for someone travelling on the same way.`;
+                    navigator.clipboard.writeText(message);
+                    alert("Message copied to clipboard!");
+                  }}
+                  className="mt-2 text-sm text-[#2F5EEA] hover:text-[#1E3FAE] font-medium"
+                >
+                  📋 Copy Message
+                </button>
+              </div>
+              
+              {/* Speed Message */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4">
+                <p className="text-sm text-yellow-800">
+                  ⚡ Sending a message helps us match you faster.
+                </p>
+              </div>
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setShowSuccessScreen(false)}
+                className="text-gray-500 hover:text-gray-700 text-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
