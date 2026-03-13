@@ -33,18 +33,22 @@ const cards = [
   {
     title: "Precision Route Matching",
     desc: "Match with commuters who travel your exact route and schedule.",
+    image: "/linq1.png"
   },
   {
     title: "Transparent Cost Sharing",
     desc: "Fair distance-based splits with zero surge pricing.",
+    image: "/linq2.png"
   },
   {
     title: "Verified Community",
     desc: "Profiles, trust scores, and reviews ensure safe rides.",
+    image: "/linq3.png"
   },
   {
     title: "Eco-Conscious Travel",
     desc: "Reduce congestion and emissions every commute.",
+    image: "/linq4.png"
   },
 ];
 
@@ -135,19 +139,28 @@ export default function WhyLinq() {
           {cards.map((card, i) => (
             <div
               key={i}
-              className={`p-6 md:p-10 rounded-3xl bg-white border transition-all duration-500 shadow-sm
+              className={`p-6 md:p-10 rounded-3xl bg-gradient-to-br from-white to-[#F6F8FF] border transition-all duration-500 shadow-sm
               ${
                 active === i
                   ? "border-[#2F5EEA] shadow-[0_20px_60px_rgba(47,94,234,0.25)] scale-[1.02]"
                   : "border-gray-200"
               }`}
             >
-              <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 text-gray-900">
-                {card.title}
-              </h3>
-              <p className="text-gray-600 text-sm md:text-base">
-                {card.desc}
-              </p>
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className="w-20 md:w-28 object-contain"
+                />
+                <div className="flex-1">
+                  <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 text-gray-900">
+                    {card.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm md:text-base">
+                    {card.desc}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
