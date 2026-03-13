@@ -31,24 +31,24 @@ function CountUp({ end, start }: { end: number; start: boolean }) {
 
 const cards = [
   {
-    title: "Precision Route Matching",
+    title: "Find commuters on your exact route",
     desc: "Match with commuters who travel your exact route and schedule.",
-    image: "/linq1.png"
+    image: "/linq1.png",
   },
   {
-    title: "Transparent Cost Sharing",
-    desc: "Fair distance-based splits with zero surge pricing.",
-    image: "/linq2.png"
+    title: "Split fuel cost fairly",
+    desc: "Fair distance-based cost sharing with zero surge pricing.",
+    image: "/linq2.png",
   },
   {
-    title: "Verified Community",
+    title: "Travel with verified people",
     desc: "Profiles, trust scores, and reviews ensure safe rides.",
-    image: "/linq3.png"
+    image: "/linq3.png",
   },
   {
-    title: "Eco-Conscious Travel",
-    desc: "Reduce congestion and emissions every commute.",
-    image: "/linq4.png"
+    title: "Reduce traffic & pollution",
+    desc: "Share rides and make commuting eco-friendly.",
+    image: "/linq4.png",
   },
 ];
 
@@ -139,18 +139,18 @@ export default function WhyLinq() {
           {cards.map((card, i) => (
             <div
               key={i}
-              className={`p-6 md:p-10 rounded-3xl bg-gradient-to-br from-white to-[#F6F8FF] border transition-all duration-500 shadow-sm
+              className={`p-6 md:p-10 rounded-3xl bg-gradient-to-br from-white to-[#F6F8FF] border transition-all duration-500 shadow-sm relative overflow-hidden
               ${
                 active === i
                   ? "border-[#2F5EEA] shadow-[0_20px_60px_rgba(47,94,234,0.25)] scale-[1.02]"
                   : "border-gray-200"
               }`}
             >
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 h-full">
                 <img
                   src={card.image}
                   alt={card.title}
-                  className="w-24 md:w-32 object-contain flex-shrink-0"
+                  className="w-32 md:w-40 h-auto object-contain flex-shrink-0"
                 />
                 <div className="flex-1">
                   <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 text-gray-900">
