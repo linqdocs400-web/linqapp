@@ -57,11 +57,9 @@ export default function WhyLinq() {
   const [startCount, setStartCount] = useState(false);
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
-  // FIXED MOBILE OBSERVER
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -69,17 +67,12 @@ export default function WhyLinq() {
           observer.disconnect();
         }
       },
-      {
-        threshold: 0.2,
-        rootMargin: "0px 0px -80px 0px", // helps mobile trigger earlier
-      }
+      { threshold: 0.2, rootMargin: "0px 0px -80px 0px" }
     );
-
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  // auto highlight cards
   useEffect(() => {
     const i = setInterval(() => {
       setActive((p) => (p + 1) % cards.length);
@@ -94,7 +87,7 @@ export default function WhyLinq() {
         {/* HEADING */}
         <h2 className="text-2xl sm:text-3xl md:text-5xl font-semibold mb-3 leading-tight px-2 text-black">
           Smarter Commutes.
-          <span className="text-[#2F5EEA] block sm:inline"> {" "} Built on Community.</span>
+          <span style={{ color: "#2F5EEA" }} className="block sm:inline"> {" "}Built on Community.</span>
         </h2>
 
         <p className="text-gray-600 max-w-xl mx-auto mb-10 md:mb-14 text-sm md:text-base px-4">
@@ -102,67 +95,82 @@ export default function WhyLinq() {
           reduce costs and travel responsibly.
         </p>
 
-        {/* ===== STATS ROW (MOBILE FIXED) ===== */}
+        {/* STATS ROW */}
         <div className="flex justify-between gap-3 md:gap-8 mb-16">
-
           <div className="flex-1 bg-white py-6 md:py-10 rounded-2xl md:rounded-3xl shadow-sm">
-            <h3 className="text-xl md:text-3xl font-bold text-[#2F5EEA]">
+            <h3 className="text-xl md:text-3xl font-bold" style={{ color: "#2F5EEA" }}>
               <CountUp end={34000} start={startCount} />+
             </h3>
-            <p className="text-gray-600 text-xs md:text-sm mt-1">
-              Commuters
-            </p>
+            <p className="text-gray-600 text-xs md:text-sm mt-1">Commuters</p>
           </div>
-
           <div className="flex-1 bg-white py-6 md:py-10 rounded-2xl md:rounded-3xl shadow-sm">
-            <h3 className="text-xl md:text-3xl font-bold text-[#2F5EEA]">
+            <h3 className="text-xl md:text-3xl font-bold" style={{ color: "#2F5EEA" }}>
               <CountUp end={8000} start={startCount} />+
             </h3>
-            <p className="text-gray-600 text-xs md:text-sm mt-1">
-              Daily users
-            </p>
+            <p className="text-gray-600 text-xs md:text-sm mt-1">Daily users</p>
           </div>
-
           <div className="flex-1 bg-white py-6 md:py-10 rounded-2xl md:rounded-3xl shadow-sm">
-            <h3 className="text-xl md:text-3xl font-bold text-[#2F5EEA]">
-              4.8★
-            </h3>
-            <p className="text-gray-600 text-xs md:text-sm mt-1">
-              Rating
-            </p>
+            <h3 className="text-xl md:text-3xl font-bold" style={{ color: "#2F5EEA" }}>4.8★</h3>
+            <p className="text-gray-600 text-xs md:text-sm mt-1">Rating</p>
           </div>
-
         </div>
 
-        {/* ===== FEATURE CARDS ===== */}
-        <div className="grid md:grid-cols-2 gap-5 md:gap-8 mb-20">
-          {cards.map((card, i) => (
-            <div
-              key={i}
-              className={`p-6 md:p-10 rounded-3xl bg-gradient-to-br from-white to-[#F6F8FF] border transition-all duration-500 shadow-sm relative overflow-hidden
-              ${
-                active === i
-                  ? "border-[#2F5EEA] shadow-[0_20px_60px_rgba(47,94,234,0.25)] scale-[1.02]"
-                  : "border-gray-200"
-              }`}
-            >
-              <div className="flex items-center gap-6 h-full">
-                <img
-                  src={card.image}
-                  alt={card.title}
-                  className="w-40 md:w-48 h-auto object-contain flex-shrink-0"
-                />
-                <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 text-gray-900">
-                    {card.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm md:text-base">
-                    {card.desc}
-                  </p>
+        {/* FEATURE CARDS — image-1 layout style, white/blue theme */}
+        <div className="grid md:grid-cols-2 gap-4 md:gap-5 mb-20">
+          {cards.map((card, i) => {
+            const isActive = active === i;
+            return (
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-2xl bg-white transition-all duration-500 cursor-pointer"
+                style={{
+                  border: isActive
+                    ? "1.5px solid rgba(47,94,234,0.4)"
+                    : "1px solid rgba(0,0,0,0.07)",
+                  boxShadow: isActive
+                    ? "0 8px 40px rgba(47,94,234,0.15)"
+                    : "0 2px 12px rgba(0,0,0,0.06)",
+                  transform: isActive ? "scale(1.01)" : "scale(1)",
+                }}
+                onClick={() => setActive(i)}
+              >
+                {/* Blue left accent bar — like image 1's red accent */}
+                {isActive && (
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-[4px]"
+                    style={{ background: "#2F5EEA", borderRadius: "12px 0 0 12px" }}
+                  />
+                )}
+
+                <div className="flex items-end min-h-[155px]">
+                  {/* Image flush to bottom-left, large like image 1 */}
+                  <div
+                    className="relative flex-shrink-0"
+                    style={{ width: "155px", height: "155px" }}
+                  >
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="absolute bottom-0 left-0 w-full h-full object-cover object-top"
+                    />
+                  </div>
+
+                  {/* Text — vertically centered */}
+                  <div className="flex-1 py-7 pr-6 pl-3 text-left self-center">
+                    <h3
+                      className="text-base md:text-[17px] font-semibold mb-2 leading-snug"
+                      style={{ color: isActive ? "#2F5EEA" : "#111827" }}
+                    >
+                      {card.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">
+                      {card.desc}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
       </div>
