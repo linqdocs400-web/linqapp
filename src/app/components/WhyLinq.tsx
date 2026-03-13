@@ -158,7 +158,7 @@ export default function WhyLinq() {
                         {card.desc}
                       </p>
                     </div>
-                    <div className="flex justify-center overflow-hidden" style={{ height: "140px" }}>
+                    <div className="flex justify-center overflow-hidden rounded-lg border-2 border-blue-500" style={{ height: "140px" }}>
                       <img
                         src={card.image}
                         alt={card.title}
@@ -200,7 +200,7 @@ export default function WhyLinq() {
                 )}
                 <div className="flex items-end min-h-[155px]">
                   <div
-                    className="relative flex-shrink-0"
+                    className="relative flex-shrink-0 rounded-lg border-2 border-blue-500 overflow-hidden"
                     style={{ width: "155px", height: "155px" }}
                   >
                     <img
