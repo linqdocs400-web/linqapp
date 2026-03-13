@@ -150,7 +150,7 @@ export default function WhyLinq() {
                 <img
                   src={card.image}
                   alt={card.title}
-                  className="w-32 md:w-40 h-auto object-contain flex-shrink-0"
+                  className="w-40 md:w-48 h-auto object-contain flex-shrink-0"
                 />
                 <div className="flex-1">
                   <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 text-gray-900">
