@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, Home, Zap, Briefcase, Smartphone } from "lucide-react";
+import { Menu, X, Home, Sparkles, Briefcase, Smartphone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,7 +16,7 @@ interface NavbarProps {
 
 const navItems = [
   { icon: Home, label: "Home", key: "home" as const },
-  { icon: Zap, label: "Features", key: "features" as const },
+  { icon: Sparkles, label: "Features", key: "features" as const },
   { icon: Briefcase, label: "Careers", key: "career" as const },
   { icon: Smartphone, label: "Contact", key: "footer" as const },
 ];

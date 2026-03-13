@@ -82,6 +82,7 @@ export default function WhyLinq() {
 
   return (
     <section ref={sectionRef} className="w-full py-20 md:py-24 px-4 bg-[#F7F9FF]">
+      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}`}</style>
       <div className="max-w-7xl mx-auto text-center">
 
         {/* HEADING */}
@@ -115,8 +116,65 @@ export default function WhyLinq() {
           </div>
         </div>
 
-        {/* FEATURE CARDS — image-1 layout style, white/blue theme */}
-        <div className="grid md:grid-cols-2 gap-4 md:gap-5 mb-20">
+        {/* FEATURE CARDS — horizontal scroll on mobile, grid on desktop */}
+        <div className="md:hidden -mx-4 px-4 mb-20">
+          <div
+            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar"
+          >
+            {cards.map((card, i) => {
+              const isActive = active === i;
+              return (
+                <div
+                  key={i}
+                  className="relative overflow-hidden rounded-2xl bg-white flex-shrink-0 snap-start transition-all duration-500 cursor-pointer"
+                  style={{
+                    width: "78vw",
+                    minHeight: "220px",
+                    border: isActive
+                      ? "1.5px solid rgba(47,94,234,0.4)"
+                      : "1px solid rgba(0,0,0,0.07)",
+                    boxShadow: isActive
+                      ? "0 8px 40px rgba(47,94,234,0.15)"
+                      : "0 2px 12px rgba(0,0,0,0.06)",
+                  }}
+                  onClick={() => setActive(i)}
+                >
+                  {isActive && (
+                    <div
+                      className="absolute left-0 top-0 bottom-0 w-[4px]"
+                      style={{ background: "#2F5EEA", borderRadius: "12px 0 0 12px" }}
+                    />
+                  )}
+                  {/* Image bottom-center on mobile */}
+                  <div className="flex flex-col h-full">
+                    <div className="flex-1 px-5 pt-6 pb-2 text-left">
+                      <h3
+                        className="text-base font-semibold mb-2 leading-snug"
+                        style={{ color: isActive ? "#2F5EEA" : "#111827" }}
+                      >
+                        {card.title}
+                      </h3>
+                      <p className="text-gray-500 text-sm leading-relaxed">
+                        {card.desc}
+                      </p>
+                    </div>
+                    <div className="flex justify-center overflow-hidden" style={{ height: "140px" }}>
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="h-full w-auto object-contain object-bottom"
+                        style={{ filter: "grayscale(100%) brightness(1.1) contrast(1.2)" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* FEATURE CARDS — desktop grid only */}
+        <div className="hidden md:grid md:grid-cols-2 gap-4 md:gap-5 mb-20">
           {cards.map((card, i) => {
             const isActive = active === i;
             return (
@@ -134,16 +192,13 @@ export default function WhyLinq() {
                 }}
                 onClick={() => setActive(i)}
               >
-                {/* Blue left accent bar — like image 1's red accent */}
                 {isActive && (
                   <div
                     className="absolute left-0 top-0 bottom-0 w-[4px]"
                     style={{ background: "#2F5EEA", borderRadius: "12px 0 0 12px" }}
                   />
                 )}
-
                 <div className="flex items-end min-h-[155px]">
-                  {/* Image flush to bottom-left, large like image 1 */}
                   <div
                     className="relative flex-shrink-0"
                     style={{ width: "155px", height: "155px" }}
@@ -152,10 +207,9 @@ export default function WhyLinq() {
                       src={card.image}
                       alt={card.title}
                       className="absolute bottom-0 left-0 w-full h-full object-cover object-top"
+                      style={{ filter: "grayscale(100%) brightness(1.1) contrast(1.2)" }}
                     />
                   </div>
-
-                  {/* Text — vertically centered */}
                   <div className="flex-1 py-7 pr-6 pl-3 text-left self-center">
                     <h3
                       className="text-base md:text-[17px] font-semibold mb-2 leading-snug"
