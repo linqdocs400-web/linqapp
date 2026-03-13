@@ -150,7 +150,7 @@ export default function WhyLinq() {
                     <div className="flex-1 px-5 pt-6 pb-2 text-left">
                       <h3
                         className="text-base font-semibold mb-2 leading-snug"
-                        style={{ color: isActive ? "#2F5EEA" : "#111827" }}
+                        style={{ color: "#2F5EEA" }}
                       >
                         {card.title}
                       </h3>
@@ -158,7 +158,7 @@ export default function WhyLinq() {
                         {card.desc}
                       </p>
                     </div>
-                    <div className="flex justify-center overflow-hidden rounded-lg border-2 border-blue-500" style={{ height: "140px" }}>
+                    <div className="flex justify-center overflow-hidden" style={{ height: "140px" }}>
                       <img
                         src={card.image}
                         alt={card.title}
@@ -200,7 +200,7 @@ export default function WhyLinq() {
                 )}
                 <div className="flex items-end min-h-[155px]">
                   <div
-                    className="relative flex-shrink-0 rounded-lg border-2 border-blue-500 overflow-hidden"
+                    className="relative flex-shrink-0"
                     style={{ width: "155px", height: "155px" }}
                   >
                     <img
@@ -213,7 +213,7 @@ export default function WhyLinq() {
                   <div className="flex-1 py-7 pr-6 pl-3 text-left self-center">
                     <h3
                       className="text-base md:text-[17px] font-semibold mb-2 leading-snug"
-                      style={{ color: isActive ? "#2F5EEA" : "#111827" }}
+                      style={{ color: "#2F5EEA" }}
                     >
                       {card.title}
                     </h3>
