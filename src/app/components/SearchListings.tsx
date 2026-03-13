@@ -90,7 +90,7 @@ export default function SearchListings() {
   // ===== HELPER FUNCTIONS =====
   function shortLocation(address: string) {
     if (!address) return "";
-    return address.split(",")[0];
+    return address.split(" ").slice(0, 2).join(" ");
   }
 
   function formatTravelDays(travelDays: string): string {
@@ -411,7 +411,7 @@ export default function SearchListings() {
                           </div>
                           
                           {/* Route */}
-                          <p className="text-sm text-gray-600 truncate mb-2">
+                          <p className="text-sm text-gray-600 break-words mb-2">
                             {shortLocation(person.from)} → {shortLocation(person.to)}
                           </p>
                           
