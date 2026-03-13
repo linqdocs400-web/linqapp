@@ -701,23 +701,64 @@ function ConnectPageContent() {
               {/* Suggested Message */}
               <div className="bg-gray-50 rounded-xl p-4 text-left mb-6">
                 <p className="text-sm text-gray-600 mb-2">Suggested message to copy & send:</p>
-                <div className="bg-white rounded-lg p-3 border border-gray-200">
-                  <p className="text-sm text-gray-800">
-                    Hi, I just submitted my ride details on LinQ.<br />
-                    Route: {submissionData?.from} → {submissionData?.to}<br />
-                    Time: {submissionData?.morning_time}<br />
-                    Looking for someone travelling on the same way.
+                <div className="bg-white rounded-lg p-3 border border-gray-200 max-h-48 overflow-y-auto">
+                  <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                    {submissionData?.has_vehicle === "No" ? (
+                      <>
+                        🚗 I am finding a rider (Don't have vehicle)
+
+Name: {submissionData?.name}
+Phone Number: {submissionData?.phone}
+
+Pickup Location: {submissionData?.from?.split(' ').slice(0, 2).join(' ')}
+Drop Location: {submissionData?.to?.split(' ').slice(0, 2).join(' ')}
+
+Days & Time: {submissionData?.travel_days && submissionData?.morning_time ? `${submissionData?.travel_days} at ${submissionData?.morning_time}` : 'Not specified'}
+
+Vehicle Type (Car/Bike): {submissionData?.vehicle_type || 'Not specified'}
+
+Message to Partner: {submissionData?.message || 'No specific message'}
+
+💫 Our team will post it and help you find your perfect ride partner soon!
+                      </>
+                    ) : (
+                      <>
+                        🚗 I am finding a partner (I have a vehicle)
+
+Name: {submissionData?.name}
+Phone Number: {submissionData?.phone}
+
+Pickup Location: {submissionData?.from?.split(' ').slice(0, 2).join(' ')}
+Drop Location: {submissionData?.to?.split(' ').slice(0, 2).join(' ')}
+
+Days & Time: {submissionData?.travel_days && submissionData?.morning_time ? `${submissionData?.travel_days} at ${submissionData?.morning_time}` : 'Not specified'}
+
+Vehicle You Travel (Car/Bike): {submissionData?.vehicle_type || 'Not specified'}
+
+Message to Partner: {submissionData?.message || 'No specific message'}
+
+💫 Let's save time and fuel ⛽
+                      </>
+                    )}
                   </p>
                 </div>
                 <button
                   onClick={() => {
-                    const message = `Hi, I just submitted my ride details on LinQ.\nRoute: ${submissionData?.from} → ${submissionData?.to}\nTime: ${submissionData?.morning_time}\nLooking for someone travelling on the same way.`;
+                    const message = submissionData?.has_vehicle === "No" ? (
+                      `🚗 I am finding a rider (Don't have vehicle)\n\nName: ${submissionData?.name}\nPhone Number: ${submissionData?.phone}\n\nPickup Location: ${submissionData?.from?.split(' ').slice(0, 2).join(' ')}\nDrop Location: ${submissionData?.to?.split(' ').slice(0, 2).join(' ')}\n\nDays & Time: ${submissionData?.travel_days && submissionData?.morning_time ? `${submissionData?.travel_days} at ${submissionData?.morning_time}` : 'Not specified'}\n\nVehicle Type (Car/Bike): ${submissionData?.vehicle_type || 'Not specified'}\n\nMessage to Partner: ${submissionData?.message || 'No specific message'}\n\n💫 Our team will post it and help you find your perfect ride partner soon!`
+                    ) : (
+                      `🚗 I am finding a partner (I have a vehicle)\n\nName: ${submissionData?.name}\nPhone Number: ${submissionData?.phone}\n\nPickup Location: ${submissionData?.from?.split(' ').slice(0, 2).join(' ')}\nDrop Location: ${submissionData?.to?.split(' ').slice(0, 2).join(' ')}\n\nDays & Time: ${submissionData?.travel_days && submissionData?.morning_time ? `${submissionData?.travel_days} at ${submissionData?.morning_time}` : 'Not specified'}\n\nVehicle You Travel (Car/Bike): ${submissionData?.vehicle_type || 'Not specified'}\n\nMessage to Partner: ${submissionData?.message || 'No specific message'}\n\n💫 Let's save time and fuel ⛽`
+                    );
                     navigator.clipboard.writeText(message);
                     alert("Message copied to clipboard!");
+                    // Redirect to Instagram
+                    setTimeout(() => {
+                      window.open('https://ig.me/m/gotogetherrides', '_blank');
+                    }, 500);
                   }}
-                  className="mt-2 text-sm text-[#2F5EEA] hover:text-[#1E3FAE] font-medium"
+                  className="mt-2 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition transform hover:scale-105"
                 >
-                  📋 Copy Message
+                  📋 Copy Message & Open Instagram
                 </button>
               </div>
               
