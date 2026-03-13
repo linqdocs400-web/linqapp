@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, Home, Compass, Sparkles, History, Smartphone } from "lucide-react";
+import { Menu, X, Home, Zap, Briefcase, Smartphone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,9 +16,9 @@ interface NavbarProps {
 
 const navItems = [
   { icon: Home, label: "Home", key: "home" as const },
-  { icon: Compass, label: "Features", key: "features" as const },
-  { icon: Sparkles, label: "Careers", key: "career" as const },
-  { icon: History, label: "Footer", key: "footer" as const },
+  { icon: Zap, label: "Features", key: "features" as const },
+  { icon: Briefcase, label: "Careers", key: "career" as const },
+  { icon: Smartphone, label: "Contact", key: "footer" as const },
 ];
 
 export default function Navbar({ refs }: NavbarProps) {
@@ -116,20 +116,18 @@ export default function Navbar({ refs }: NavbarProps) {
 
         {/* RIGHT CTAS */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Get the App — outline */}
-          <Link href="/download">
-            <button
-              className="flex items-center gap-2 font-semibold px-5 py-2 rounded-full transition text-sm"
-              style={{
-                border: "1.5px solid #2F5EEA",
-                color: "#2F5EEA",
-                background: "transparent",
-              }}
-            >
-              <Smartphone className="w-4 h-4" />
-              Get the App
-            </button>
-          </Link>
+          {/* App Coming Soon — outline badge */}
+          <div
+            className="flex items-center gap-2 font-semibold px-5 py-2 rounded-full text-sm cursor-default select-none"
+            style={{
+              border: "1.5px solid #2F5EEA",
+              color: "#2F5EEA",
+              background: "rgba(47,94,234,0.04)",
+            }}
+          >
+            <Smartphone className="w-4 h-4" />
+            App Coming Soon!
+          </div>
 
           {/* Find a Ride — solid CTA */}
           <Link href="/#search">
@@ -186,15 +184,13 @@ export default function Navbar({ refs }: NavbarProps) {
             );
           })}
           <div className="flex gap-3 mt-1">
-            <Link href="/download" onClick={() => setMenuOpen(false)}>
-              <button
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold"
-                style={{ border: "1.5px solid #2F5EEA", color: "#2F5EEA" }}
+            <div
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold cursor-default select-none"
+                style={{ border: "1.5px solid #2F5EEA", color: "#2F5EEA", background: "rgba(47,94,234,0.04)" }}
               >
                 <Smartphone className="w-4 h-4" />
-                Get the App
-              </button>
-            </Link>
+                App Coming Soon!
+              </div>
             <Link href="/#search" onClick={() => setMenuOpen(false)}>
               <button
                 className="px-5 py-2 rounded-full text-sm font-semibold text-white"
