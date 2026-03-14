@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Sora } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import ServiceWorkerRegistration from "./components/ServiceWorkerRegistration";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -12,6 +13,8 @@ const sora = Sora({
 export const metadata: Metadata = {
   title: "LinQ",
   description: "LinQ ride sharing platform",
+  manifest: "/manifest.json",
+  themeColor: "#000000",
   robots: {
     index: true,
     follow: true,
@@ -37,9 +40,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="overflow-x-hidden">
+      <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body
         className={`${sora.variable} antialiased overflow-x-hidden bg-white`}
       >
+        <ServiceWorkerRegistration />
         {children}
         <Analytics />
       </body>
