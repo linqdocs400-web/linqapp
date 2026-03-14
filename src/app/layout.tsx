@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: "LinQ",
   description: "LinQ ride sharing platform",
   manifest: "/manifest.json",
-  themeColor: "#000000",
+  themeColor: "#ffffff",
   robots: {
     index: true,
     follow: true,
