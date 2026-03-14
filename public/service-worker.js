@@ -2,8 +2,8 @@ const CACHE_NAME = 'linq-rides-v1';
 const urlsToCache = [
   '/',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
   // Add other static assets as needed
 ];
 
