@@ -155,7 +155,7 @@ export default function Navbar({ refs }: NavbarProps) {
         <div
           className="flex items-center rounded-full"
           style={{
-            background: "#E8ECF8",
+            background: "#ffffff",
             padding: "8px",
             gap: "4px",
             boxShadow: "0 4px 24px rgba(47,94,234,0.14), 0 1px 6px rgba(0,0,0,0.07)",
@@ -179,8 +179,8 @@ export default function Navbar({ refs }: NavbarProps) {
               >
                 <Icon
                   style={{
-                    width:       28,
-                    height:      28,
+                    width:       32,
+                    height:      32,
                     color:       isActive ? "#ffffff" : "#4B5563",
                     strokeWidth: 1.8,
                     opacity:     1,
