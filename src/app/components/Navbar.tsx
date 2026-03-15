@@ -129,7 +129,7 @@ export default function Navbar({ refs }: NavbarProps) {
             </Link>
           </div>
 
-          {/* Mobile top-right CTA — no hamburger */}
+          {/* Mobile top-right CTA */}
           <div className="md:hidden">
             <Link href="/#search">
               <button
@@ -144,12 +144,20 @@ export default function Navbar({ refs }: NavbarProps) {
         </div>
       </nav>
 
-      {/* MOBILE BOTTOM PILL NAV */}
+      {/* ══════════════════════════════════════════
+          MOBILE BOTTOM PILL NAV
+          Pill height = 68px, padding = 8px all round
+          Active  : 52×52 blue circle  (fits neatly inside)
+          Inactive: 52×52 transparent  (icon size 24px, dark grey)
+          All buttons are the SAME size — only bg changes
+      ══════════════════════════════════════════ */}
       <div className="fixed inset-x-0 bottom-5 z-50 flex justify-center md:hidden">
         <div
-          className="flex items-center gap-1 rounded-full px-2 py-2"
+          className="flex items-center rounded-full"
           style={{
             background: "#E8ECF8",
+            padding: "8px",
+            gap: "4px",
             boxShadow: "0 4px 24px rgba(47,94,234,0.14), 0 1px 6px rgba(0,0,0,0.07)",
           }}
         >
@@ -163,21 +171,20 @@ export default function Navbar({ refs }: NavbarProps) {
                 aria-label={item.label}
                 className="flex items-center justify-center rounded-full transition-all duration-300"
                 style={{
-                  width:      isActive ? 56 : 52,
-                  height:     isActive ? 56 : 52,
+                  width:      52,
+                  height:     52,
                   background: isActive ? "#2F5EEA" : "transparent",
                   flexShrink: 0,
                 }}
               >
                 <Icon
                   style={{
-                    width:       isActive ? 22 : 21,
-                    height:      isActive ? 22 : 21,
-                    /* ✅ inactive icons are now clearly visible — same dark grey as desktop */
+                    width:       24,
+                    height:      24,
                     color:       isActive ? "#ffffff" : "#4B5563",
-                    strokeWidth: isActive ? 2.2 : 1.9,
-                    opacity:     1,           /* never dimmed */
-                    transition:  "all 0.25s ease",
+                    strokeWidth: 1.8,
+                    opacity:     1,
+                    transition:  "color 0.25s ease",
                   }}
                 />
               </button>
