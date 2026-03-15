@@ -15,10 +15,10 @@ interface NavbarProps {
 }
 
 const navItems = [
-  { icon: Home,      label: "Home",     key: "home"     as const },
-  { icon: Sparkles,  label: "Features", key: "features" as const },
-  { icon: Briefcase, label: "Careers",  key: "career"   as const },
-  { icon: Smartphone,label: "Contact",  key: "footer"   as const },
+  { icon: Home,       label: "Home",     key: "home"     as const },
+  { icon: Sparkles,   label: "Features", key: "features" as const },
+  { icon: Briefcase,  label: "Careers",  key: "career"   as const },
+  { icon: Smartphone, label: "Contact",  key: "footer"   as const },
 ];
 
 export default function Navbar({ refs }: NavbarProps) {
@@ -41,12 +41,7 @@ export default function Navbar({ refs }: NavbarProps) {
 
   return (
     <>
-      {/* ══════════════════════════════════════════════
-          TOP NAVBAR
-          Desktop : logo  |  icon pill  |  CTAs
-          Mobile  : logo (left)  |  "Find a Ride" (right)
-                    — clean minimal header, no hamburger
-      ══════════════════════════════════════════════ */}
+      {/* TOP NAVBAR */}
       <nav
         className={`fixed top-0 z-50 transition-all duration-500 ${
           scrolled
@@ -66,7 +61,6 @@ export default function Navbar({ refs }: NavbarProps) {
               className="h-10 w-auto"
               priority
             />
-            {/* Company name hidden on mobile — keeps header clean */}
             <span
               className="text-sm font-semibold hidden sm:block"
               style={{ color: "#1a1a1a" }}
@@ -75,7 +69,7 @@ export default function Navbar({ refs }: NavbarProps) {
             </span>
           </div>
 
-          {/* CENTER — icon pill (desktop only) */}
+          {/* CENTER icon pill — desktop only */}
           <div className="hidden md:flex items-center">
             <div
               className="flex items-center gap-1 px-2 py-2 rounded-full"
@@ -135,7 +129,7 @@ export default function Navbar({ refs }: NavbarProps) {
             </Link>
           </div>
 
-          {/* RIGHT CTA — mobile only (no hamburger, just the action button) */}
+          {/* Mobile top-right CTA — no hamburger */}
           <div className="md:hidden">
             <Link href="/#search">
               <button
@@ -150,20 +144,11 @@ export default function Navbar({ refs }: NavbarProps) {
         </div>
       </nav>
 
-      {/* ══════════════════════════════════════════════
-          MOBILE BOTTOM PILL NAV
-          Matches the screenshot exactly:
-          • Pill has a soft periwinkle-grey fill
-          • Active  → large solid blue circle, white icon
-          • Inactive → no circle, muted grey icon
-          • Icons: Home / Sparkles / Briefcase / Smartphone
-          Only visible on mobile (hidden on md+)
-      ══════════════════════════════════════════════ */}
+      {/* MOBILE BOTTOM PILL NAV */}
       <div className="fixed inset-x-0 bottom-5 z-50 flex justify-center md:hidden">
         <div
           className="flex items-center gap-1 rounded-full px-2 py-2"
           style={{
-            /* pill background — matches the light blue-grey in the screenshot */
             background: "#E8ECF8",
             boxShadow: "0 4px 24px rgba(47,94,234,0.14), 0 1px 6px rgba(0,0,0,0.07)",
           }}
@@ -176,22 +161,23 @@ export default function Navbar({ refs }: NavbarProps) {
                 key={item.key}
                 onClick={() => scrollToSection(refs[item.key], idx)}
                 aria-label={item.label}
-                /* Active button is visually larger (w-14 h-14) like in the screenshot */
                 className="flex items-center justify-center rounded-full transition-all duration-300"
                 style={{
-                  width:  isActive ? 56 : 48,
-                  height: isActive ? 56 : 48,
+                  width:      isActive ? 56 : 52,
+                  height:     isActive ? 56 : 52,
                   background: isActive ? "#2F5EEA" : "transparent",
                   flexShrink: 0,
                 }}
               >
                 <Icon
                   style={{
-                    width:  isActive ? 22 : 20,
-                    height: isActive ? 22 : 20,
-                    color:  isActive ? "#ffffff" : "#8a93a8",
-                    strokeWidth: isActive ? 2.2 : 1.7,
-                    transition: "all 0.25s ease",
+                    width:       isActive ? 22 : 21,
+                    height:      isActive ? 22 : 21,
+                    /* ✅ inactive icons are now clearly visible — same dark grey as desktop */
+                    color:       isActive ? "#ffffff" : "#4B5563",
+                    strokeWidth: isActive ? 2.2 : 1.9,
+                    opacity:     1,           /* never dimmed */
+                    transition:  "all 0.25s ease",
                   }}
                 />
               </button>
