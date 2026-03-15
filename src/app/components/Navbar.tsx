@@ -15,20 +15,20 @@ interface NavbarProps {
 }
 
 const navItems = [
-  { icon: Home, label: "Home", key: "home" as const },
-  { icon: Sparkles, label: "Features", key: "features" as const },
-  { icon: Briefcase, label: "Careers", key: "career" as const },
-  { icon: Smartphone, label: "Contact", key: "footer" as const },
+  { icon: Home,      label: "Home",     key: "home"     as const },
+  { icon: Sparkles,  label: "Features", key: "features" as const },
+  { icon: Briefcase, label: "Careers",  key: "career"   as const },
+  { icon: Smartphone,label: "Contact",  key: "footer"   as const },
 ];
 
 export default function Navbar({ refs }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled,  setScrolled]  = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const scrollToSection = (
@@ -41,17 +41,17 @@ export default function Navbar({ refs }: NavbarProps) {
 
   return (
     <>
-      {/* ─────────────────────────────────────────
+      {/* ══════════════════════════════════════════════
           TOP NAVBAR
-          Desktop : logo + centered icon pill + right CTAs
-          Mobile  : logo (left) + "Find a Ride" button (right)
-                    — clean, minimal like Puri Escapes header
-      ───────────────────────────────────────── */}
+          Desktop : logo  |  icon pill  |  CTAs
+          Mobile  : logo (left)  |  "Find a Ride" (right)
+                    — clean minimal header, no hamburger
+      ══════════════════════════════════════════════ */}
       <nav
         className={`fixed top-0 z-50 transition-all duration-500 ${
           scrolled
             ? "left-[3%] md:left-[4%] w-[94%] md:w-[92%] bg-white/95 backdrop-blur-md shadow-xl rounded-[2rem] mt-3 md:mt-4"
-            : "left-0 w-full bg-white/90 backdrop-blur-sm border-b border-gray-100 mt-0"
+            : "left-0 w-full bg-white/90 backdrop-blur-sm border-b border-gray-100/80 mt-0"
         }`}
       >
         <div className="flex justify-between items-center max-w-7xl mx-auto px-5 sm:px-6 md:px-10 py-3">
@@ -66,7 +66,7 @@ export default function Navbar({ refs }: NavbarProps) {
               className="h-10 w-auto"
               priority
             />
-            {/* Company name: hidden on mobile for the clean Puri Escapes look */}
+            {/* Company name hidden on mobile — keeps header clean */}
             <span
               className="text-sm font-semibold hidden sm:block"
               style={{ color: "#1a1a1a" }}
@@ -98,7 +98,7 @@ export default function Navbar({ refs }: NavbarProps) {
                   >
                     <Icon
                       className="w-4 h-4 transition-colors duration-200"
-                      style={{ color: isActive ? "#ffffff" : "#6b7280" }}
+                      style={{ color: isActive ? "#fff" : "#6b7280" }}
                     />
                     <span
                       className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[11px] font-medium px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
@@ -127,7 +127,7 @@ export default function Navbar({ refs }: NavbarProps) {
             </div>
             <Link href="/#search">
               <button
-                className="font-semibold px-6 py-2 rounded-full transition text-sm text-white"
+                className="font-semibold px-6 py-2 rounded-full text-sm text-white transition-opacity hover:opacity-90"
                 style={{ background: "#2F5EEA" }}
               >
                 Find a Ride
@@ -135,7 +135,7 @@ export default function Navbar({ refs }: NavbarProps) {
             </Link>
           </div>
 
-          {/* RIGHT CTA — mobile only (Puri Escapes "Get in Touch" equivalent) */}
+          {/* RIGHT CTA — mobile only (no hamburger, just the action button) */}
           <div className="md:hidden">
             <Link href="/#search">
               <button
@@ -150,22 +150,22 @@ export default function Navbar({ refs }: NavbarProps) {
         </div>
       </nav>
 
-      {/* ─────────────────────────────────────────
-          MOBILE BOTTOM PILL NAV  (Puri Escapes / Image 3 style)
-          • Soft blue-tinted pill background
-          • Active tab = solid blue filled circle with white icon
-          • Inactive tabs = grey icon, no background
-          • Only visible on mobile (md:hidden)
-      ───────────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════
+          MOBILE BOTTOM PILL NAV
+          Matches the screenshot exactly:
+          • Pill has a soft periwinkle-grey fill
+          • Active  → large solid blue circle, white icon
+          • Inactive → no circle, muted grey icon
+          • Icons: Home / Sparkles / Briefcase / Smartphone
+          Only visible on mobile (hidden on md+)
+      ══════════════════════════════════════════════ */}
       <div className="fixed inset-x-0 bottom-5 z-50 flex justify-center md:hidden">
         <div
-          className="flex items-center gap-0.5 px-2.5 py-2 rounded-full"
+          className="flex items-center gap-1 rounded-full px-2 py-2"
           style={{
-            background: "rgba(235, 239, 255, 0.97)",
-            border: "1px solid rgba(47,94,234,0.1)",
-            boxShadow:
-              "0 8px 30px rgba(47,94,234,0.15), 0 2px 8px rgba(0,0,0,0.06)",
-            backdropFilter: "blur(20px)",
+            /* pill background — matches the light blue-grey in the screenshot */
+            background: "#E8ECF8",
+            boxShadow: "0 4px 24px rgba(47,94,234,0.14), 0 1px 6px rgba(0,0,0,0.07)",
           }}
         >
           {navItems.map((item, idx) => {
@@ -176,18 +176,22 @@ export default function Navbar({ refs }: NavbarProps) {
                 key={item.key}
                 onClick={() => scrollToSection(refs[item.key], idx)}
                 aria-label={item.label}
-                className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300"
+                /* Active button is visually larger (w-14 h-14) like in the screenshot */
+                className="flex items-center justify-center rounded-full transition-all duration-300"
                 style={{
+                  width:  isActive ? 56 : 48,
+                  height: isActive ? 56 : 48,
                   background: isActive ? "#2F5EEA" : "transparent",
+                  flexShrink: 0,
                 }}
               >
                 <Icon
-                  className="transition-all duration-200"
                   style={{
-                    width: 20,
-                    height: 20,
-                    color: isActive ? "#ffffff" : "#9ca3af",
+                    width:  isActive ? 22 : 20,
+                    height: isActive ? 22 : 20,
+                    color:  isActive ? "#ffffff" : "#8a93a8",
                     strokeWidth: isActive ? 2.2 : 1.7,
+                    transition: "all 0.25s ease",
                   }}
                 />
               </button>
