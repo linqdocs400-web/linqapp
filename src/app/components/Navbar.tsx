@@ -205,15 +205,10 @@ export default function Navbar({ refs }: NavbarProps) {
                 }}
               >
                 <Icon
-                  style={{
-                    width:       24,          // FIX #2 (visual): 24 not 28 — better proportion
-                    height:      24,
-                    // FIX #1 (color): inactive icons are now grey (#6b7280) to match desktop
-                    color:       isActive ? "#ffffff" : "#6b7280",
-                    strokeWidth: 2,
-                    opacity:     1,
-                    transition:  "color 0.25s ease",
-                  }}
+                  size={24}
+                  strokeWidth={2}
+                  className="shrink-0 transition-colors duration-300"
+                  style={{ color: isActive ? "#ffffff" : "#6b7280" }}
                 />
               </button>
             );
