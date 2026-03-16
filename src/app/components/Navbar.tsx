@@ -171,16 +171,16 @@ export default function Navbar({ refs }: NavbarProps) {
                 aria-label={item.label}
                 className="flex items-center justify-center rounded-full transition-all duration-300"
                 style={{
-                  width:      52,
-                  height:     52,
+                  width:      44,
+                  height:     44,
                   background: isActive ? "#2F5EEA" : "transparent",
                   flexShrink: 0,
                 }}
               >
                 <Icon
                   style={{
-                    width:       32,
-                    height:      32,
+                    width:       24,
+                    height:      24,
                     color:       isActive ? "#ffffff" : "#4B5563",
                     strokeWidth: 1.8,
                     opacity:     1,
