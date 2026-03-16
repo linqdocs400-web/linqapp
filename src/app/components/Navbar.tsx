@@ -181,8 +181,8 @@ export default function Navbar({ refs }: NavbarProps) {
                   style={{
                     width:       28,
                     height:      28,
-                    color:       isActive ? "#ffffff" : "#4B5563",
-                    strokeWidth: 1.8,
+                    color:       isActive ? "#ffffff" : "#2F5EEA",
+                    strokeWidth: 2,
                     opacity:     1,
                     transition:  "color 0.25s ease",
                   }}
