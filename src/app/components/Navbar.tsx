@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Home, Sparkles, Briefcase, Smartphone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,22 +14,48 @@ interface NavbarProps {
   };
 }
 
+// FIX #1: removed misplaced `as const` from individual keys;
+//          applied `as const` to the whole array instead.
 const navItems = [
-  { icon: Home,       label: "Home",     key: "home"     as const },
-  { icon: Sparkles,   label: "Features", key: "features" as const },
-  { icon: Briefcase,  label: "Careers",  key: "career"   as const },
-  { icon: Smartphone, label: "Contact",  key: "footer"   as const },
-];
+  { icon: Home,       label: "Home",     key: "home"     },
+  { icon: Sparkles,   label: "Features", key: "features" },
+  { icon: Briefcase,  label: "Careers",  key: "career"   },
+  { icon: Smartphone, label: "Contact",  key: "footer"   },
+] as const;
+
+type NavKey = (typeof navItems)[number]["key"];
 
 export default function Navbar({ refs }: NavbarProps) {
   const [scrolled,  setScrolled]  = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // ── Scroll listener (unchanged) ──────────────────────────────────────────
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // FIX #4: Keep activeIdx in sync with scroll using IntersectionObserver
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+
+    navItems.forEach((item, idx) => {
+      const el = refs[item.key as NavKey]?.current;
+      if (!el) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setActiveIdx(idx);
+        },
+        { threshold: 0.4 }
+      );
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, [refs]);
 
   const scrollToSection = (
     ref: React.RefObject<HTMLDivElement | null>,
@@ -87,15 +113,17 @@ export default function Navbar({ refs }: NavbarProps) {
                     key={item.key}
                     onClick={() => scrollToSection(refs[item.key], idx)}
                     title={item.label}
-                    className="relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 group"
+                    // FIX #3: overflow-visible so the tooltip isn't clipped
+                    className="relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 group overflow-visible"
                     style={{ background: isActive ? "#2F5EEA" : "transparent" }}
                   >
                     <Icon
                       className="w-4 h-4 transition-colors duration-200"
                       style={{ color: isActive ? "#fff" : "#6b7280" }}
                     />
+                    {/* Tooltip rendered via a portal-like z-index boost */}
                     <span
-                      className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[11px] font-medium px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+                      className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[11px] font-medium px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-[9999]"
                       style={{ background: "#2F5EEA", color: "#fff" }}
                     >
                       {item.label}
@@ -119,69 +147,69 @@ export default function Navbar({ refs }: NavbarProps) {
               <Smartphone className="w-4 h-4" />
               App Coming Soon!
             </div>
-            <Link href="/#search">
-              <button
-                className="font-semibold px-6 py-2 rounded-full text-sm text-white transition-opacity hover:opacity-90"
-                style={{ background: "#2F5EEA" }}
-              >
-                Find a Ride
-              </button>
+            {/* FIX #2: removed nested <button> inside <Link>; use <Link> styled as button */}
+            <Link
+              href="/#search"
+              className="font-semibold px-6 py-2 rounded-full text-sm text-white transition-opacity hover:opacity-90 inline-block"
+              style={{ background: "#2F5EEA" }}
+            >
+              Find a Ride
             </Link>
           </div>
 
           {/* Mobile top-right CTA */}
+          {/* FIX #2 (mobile): same fix — <Link> directly styled, no nested <button> */}
           <div className="md:hidden">
-            <Link href="/#search">
-              <button
-                className="font-semibold px-5 py-2.5 rounded-full text-sm text-white"
-                style={{ background: "#2F5EEA" }}
-              >
-                Find a Ride
-              </button>
+            <Link
+              href="/#search"
+              className="font-semibold px-5 py-2.5 rounded-full text-sm text-white inline-block"
+              style={{ background: "#2F5EEA" }}
+            >
+              Find a Ride
             </Link>
           </div>
 
         </div>
       </nav>
 
-      {/* ══════════════════════════════════════════
-          MOBILE BOTTOM PILL NAV
-          Pill height = 68px, padding = 8px all round
-          Active  : 52×52 blue circle  (fits neatly inside)
-          Inactive: 52×52 transparent  (icon size 24px, dark grey)
-          All buttons are the SAME size — only bg changes
-      ══════════════════════════════════════════ */}
+      {/* ── MOBILE BOTTOM PILL NAV ────────────────────────────────────────── */}
       <div className="fixed inset-x-0 bottom-5 z-50 flex justify-center md:hidden">
         <div
           className="flex items-center rounded-full"
           style={{
-            background: "#ffffff",
-            padding: "8px",
-            gap: "4px",
-            boxShadow: "0 4px 24px rgba(47,94,234,0.14), 0 1px 6px rgba(0,0,0,0.07)",
+            // FIX #5: explicit white background; add border so it reads on
+            //          any page background without the grey tint issue
+            background:  "#ffffff",
+            border:      "1px solid rgba(47,94,234,0.12)",
+            padding:     "8px",
+            gap:         "4px",
+            boxShadow:   "0 4px 24px rgba(47,94,234,0.14), 0 1px 6px rgba(0,0,0,0.07)",
           }}
         >
           {navItems.map((item, idx) => {
-            const Icon = item.icon;
+            const Icon     = item.icon;
             const isActive = activeIdx === idx;
             return (
               <button
                 key={item.key}
-                onClick={() => scrollToSection(refs[item.key], idx)}
+                onClick={() => scrollToSection(refs[item.key as NavKey], idx)}
                 aria-label={item.label}
                 className="flex items-center justify-center rounded-full transition-all duration-300"
                 style={{
                   width:      44,
                   height:     44,
-                  background: isActive ? "#2F5EEA" : "transparent",
+                  // FIX #1 (visual): inactive = light blue tint, not transparent,
+                  //   so icons are always clearly visible on any background
+                  background: isActive ? "#2F5EEA" : "rgba(47,94,234,0.06)",
                   flexShrink: 0,
                 }}
               >
                 <Icon
                   style={{
-                    width:       28,
-                    height:      28,
-                    color:       isActive ? "#ffffff" : "#2F5EEA",
+                    width:       24,          // FIX #2 (visual): 24 not 28 — better proportion
+                    height:      24,
+                    // FIX #1 (color): inactive icons are now grey (#6b7280) to match desktop
+                    color:       isActive ? "#ffffff" : "#6b7280",
                     strokeWidth: 2,
                     opacity:     1,
                     transition:  "color 0.25s ease",
