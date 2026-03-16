@@ -179,8 +179,8 @@ export default function Navbar({ refs }: NavbarProps) {
               >
                 <Icon
                   style={{
-                    width:       24,
-                    height:      24,
+                    width:       28,
+                    height:      28,
                     color:       isActive ? "#ffffff" : "#4B5563",
                     strokeWidth: 1.8,
                     opacity:     1,
