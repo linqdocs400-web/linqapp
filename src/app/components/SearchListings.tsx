@@ -56,8 +56,23 @@ export default function SearchListings() {
   useEffect(() => {
     async function load() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL as string;
-        console.log("Fetching from API:", apiUrl);
+        const envUrl = process.env.NEXT_PUBLIC_API_URL;
+        const fallbackUrl = "https://script.google.com/macros/s/AKfycbyRLmhAEDZ1KIDLfpfkGYfdnfPHjKJNMjIIQZF0BSaBjfhueB09yTjXniT0j7PJlqHzYA/exec";
+        const apiUrl = envUrl || fallbackUrl;
+        
+        console.log("=== API DEBUG ===");
+        console.log("Environment URL:", envUrl);
+        console.log("Using API URL:", apiUrl);
+        console.log("Environment variable type:", typeof envUrl);
+        
+        if (!apiUrl) {
+          console.error("❌ ERROR: No API URL available!");
+          setError(true);
+          setLoading(false);
+          return;
+        }
+        
+        console.log("🌐 Making request to:", apiUrl);
         
         const res = await fetch(apiUrl, {
           method: "GET",
@@ -66,24 +81,30 @@ export default function SearchListings() {
           },
         });
         
-        console.log("Response status:", res.status);
+        console.log("📡 Response status:", res.status);
+        console.log("📡 Response headers:", [...res.headers.entries()]);
+        console.log("📡 Response ok:", res.ok);
         
         if (!res.ok) {
+          console.error("❌ HTTP Error:", res.status, res.statusText);
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         
         const data = await res.json();
-        console.log("API response data:", data);
+        console.log("✅ Data received:", data);
+        console.log("📊 Data type:", typeof data);
+        console.log("📊 Data length:", data ? data.length : "null");
 
         setAllListings(data);
         setResults(data); // show all by default
         setLoading(false);
       } catch (err) {
-        console.error("API load error:", err);
+        console.error("❌ API load error:", err);
+        console.error("❌ Error details:", err.message);
         setError(true);
         setLoading(false);
       }
-    }
+    };
 
     load();
   }, []);
