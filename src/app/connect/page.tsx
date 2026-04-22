@@ -20,6 +20,7 @@ interface FormData {
   message_to_partner: string;
   travel_frequency: string;
   travel_days: string[];
+  college_office: string;
   partner_id: string;
 }
 
@@ -49,6 +50,7 @@ function ConnectPageContent() {
     message_to_partner: "",
     travel_frequency: "",
     travel_days: [],
+    college_office: "",
     partner_id: partnerId || "",
   });
 
@@ -202,6 +204,7 @@ function ConnectPageContent() {
         message: form.message_to_partner,
         travel_frequency: form.travel_frequency,
         travel_days: form.travel_days.join(","),
+        college_office: form.college_office,
         partner_id: form.partner_id,
         status: "New", // Default status for new submissions
         created_at: new Date().toISOString(),
@@ -655,6 +658,21 @@ function ConnectPageContent() {
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2F5EEA] focus:border-transparent"
                 placeholder="Any specific requirements or preferences?"
+              />
+            </div>
+
+            {/* College/Office */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Do you want to connect with people from your college/office?
+              </label>
+              <input
+                type="text"
+                name="college_office"
+                value={form.college_office}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2F5EEA] focus:border-transparent"
+                placeholder="Enter your college/office name (optional)"
               />
             </div>
 

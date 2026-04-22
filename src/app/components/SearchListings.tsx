@@ -28,6 +28,7 @@ interface Listing {
   evening_time?: string;
   message?: string;
   travel_days?: string;
+  college_office?: string;
   score?: number;
   matchType?: string;
 }
@@ -37,6 +38,7 @@ export default function SearchListings() {
   const [toCoords, setToCoords] = useState<Coordinates | null>(null);
   const [fromText, setFromText] = useState("");
   const [toText, setToText] = useState("");
+  const [collegeOfficeText, setCollegeOfficeText] = useState("");
   const [searchTravelDays, setSearchTravelDays] = useState<string[]>([]);
 
   const [allListings, setAllListings] = useState<Listing[]>([]);
@@ -117,19 +119,27 @@ export default function SearchListings() {
     let matchType = "Other";
     const fromLower = fromText.toLowerCase().trim();
     const toLower = toText.toLowerCase().trim();
+    const collegeOfficeLower = collegeOfficeText.toLowerCase().trim();
     const profileFromLower = profile.from?.toLowerCase() || "";
     const profileToLower = profile.to?.toLowerCase() || "";
+    const profileCollegeOfficeLower = profile.college_office?.toLowerCase() || "";
 
-    // 🥇 1. Exact route match (highest priority)
+    //  0. College/Office match (highest priority)
+    if (collegeOfficeLower && profileCollegeOfficeLower.includes(collegeOfficeLower)) {
+      score += 150;
+      matchType = " Same college/office";
+    }
+
+    //  1. Exact route match (highest priority)
     const exactFromMatch = fromLower && profileFromLower.includes(fromLower);
     const exactToMatch = toLower && profileToLower.includes(toLower);
     
     if (exactFromMatch && exactToMatch) {
       score += 100;
-      matchType = "⭐ Best match";
+      if (matchType === "Other") matchType = " Best match";
     } else if (exactFromMatch || exactToMatch) {
       score += 30;
-      matchType = "Partial match";
+      if (matchType === "Other") matchType = "Partial match";
     }
 
     // 🥈 2. Nearby route match (lat/lng)
@@ -219,16 +229,16 @@ export default function SearchListings() {
   // Real-time search trigger
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (fromText || toText) {
+      if (fromText || toText || collegeOfficeText) {
         performSearch();
-      } else if (!fromText && !toText) {
-        // Show all listings when both inputs are empty
+      } else if (!fromText && !toText && !collegeOfficeText) {
+        // Show all listings when all inputs are empty
         setResults(allListings);
       }
     }, 300); // Debounce search
 
     return () => clearTimeout(timer);
-  }, [fromText, toText, fromCoords, toCoords, allListings]);
+  }, [fromText, toText, collegeOfficeText, fromCoords, toCoords, allListings]);
 
   return (
     <section
@@ -306,6 +316,16 @@ export default function SearchListings() {
             }}
             onClear={() => setToCoords(null)}
           />
+
+          <div className="relative w-full md:w-1/3">
+            <input
+              type="text"
+              value={collegeOfficeText}
+              onChange={(e) => setCollegeOfficeText(e.target.value)}
+              placeholder="College/Office (optional)"
+              className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#2F5EEA]"
+            />
+          </div>
 
           <button
             onClick={handleSearch}
@@ -432,6 +452,13 @@ export default function SearchListings() {
                           {person.travel_days && (
                             <div className="text-xs text-gray-600 mb-1">
                               🗓 Travel: {formatTravelDays(person.travel_days)}
+                            </div>
+                          )}
+                          
+                          {/* College/Office */}
+                          {person.college_office && (
+                            <div className="text-xs text-gray-600 mb-1">
+                              {person.college_office}
                             </div>
                           )}
                           
