@@ -7,6 +7,7 @@ import Testimonials from "./components/Testimonials";
 import SearchListings from "./components/SearchListings";
 import WhyLinq from "./components/WhyLinq";
 import CareerCTA from "./components/CareerCTA";
+import DebugEnv from "./components/DebugEnv";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement | null>(null);
@@ -51,6 +52,9 @@ export default function Home() {
       <div ref={footerRef}>
         <Footer />
       </div>
+      
+      {/* DEBUG COMPONENT - Remove after fixing API */}
+      <DebugEnv />
     </main>
   );
 }

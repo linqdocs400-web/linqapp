@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Google Apps Script API Test</h1>
+    <button onclick="testAPI()">Test API Connection</button>
+    <div id="results"></div>
+
+    <script>
+        async function testAPI() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                // Replace this with your actual Google Apps Script URL
+                const apiUrl = 'https://script.google.com/macros/s/YOUR_WEB_APP_URL_HERE/exec';
+                
+                console.log('Testing API:', apiUrl);
+                resultsDiv.innerHTML += '<p>URL: ' + apiUrl + '</p>';
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                resultsDiv.innerHTML += '<p>Status: ' + response.status + '</p>';
+                
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                
+                const data = await response.json();
+                console.log('Data received:', data);
+                resultsDiv.innerHTML += '<p>Success! Records: ' + data.length + '</p>';
+                
+                if (data.length > 0) {
+                    resultsDiv.innerHTML += '<p>Sample record: ' + JSON.stringify(data[0], null, 2) + '</p>';
+                    resultsDiv.innerHTML += '<p>College/Office field: ' + (data[0].college_office ? 'Present' : 'Missing') + '</p>';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML += '<p style="color: red;">Error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -48,12 +48,23 @@ export default function PrivateAdminDashboard() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch(API);
-      if (!response.ok) throw new Error("Failed to fetch customers");
+      console.log("Admin dashboard fetching from API:", API);
+      const response = await fetch(API, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      console.log("Admin API response status:", response.status);
+      
+      if (!response.ok) throw new Error(`Failed to fetch customers: ${response.status}`);
       const data = await response.json();
+      console.log("Admin API data:", data);
       setCustomers(data);
       setError(null);
     } catch (err) {
+      console.error("Admin API error:", err);
       setError(err instanceof Error ? err.message : "Failed to load customers");
     } finally {
       setLoading(false);
