@@ -51,9 +51,7 @@ export default function PrivateAdminDashboard() {
       console.log("Admin dashboard fetching from API:", API);
       const response = await fetch(API, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        // No headers to avoid CORS preflight
       });
       
       console.log("Admin API response status:", response.status);

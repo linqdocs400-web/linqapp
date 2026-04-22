@@ -76,9 +76,7 @@ export default function SearchListings() {
         
         const res = await fetch(apiUrl, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          // No headers to avoid CORS preflight
         });
         
         console.log("📡 Response status:", res.status);
