@@ -79,9 +79,7 @@ export default function PrivateAdminDashboard() {
       // Update customer in Google Sheets via Apps Script
       const response = await fetch(`${API}/${customerId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        // No headers to avoid CORS preflight
         body: JSON.stringify({
           ...customer,
           status: newStatus,
