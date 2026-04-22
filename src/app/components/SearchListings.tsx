@@ -56,8 +56,24 @@ export default function SearchListings() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(process.env.NEXT_PUBLIC_API_URL as string);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL as string;
+        console.log("Fetching from API:", apiUrl);
+        
+        const res = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        
+        console.log("Response status:", res.status);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const data = await res.json();
+        console.log("API response data:", data);
 
         setAllListings(data);
         setResults(data); // show all by default
