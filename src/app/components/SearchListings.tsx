@@ -96,9 +96,9 @@ export default function SearchListings() {
         setAllListings(data);
         setResults(data); // show all by default
         setLoading(false);
-      } catch (err) {
-        console.error("❌ API load error:", err);
-        console.error("❌ Error details:", err.message);
+      } catch (err: unknown) {
+        console.error("API load error:", err);
+        console.error("Error details:", err instanceof Error ? err.message : 'Unknown error');
         setError(true);
         setLoading(false);
       }
