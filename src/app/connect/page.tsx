@@ -175,7 +175,7 @@ function ConnectPageContent() {
   }
 
   // ===== SUBMIT =====
-  const API = process.env.NEXT_PUBLIC_API_URL as string;
+  const API = process.env.NEXT_PUBLIC_API_URL || "https://script.google.com/macros/s/AKfycbyRLmhAEDZ1KIDLfpfkGYfdnfPHjKJNMjIIQZF0BSaBjfhueB09yTjXniT0j7PJlqHzYA/exec";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

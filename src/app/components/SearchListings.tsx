@@ -51,7 +51,7 @@ export default function SearchListings() {
 
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const API = process.env.NEXT_PUBLIC_API_URL as string;
+  const API = process.env.NEXT_PUBLIC_API_URL || "https://script.google.com/macros/s/AKfycbyRLmhAEDZ1KIDLfpfkGYfdnfPHjKJNMjIIQZF0BSaBjfhueB09yTjXniT0j7PJlqHzYA/exec";
 
   useEffect(() => {
     async function load() {

@@ -36,7 +36,7 @@ export default function PrivateAdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const API = process.env.NEXT_PUBLIC_API_URL as string;
+  const API = process.env.NEXT_PUBLIC_API_URL || "https://script.google.com/macros/s/AKfycbyRLmhAEDZ1KIDLfpfkGYfdnfPHjKJNMjIIQZF0BSaBjfhueB09yTjXniT0j7PJlqHzYA/exec";
 
   useEffect(() => {
     fetchCustomers();
