@@ -19,6 +19,7 @@ interface Customer {
   evening_time: string;
   message: string;
   travel_days: string;
+  college_office: string;
   partner_id: string;
   status: string;
   created_at: string;
@@ -452,6 +453,15 @@ function CustomerCard({ customer, updating, onUpdateStatus, onDelete, actionLabe
           </div>
         </div>
       </div>
+
+      {/* College/Office */}
+      {customer.college_office && (
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">College/Office:</span> {customer.college_office}
+          </p>
+        </div>
+      )}
 
       {/* Message */}
       {customer.message && (
