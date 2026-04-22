@@ -228,9 +228,10 @@ function ConnectPageContent() {
         return;
       }
 
-      await fetch(API, {
+      const response = await fetch(API, {
         method: "POST",
-        body: JSON.stringify(submissionData)
+        // No headers to avoid CORS preflight
+        body: JSON.stringify(submissionData),
       });
 
       // Store submission data for success screen
