@@ -29,7 +29,7 @@ function QueryPage() {
     },
     {
       q: "How do I delete my account?",
-      a: "Go to Profile → Sign out → contact support to permanently delete data.",
+      a: "Go to Profile → delete account → permanently delete data.",
     },
   ];
 
@@ -100,14 +100,14 @@ function QueryPage() {
                 className="mt-3 flex items-center gap-3 rounded-xl bg-secondary p-3 hover:bg-secondary/80"
               >
                 <Mail className="size-5 text-primary" />
-                <span className="text-sm font-medium">hello@linq.app</span>
+                <span className="text-sm font-medium">gotogetherrides@gmail.coms</span>
               </a>
               <a
                 href="#"
                 className="mt-2 flex items-center gap-3 rounded-xl bg-secondary p-3 hover:bg-secondary/80"
               >
                 <MessageSquare className="size-5 text-primary" />
-                <span className="text-sm font-medium">Live chat</span>
+                <span className="text-sm font-medium">Live chat - On Insta @gotogetherrides</span>
               </a>
             </div>
 
