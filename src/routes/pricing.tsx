@@ -1,11 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BottomNav } from "@/components/bottom-nav";
 import { useProfile } from "@/hooks/use-profile";
 import { useRazorpay } from "@/hooks/use-razorpay";
 import { RazorpayCheckout } from "@/components/razorpay-checkout";
 import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
-import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-provider";
 
 export type Plan = "free" | "weekly" | "monthly";
@@ -55,6 +54,7 @@ function Pricing() {
   const { profile, updateProfile } = useProfile();
   const { createOrder, verifyPayment, loading, error } = useRazorpay();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const plan = profile?.plan || "free";
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -67,9 +67,9 @@ function Pricing() {
       return;
     }
 
-    // Auth check: Prevent non-authenticated users from making payments
+    // Auth check: Redirect non-authenticated users to login page
     if (!user) {
-      toast.error("Please login/signup before making payment");
+      navigate({ to: "/login" });
       return;
     }
 
