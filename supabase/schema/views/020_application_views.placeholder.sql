@@ -1,0 +1,8 @@
+-- Application-defined views (eye icon in Table Editor). Replace this file with real DDL from prod.
+--
+--   select pg_get_viewdef('public.completed_rides_view'::regclass, true);
+--   select pg_get_viewdef('public.profile_stats_view'::regclass, true);
+--
+-- Suggested names after paste:
+--   create or replace view public.completed_rides_view as ...
+--   create or replace view public.profile_stats_view as ...

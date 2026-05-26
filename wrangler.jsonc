@@ -1,7 +1,0 @@
-{
-  "name": "linqapp",
-  "compatibility_date": "2025-12-08",
-  "assets": {
-    "directory": "out" // or wherever your exported Next.js static files are
-  }
-}

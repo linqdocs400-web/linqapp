@@ -1,0 +1,24 @@
+-- Schema snapshot for linQ / go-with-me-pal (public + documented extension objects).
+-- Authoritative migrations for Supabase live in ../migrations/ (see npm run db:*).
+-- Keep this folder as readable slices; copy changes into new timestamped migrations.
+--
+-- If `npm run db:push` fails with "relation already exists", your remote DB was created
+-- before this repo's baseline migration file. Mark that migration as already applied, then push:
+--   npm run db:repair:baseline
+--   npm run db:push
+--
+-- Suggested load order (psql: \i each file in numeric order):
+--   001_set_updated_at.sql
+--   010_hotspots.sql
+--   020_profiles.sql
+--   030_hotspot_members.sql
+--   040_profile_unlocks.sql
+--   045_ride_posts.sql          -- ride listings (owner → profiles)
+--   050_reviews.sql
+--   060_completed_rides.sql
+--   065_spatial_ref_sys.sql     -- optional: conflicts if PostGIS already created the table
+--   views/020_application_views.placeholder.sql  -- paste completed_rides_view + profile_stats_view
+--
+-- PostGIS catalog (geometry_columns, geography_columns, spatial_ref_sys) is normally
+-- created by CREATE EXTENSION postgis — see views/000_postgis_extension_notes.sql
+-- Snapshot of geometry_columns body: snapshots/geometry_columns_pg_get_viewdef.txt

@@ -1,0 +1,14 @@
+-- PostGIS installs catalog objects in the public schema (names can vary slightly by version):
+--   - view public.geometry_columns
+--   - view public.geography_columns
+--   - table public.spatial_ref_sys
+--
+-- On Supabase: enable **postgis** under Database → Extensions instead of re-running catalog DDL.
+--
+-- To refresh documentation from a live project:
+--   select pg_get_viewdef('public.geometry_columns'::regclass, true);
+--   select pg_get_viewdef('public.geography_columns'::regclass, true);
+--
+-- The geometry_columns body you exported matches the standard PostGIS catalog view (introspects
+-- geometry-typed columns on tables/views/matviews). It is long and version-sensitive; this repo
+-- keeps a text snapshot under ../snapshots/ instead of a hand-maintained CREATE VIEW.
