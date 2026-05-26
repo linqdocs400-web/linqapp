@@ -14,12 +14,15 @@ interface CreateOrderResponse {
 }
 
 interface VerifyPaymentResponse {
+  success: boolean;
   verified: boolean;
   payment_id: string;
   order_id: string;
   amount: number;
   currency: string;
   status: string;
+  plan?: string;
+  expiry?: string;
 }
 
 export function useRazorpay() {
@@ -52,14 +55,15 @@ export function useRazorpay() {
   const verifyPayment = async (
     razorpay_order_id: string,
     razorpay_payment_id: string,
-    razorpay_signature: string
+    razorpay_signature: string,
+    planType?: string
   ): Promise<VerifyPaymentResponse> => {
     setLoading(true);
     setError(null);
 
     try {
       const { data, error: supabaseError } = await supabase.functions.invoke("verify-payment", {
-        body: { razorpay_order_id, razorpay_payment_id, razorpay_signature },
+        body: { razorpay_order_id, razorpay_payment_id, razorpay_signature, planType },
       });
 
       if (supabaseError) {

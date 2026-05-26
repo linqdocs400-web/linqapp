@@ -5,7 +5,9 @@ import { useRazorpay } from "@/hooks/use-razorpay";
 import { RazorpayCheckout } from "@/components/razorpay-checkout";
 import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-provider";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type Plan = "free" | "weekly" | "monthly";
 export const Route = createFileRoute("/pricing")({
@@ -55,6 +57,7 @@ function Pricing() {
   const { createOrder, verifyPayment, loading, error } = useRazorpay();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const plan = profile?.plan || "free";
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -85,21 +88,26 @@ function Pricing() {
 
   const handlePaymentSuccess = async (response: any) => {
     try {
+      console.log("Payment successful, verifying with planType:", selectedPlan);
       const verification = await verifyPayment(
         response.razorpay_order_id,
         response.razorpay_payment_id,
-        response.razorpay_signature
+        response.razorpay_signature,
+        selectedPlan
       );
 
-      if (verification.verified && selectedPlan) {
-        const expiry = new Date();
-        expiry.setDate(expiry.getDate() + (selectedPlan === "weekly" ? 7 : 30));
-        updateProfile({ plan: selectedPlan, plan_expiry: expiry.toISOString() });
+      console.log("Verification response:", verification);
+
+      if (verification.success) {
+        toast.success("Plan activated successfully!");
+        // Invalidate profile query to refresh data
+        queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
         setSelectedPlan(null);
         setOrderId(null);
       }
     } catch (err) {
       console.error("Payment verification failed:", err);
+      toast.error("Payment verification failed. Please contact support.");
     }
   };
 
