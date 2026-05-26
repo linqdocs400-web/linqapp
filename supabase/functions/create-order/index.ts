@@ -15,6 +15,7 @@ serve(async (req) => {
     const { amount, currency = 'INR', receipt } = await req.json()
 
     if (!amount || amount <= 0) {
+      console.error('Create order error: Invalid amount', { amount })
       return new Response(
         JSON.stringify({ error: 'Invalid amount' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -25,6 +26,7 @@ serve(async (req) => {
     const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')?.trim()
 
     if (!razorpayKeyId || !razorpayKeySecret) {
+      console.error('Create order error: Razorpay credentials not configured')
       return new Response(
         JSON.stringify({ error: 'Razorpay credentials not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -32,6 +34,8 @@ serve(async (req) => {
     }
 
     const auth = btoa(`${razorpayKeyId}:${razorpayKeySecret}`)
+    console.log('Creating Razorpay order', { amount, currency, receipt })
+
     const response = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
@@ -61,17 +65,20 @@ serve(async (req) => {
         ? 'Invalid Razorpay API credentials. Regenerate Key ID and Key Secret in Razorpay Dashboard (Settings → API Keys), then update RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Supabase secrets and VITE_RAZORPAY_KEY_ID in your frontend env.'
         : description
 
+      console.error('Create order error:', { status: response.status, description, error })
       return new Response(
         JSON.stringify({ error }),
         { status: isAuthError ? 401 : 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    console.log('Razorpay order created successfully', { orderId: data.id })
     return new Response(
       JSON.stringify(data),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Create order unexpected error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

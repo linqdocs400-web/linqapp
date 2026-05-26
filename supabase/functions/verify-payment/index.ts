@@ -16,6 +16,7 @@ serve(async (req) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json()
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      console.error('Verify payment error: Missing required payment details', { razorpay_order_id, razorpay_payment_id, razorpay_signature })
       return new Response(
         JSON.stringify({ error: 'Missing required payment details' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -25,11 +26,14 @@ serve(async (req) => {
     const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
 
     if (!razorpayKeySecret) {
+      console.error('Verify payment error: Razorpay credentials not configured')
       return new Response(
         JSON.stringify({ error: 'Razorpay credentials not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    console.log('Verifying Razorpay payment', { razorpay_order_id, razorpay_payment_id })
 
     // Generate signature for verification
     const generatedSignature = await createHmac(
@@ -46,6 +50,7 @@ serve(async (req) => {
     const isValid = generatedSignature === razorpay_signature
 
     if (!isValid) {
+      console.error('Verify payment error: Invalid payment signature', { generatedSignature, razorpay_signature })
       return new Response(
         JSON.stringify({ error: 'Invalid payment signature', verified: false }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -56,6 +61,7 @@ serve(async (req) => {
     const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID')
     const auth = btoa(`${razorpayKeyId}:${razorpayKeySecret}`)
     
+    console.log('Fetching payment details from Razorpay', { razorpay_payment_id })
     const paymentResponse = await fetch(`https://api.razorpay.com/v1/payments/${razorpay_payment_id}`, {
       method: 'GET',
       headers: {
@@ -66,12 +72,14 @@ serve(async (req) => {
     const paymentData = await paymentResponse.json()
 
     if (!paymentResponse.ok) {
+      console.error('Verify payment error: Failed to fetch payment details', { status: paymentResponse.status, paymentData })
       return new Response(
         JSON.stringify({ error: 'Failed to fetch payment details' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    console.log('Payment verified successfully', { payment_id: razorpay_payment_id, order_id: razorpay_order_id, status: paymentData.status })
     return new Response(
       JSON.stringify({ 
         verified: true, 
@@ -84,6 +92,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Verify payment unexpected error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
