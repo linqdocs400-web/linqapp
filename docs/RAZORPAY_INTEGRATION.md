@@ -155,10 +155,10 @@ Razorpay rejected the **Key ID + Key Secret** pair. This is not a Supabase login
 4. Push secrets to Supabase (must match `.env`):
 
 ```bash
-npx supabase secrets set RAZORPAY_KEY_ID=rzp_test_xxx RAZORPAY_KEY_SECRET=your_secret --project-ref kgpalsfmzxxfwuvtanks
+npx supabase secrets set RAZORPAY_KEY_ID=rzp_test_xxx RAZORPAY_KEY_SECRET=your_secret --project-ref <your-project-ref>
 ```
 
-5. Redeploy: `npx supabase functions deploy create-order verify-payment --project-ref kgpalsfmzxxfwuvtanks`
+5. Redeploy: `npx supabase functions deploy create-order verify-payment --project-ref <your-project-ref>`
 
 Verify credentials locally:
 
