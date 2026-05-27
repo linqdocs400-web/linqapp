@@ -13,12 +13,13 @@
 # testing
 /coverage
 
-# next.js
+# legacy Next.js (removed; kept so old artifacts are not committed)
 /.next/
 /out/
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store

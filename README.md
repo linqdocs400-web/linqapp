@@ -58,34 +58,16 @@ npm run dev
 
 ## Deployment
 
-### Vercel Deployment
+**Vercel only** — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for build settings and how to disconnect legacy Cloudflare Workers/Pages integration.
 
-This project is configured for Vercel deployment. To deploy:
+- Build: `npm run build`
+- Output: `dist`
+- SPA routes: `vercel.json`
 
-1. **Connect to Vercel**:
-   - Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
-   - Connect your repository to Vercel
-
-2. **Automatic Deployment**:
-   - Vercel will automatically detect the framework and use the `vercel.json` configuration
-   - The build command `npm run build` will be executed
-   - The output will be deployed to Vercel's global CDN
-
-3. **Environment Variables**:
-   - Set any required environment variables in your Vercel dashboard
-   - Common variables include API keys, database URLs, etc.
-
-### Manual Vercel Deployment
-
-1. Install Vercel CLI:
+### Manual Vercel deploy
 
 ```bash
 npm i -g vercel
-```
-
-2. Deploy:
-
-```bash
 vercel --prod
 ```
 
