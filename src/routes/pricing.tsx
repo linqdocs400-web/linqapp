@@ -182,9 +182,7 @@ function Pricing() {
                     : current
                       ? "Current plan"
                       : t.id === "free"
-                        ? hasPaidOrOnPaidPlan
-                          ? "Free"
-                          : "Downgrade"
+                        ? "Free"
                         : `Pay ${t.price}`}
                 </button>
               </div>
