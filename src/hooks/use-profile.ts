@@ -22,6 +22,7 @@ export type Profile = {
   emergency_phone: string;
   plan: "free" | "weekly" | "monthly";
   plan_expiry: string | null;
+  ever_paid?: boolean;
   active_days: string[];
   unlocked_ids: string[];
   rating?: number;

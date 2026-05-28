@@ -139,6 +139,7 @@ serve(async (req) => {
       .update({
         plan: planType,
         plan_expiry: expiryDate.toISOString(),
+        ever_paid: true,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)

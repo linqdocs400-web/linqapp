@@ -11,6 +11,7 @@ create table public.profiles (
   emergency_phone text null,
   plan text null default 'free'::text,
   plan_expiry timestamp with time zone null,
+  ever_paid boolean not null default false,
   active_days date[] null default '{}'::date[],
   created_at timestamp with time zone null default now(),
   unlocked_ids text[] null default '{}'::text[],

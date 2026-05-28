@@ -59,14 +59,13 @@ function Pricing() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const plan = profile?.plan || "free";
+  const everPaid = !!profile?.ever_paid;
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
 
   const handleUpgrade = async (p: Plan) => {
     if (p === "free") {
-      const expiry = new Date();
-      expiry.setDate(expiry.getDate() + 30);
-      updateProfile({ plan: p, plan_expiry: expiry.toISOString() });
+      updateProfile({ plan: p, plan_expiry: null });
       return;
     }
 
@@ -136,6 +135,7 @@ function Pricing() {
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {tiers.map((t) => {
             const current = plan === t.id;
+            const freeDisabled = t.id === "free" && everPaid;
             return (
               <div
                 key={t.id}
@@ -166,8 +166,8 @@ function Pricing() {
                   ))}
                 </ul>
                 <button
-                  disabled={current || loading}
-                  onClick={() => handleUpgrade(t.id)}
+                  disabled={current || loading || freeDisabled}
+                  onClick={freeDisabled ? undefined : () => handleUpgrade(t.id)}
                   className={`mt-7 w-full rounded-full py-3 text-sm font-semibold transition ${
                     current
                       ? "bg-secondary text-muted-foreground"
@@ -181,7 +181,9 @@ function Pricing() {
                     : current
                       ? "Current plan"
                       : t.id === "free"
-                        ? "Downgrade"
+                        ? everPaid
+                          ? "Free"
+                          : "Downgrade"
                         : `Pay ${t.price}`}
                 </button>
               </div>
