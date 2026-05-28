@@ -60,6 +60,7 @@ function Pricing() {
   const queryClient = useQueryClient();
   const plan = profile?.plan || "free";
   const everPaid = !!profile?.ever_paid;
+  const hasPaidOrOnPaidPlan = everPaid || plan !== "free" || !!profile?.plan_expiry;
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
 
@@ -135,7 +136,7 @@ function Pricing() {
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {tiers.map((t) => {
             const current = plan === t.id;
-            const freeDisabled = t.id === "free" && everPaid;
+            const freeDisabled = t.id === "free" && hasPaidOrOnPaidPlan;
             return (
               <div
                 key={t.id}
@@ -181,7 +182,7 @@ function Pricing() {
                     : current
                       ? "Current plan"
                       : t.id === "free"
-                        ? everPaid
+                        ? hasPaidOrOnPaidPlan
                           ? "Free"
                           : "Downgrade"
                         : `Pay ${t.price}`}
