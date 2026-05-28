@@ -53,19 +53,6 @@ export function useMatches(
   return useQuery({
     queryKey: ["matches", query, page, limit, showAll, excludeOwnerIds],
     queryFn: async (): Promise<PaginatedMatchResult> => {
-      if (!query)
-        return {
-          exact: [] as RidePost[],
-          nearby: [] as RidePost[],
-          routeOverlap: [] as RidePost[],
-          other: [] as RidePost[],
-          hasMore: false,
-          totalExact: 0,
-          totalNearby: 0,
-          totalRouteOverlap: 0,
-          totalOther: 0,
-        };
-
       // Get all rides (regardless of type) - matching will filter by location compatibility
       const { data, error } = await (supabase as any)
         .from("ride_posts")
@@ -170,7 +157,7 @@ export function useMatches(
         totalOther: result.other.length,
       };
     },
-    enabled: !!query,
+    enabled: !!query || showAll,
   });
 }
 
