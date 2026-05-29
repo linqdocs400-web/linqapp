@@ -17,7 +17,15 @@ import {
   Users,
   MessageCircle,
   Send,
+  Pencil,
+  X,
+  Car,
+  Bike,
+  Truck,
+  ArrowUpDown,
+  RefreshCw,
 } from "lucide-react";
+import LocationInput from "@/components/LocationInput";
 
 export const Route = createFileRoute("/trips")({
   head: () => ({ meta: [{ title: "Trips — linQ" }] }),
@@ -27,9 +35,10 @@ export const Route = createFileRoute("/trips")({
 function Trips() {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { posts, isLoading, deletePost } = useRidePosts();
+  const { posts, isLoading, deletePost, updatePost, isUpdating } = useRidePosts();
   const liveCount = useLiveRiderCount();
   const [tab, setTab] = useState<"posts" | "unlocked">("posts");
+  const [editingPost, setEditingPost] = useState<typeof posts[0] | null>(null);
 
   const myPosts = posts.filter((p) => user && p.owner_id === user.id);
   const unlocked = posts.filter((p) => profile?.unlocked_ids?.includes(p.id));
@@ -75,12 +84,20 @@ function Trips() {
                   <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase text-primary">
                     {p.ride_type === "long" ? "Planned" : p.ride_type}
                   </span>
-                  <button
-                    onClick={() => deletePost(p.id)}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setEditingPost(p)}
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                    <button
+                      onClick={() => deletePost(p.id)}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
                 </div>
                 <div className="mt-3 flex items-center gap-3 text-sm">
                   <MapPin className="size-4 text-primary" />
@@ -150,6 +167,17 @@ function Trips() {
         )}
       </div>
       <BottomNav />
+      {editingPost && (
+        <EditRideModal
+          post={editingPost}
+          onClose={() => setEditingPost(null)}
+          onSave={async (updates) => {
+            await updatePost({ postId: editingPost.id, updates });
+            setEditingPost(null);
+          }}
+          isSaving={isUpdating}
+        />
+      )}
     </main>
   );
 }
@@ -215,4 +243,266 @@ function formatContactId(method: string, id: string): string {
     return id.replace(/[^\d]/g, "");
   }
   return id.replace("@", "");
+}
+
+function EditRideModal({
+  post,
+  onClose,
+  onSave,
+  isSaving,
+}: {
+  post: any;
+  onClose: () => void;
+  onSave: (updates: any) => void;
+  isSaving: boolean;
+}) {
+  const [pickup, setPickup] = useState(post.pickup_location || "");
+  const [drop, setDrop] = useState(post.drop_location || "");
+  const [vehicleType, setVehicleType] = useState(post.vehicle_type || "");
+  const [seats, setSeats] = useState(post.seats || 1);
+  const [days, setDays] = useState<string[]>(post.days || []);
+  const [returnJourney, setReturnJourney] = useState(post.return_journey || false);
+  const [returnTime, setReturnTime] = useState(post.return_time || "");
+  const [travelTime, setTravelTime] = useState(post.journey_time || "");
+  const [date, setDate] = useState(post.journey_date || "");
+  const [time, setTime] = useState(post.journey_time || "");
+  const [pickupCoords, setPickupCoords] = useState({ lat: post.pickup_lat || 0, lon: post.pickup_lon || 0 });
+  const [dropCoords, setDropCoords] = useState({ lat: post.drop_lat || 0, lon: post.drop_lon || 0 });
+
+  const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  const handleSave = async () => {
+    const updates: any = {
+      pickup_location: pickup,
+      drop_location: drop,
+      pickup_lat: pickupCoords.lat,
+      pickup_lon: pickupCoords.lon,
+      drop_lat: dropCoords.lat,
+      drop_lon: dropCoords.lon,
+      vehicle_type: vehicleType,
+      seats,
+      days,
+      return_journey: returnJourney,
+      return_time: returnTime,
+    };
+
+    if (post.ride_type === "daily") {
+      updates.journey_time = travelTime;
+    } else if (post.ride_type === "long") {
+      updates.journey_date = date;
+      updates.journey_time = time;
+    }
+
+    await onSave(updates);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 p-5 backdrop-blur">
+      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-border bg-card p-7">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-secondary"
+        >
+          <X className="size-4" />
+        </button>
+        <h2 className="text-xl font-bold">Edit ride</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Update your ride details
+        </p>
+
+        {/* Pickup / drop */}
+        <div className="mt-5 flex items-start gap-3">
+          <div className="mt-3 flex flex-col items-center">
+            <span className="size-3 rounded-full bg-foreground" />
+            <span className="my-1 h-8 w-px bg-border" />
+            <span className="size-3 rounded-full bg-primary" />
+          </div>
+          <div className="flex-1 space-y-2">
+            <div>
+              <p className="text-[10px] font-medium tracking-wider text-muted-foreground">PICKUP</p>
+              <LocationInput
+                placeholder="Pickup location"
+                value={pickup}
+                onChange={setPickup}
+                onSelect={(data) => {
+                  setPickup(data.address);
+                  setPickupCoords({ lat: data.lat, lon: data.lon });
+                }}
+              />
+            </div>
+            <div className="h-px bg-border" />
+            <div>
+              <p className="text-[10px] font-medium tracking-wider text-muted-foreground">DROP</p>
+              <LocationInput
+                placeholder="Drop location"
+                value={drop}
+                onChange={setDrop}
+                onSelect={(data) => {
+                  setDrop(data.address);
+                  setDropCoords({ lat: data.lat, lon: data.lon });
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Vehicle */}
+        <div className="mt-4 rounded-2xl border border-border/60 bg-background/40 p-3">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Vehicle type
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: "car", label: "Car", Icon: Car },
+              { id: "bike", label: "Bike", Icon: Bike },
+              { id: "auto", label: "Auto", Icon: Truck },
+            ].map((v) => {
+              const on = vehicleType === v.id;
+              return (
+                <button
+                  type="button"
+                  key={v.id}
+                  onClick={() => setVehicleType(v.id)}
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2 text-xs font-medium transition ${
+                    on
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background"
+                  }`}
+                >
+                  <v.Icon className="size-4" /> {v.label}
+                </button>
+              );
+            })}
+          </div>
+          {vehicleType !== "bike" && (
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Seats available</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSeats(Math.max(1, seats - 1))}
+                  className="flex size-7 items-center justify-center rounded-full bg-secondary text-sm"
+                >
+                  -
+                </button>
+                <span className="text-sm font-medium">{seats}</span>
+                <button
+                  onClick={() => setSeats(Math.min(6, seats + 1))}
+                  className="flex size-7 items-center justify-center rounded-full bg-secondary text-sm"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Daily extras */}
+        {post.ride_type === "daily" && (
+          <div className="mt-3 rounded-2xl border border-border/60 bg-background/40 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Travel days
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {dayLabels.map((d) => {
+                const on = days.includes(d);
+                return (
+                  <button
+                    key={d}
+                    onClick={() => setDays(on ? days.filter((x) => x !== d) : [...days, d])}
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+                      on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-3">
+              <span className="text-xs text-muted-foreground">Travel time</span>
+              <input
+                type="time"
+                value={travelTime}
+                onChange={(e) => setTravelTime(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <RefreshCw className="size-4 text-primary" /> Open to return journey?
+              </span>
+              <button
+                onClick={() => setReturnJourney(!returnJourney)}
+                className={`w-12 h-6 rounded-full transition ${
+                  returnJourney ? "bg-primary" : "bg-secondary"
+                }`}
+              >
+                <span
+                  className={`block size-5 rounded-full bg-white transition-transform ${
+                    returnJourney ? "translate-x-6" : "translate-x-0.5"
+                  }`}
+                />
+              </button>
+            </div>
+            {returnJourney && (
+              <div className="mt-3">
+                <span className="text-xs text-muted-foreground">Return time</span>
+                <input
+                  type="time"
+                  value={returnTime}
+                  onChange={(e) => setReturnTime(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Long distance */}
+        {post.ride_type === "long" && (
+          <div className="mt-3 grid grid-cols-2 gap-3 rounded-2xl border border-border/60 bg-background/40 p-3">
+            <label className="block">
+              <span className="mb-2 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Date
+              </span>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Time
+              </span>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+          </div>
+        )}
+
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <button
+            onClick={onClose}
+            disabled={isSaving}
+            className="rounded-full border border-border bg-background py-3 text-sm font-semibold disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            {isSaving ? "Saving..." : "Save changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

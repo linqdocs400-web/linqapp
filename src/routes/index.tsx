@@ -182,6 +182,27 @@ function useRideForm() {
 
     if (post && user && profile) {
       try {
+        // Map time fields based on ride type
+        let journeyDate = q.date;
+        let journeyTime = q.time;
+
+        if (q.rideType === "daily") {
+          // For daily rides, use travelTime as journey_time
+          journeyTime = q.travelTime;
+        } else if (q.rideType === "instant") {
+          // For instant rides, use current date/time if not provided
+          const now = new Date();
+          journeyDate = now.toISOString().split('T')[0];
+          journeyTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        console.log("Creating ride post with data:", {
+          ride_type: q.rideType,
+          journey_date: journeyDate,
+          journey_time: journeyTime,
+          return_time: q.returnTime,
+          travelTime: q.travelTime,
+        });
         await createPost({
           ride_type: q.rideType,
           pickup_location: q.pickup,
@@ -195,8 +216,8 @@ function useRideForm() {
           days: q.days,
           return_journey: q.returnJourney,
           return_time: q.returnTime,
-          journey_date: q.date,
-          journey_time: q.time,
+          journey_date: journeyDate,
+          journey_time: journeyTime,
         });
       } catch (err) {
         console.error("Post Error:", err);

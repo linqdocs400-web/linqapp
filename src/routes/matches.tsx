@@ -399,6 +399,15 @@ function vehicleMeta(v: string | undefined) {
   return null;
 }
 
+function formatDate(dateStr: string): string {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
 const MatchCard = memo(function MatchCard({
   m,
   unlocked,
@@ -436,7 +445,10 @@ const MatchCard = memo(function MatchCard({
           </div>
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             <Star className="size-3 fill-primary text-primary" /> 4.9 ·{" "}
-            {m.journey_time || m.created_at}
+            {m.journey_date && m.journey_time
+              ? `${formatDate(m.journey_date)} at ${m.journey_time}`
+              : m.journey_time || "Time not specified"}
+            {m.return_time && ` · Return: ${m.return_time}`}
           </p>
         </div>
       </div>

@@ -132,6 +132,28 @@ export function useRidePosts() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ postId, updates }: { postId: string; updates: Partial<RidePost> }) => {
+      // Sanitize payload: PostgreSQL rejects "" for dates, uuids, and numbers.
+      const sanitizedData = Object.fromEntries(
+        Object.entries(updates).map(([key, value]) => [key, value === "" ? null : value]),
+      );
+
+      const { data, error } = await supabase
+        .from("ride_posts")
+        .update(sanitizedData)
+        .eq("id", postId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ride_posts"] });
+    },
+  });
+
   return {
     posts: query.data || [],
     isLoading: query.isLoading,
@@ -139,5 +161,7 @@ export function useRidePosts() {
     isCreating: createMutation.isPending,
     deletePost: deleteMutation.mutateAsync,
     isDeleting: deleteMutation.isPending,
+    updatePost: updateMutation.mutateAsync,
+    isUpdating: updateMutation.isPending,
   };
 }
