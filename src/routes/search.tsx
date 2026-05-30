@@ -25,7 +25,7 @@ const mockOrgs = [
 
 function ReferCard({ compact = false }: { compact?: boolean }) {
   const referralMsg = encodeURIComponent(
-    "Hey! Try linQ — find verified ride partners going your way. https://linq.app",
+    "Hey! Try linQ — find verified ride partners going your way. www.linqrides.in",
   );
   return (
     <section className={`rounded-3xl border border-border bg-card ${compact ? "p-4" : "p-6"}`}>
