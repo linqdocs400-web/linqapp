@@ -25,6 +25,7 @@ export type Profile = {
   ever_paid?: boolean;
   active_days: string[];
   unlocked_ids: string[];
+  unlocked_at: string[];
   rating?: number;
   trips?: number;
   institution_hotspot_id?: string;

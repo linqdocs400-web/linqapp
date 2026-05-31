@@ -83,11 +83,22 @@ function Matches() {
       return;
     }
 
+    // Check daily limit: max 12 unlocks per day for all users
+    const today = new Date().toISOString().split('T')[0];
+    const unlockedAt = profile?.unlocked_at || [];
+    const unlocksToday = unlockedAt.filter((timestamp: string) => timestamp.startsWith(today)).length;
+    const dailyLimit = 12;
+
     const freeLimit = 2 + (profile?.active_days?.length || 1) - 1;
-    const canUnlock = profile?.plan !== "free" || unlockedIds.length < freeLimit;
+    const canUnlock = (profile?.plan !== "free" || unlockedIds.length < freeLimit) && unlocksToday < dailyLimit;
 
     if (canUnlock) {
-      updateProfile({ unlocked_ids: [...unlockedIds, m.id] });
+      updateProfile({
+        unlocked_ids: [...unlockedIds, m.id],
+        unlocked_at: [...unlockedAt, new Date().toISOString()]
+      });
+    } else if (unlocksToday >= dailyLimit) {
+      alert("You've reached your daily limit of 12 profile unlocks. Try again tomorrow!");
     } else {
       setPaywallOpen(true);
     }
