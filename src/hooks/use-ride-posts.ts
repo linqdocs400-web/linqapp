@@ -96,7 +96,7 @@ export function useRidePosts() {
         .limit(1);
 
       if (existing && existing.length > 0) {
-        console.log("Duplicate ride post prevented.");
+        console.log("Duplicate ride post prevented. Showing existing matches instead.");
         return existing[0];
       }
 
