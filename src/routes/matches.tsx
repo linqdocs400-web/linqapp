@@ -7,12 +7,13 @@ import { useMatches } from "@/hooks/use-matches";
 import { useHotspotMembers } from "@/hooks/use-hotspot-members";
 import { useStore } from "@/lib/store";
 import { type RidePost } from "@/hooks/use-ride-posts";
+import { useConnectionRequests } from "@/hooks/use-connection-requests";
 import {
   BadgeCheck,
   Instagram,
   Lock,
   MessageCircle,
-  Send,
+  Send as SendIcon,
   Star,
   X,
   Sparkles,
@@ -37,6 +38,7 @@ function Matches() {
   const { lastQuery } = useStore();
   const { user } = useAuth();
   const { profile, updateProfile } = useProfile();
+  const { createRequest, sentRequests, unlockedProfiles } = useConnectionRequests();
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -64,6 +66,19 @@ function Matches() {
   const navigate = useNavigate();
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [rateFor, setRateFor] = useState<RidePost | null>(null);
+
+  // Helper function to check request status for a ride
+  const getRequestStatus = (rideId: string, ownerId: string) => {
+    const request = sentRequests?.find(
+      (r) => r.ride_id === rideId && r.receiver_id === ownerId
+    );
+    return request?.status || null;
+  };
+
+  // Check if profile is unlocked via unlocked_profiles
+  const isProfileUnlocked = (ownerId: string) => {
+    return unlockedProfiles?.some((up) => up.profile_id === ownerId) || false;
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -314,7 +329,19 @@ function Matches() {
               {hotspotMembers?.map((member) => {
                 if (member.ride) {
                   const m = member.ride;
-                  const unlocked = unlockedIds.includes(m.id);
+                  const unlocked = isProfileUnlocked(m.owner_id);
+                  const requestStatus = getRequestStatus(m.id, m.owner_id);
+                  const handleSendRequest = async () => {
+                    try {
+                      await createRequest.mutateAsync({
+                        receiverId: m.owner_id,
+                        rideId: m.id,
+                      });
+                      toast.success("Request sent successfully.");
+                    } catch (error: any) {
+                      toast.error(error.message || "Failed to send request");
+                    }
+                  };
                   return (
                     <MatchCard
                       key={m.id}
@@ -325,6 +352,8 @@ function Matches() {
                       onOpen={() => handleOpen(m)}
                       onRate={() => setRateFor(m)}
                       userName={profile?.name || "User"}
+                      requestStatus={requestStatus}
+                      onRequest={handleSendRequest}
                     />
                   );
                 }
@@ -346,7 +375,19 @@ function Matches() {
             <h2 className="text-xl font-bold text-primary mb-4">Strong Matches (Score &gt; 70)</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {matchResult?.exact?.map((m: RidePost) => {
-                const unlocked = unlockedIds.includes(m.id);
+                const unlocked = isProfileUnlocked(m.owner_id);
+                const requestStatus = getRequestStatus(m.id, m.owner_id);
+                const handleSendRequest = async () => {
+                  try {
+                    await createRequest.mutateAsync({
+                      receiverId: m.owner_id,
+                      rideId: m.id,
+                    });
+                    toast.success("Request sent successfully.");
+                  } catch (error: any) {
+                    toast.error(error.message || "Failed to send request");
+                  }
+                };
                 return (
                   <MatchCard
                     key={m.id}
@@ -357,6 +398,8 @@ function Matches() {
                     onOpen={() => handleOpen(m)}
                     onRate={() => setRateFor(m)}
                     userName={profile?.name || "User"}
+                    requestStatus={requestStatus}
+                    onRequest={handleSendRequest}
                   />
                 );
               })}
@@ -372,7 +415,19 @@ function Matches() {
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {matchResult?.nearby?.map((m: RidePost) => {
-                const unlocked = unlockedIds.includes(m.id);
+                const unlocked = isProfileUnlocked(m.owner_id);
+                const requestStatus = getRequestStatus(m.id, m.owner_id);
+                const handleSendRequest = async () => {
+                  try {
+                    await createRequest.mutateAsync({
+                      receiverId: m.owner_id,
+                      rideId: m.id,
+                    });
+                    toast.success("Request sent successfully.");
+                  } catch (error: any) {
+                    toast.error(error.message || "Failed to send request");
+                  }
+                };
                 return (
                   <MatchCard
                     key={m.id}
@@ -383,6 +438,8 @@ function Matches() {
                     onOpen={() => handleOpen(m)}
                     onRate={() => setRateFor(m)}
                     userName={profile?.name || "User"}
+                    requestStatus={requestStatus}
+                    onRequest={handleSendRequest}
                   />
                 );
               })}
@@ -400,7 +457,19 @@ function Matches() {
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {matchResult?.other?.map((m: RidePost) => {
-                const unlocked = unlockedIds.includes(m.id);
+                const unlocked = isProfileUnlocked(m.owner_id);
+                const requestStatus = getRequestStatus(m.id, m.owner_id);
+                const handleSendRequest = async () => {
+                  try {
+                    await createRequest.mutateAsync({
+                      receiverId: m.owner_id,
+                      rideId: m.id,
+                    });
+                    toast.success("Request sent successfully.");
+                  } catch (error: any) {
+                    toast.error(error.message || "Failed to send request");
+                  }
+                };
                 return (
                   <MatchCard
                     key={m.id}
@@ -411,6 +480,8 @@ function Matches() {
                     onOpen={() => handleOpen(m)}
                     onRate={() => setRateFor(m)}
                     userName={profile?.name || "User"}
+                    requestStatus={requestStatus}
+                    onRequest={handleSendRequest}
                   />
                 );
               })}
@@ -475,6 +546,8 @@ const MatchCard = memo(function MatchCard({
   onOpen,
   onRate,
   userName,
+  requestStatus,
+  onRequest,
 }: {
   m: RidePost;
   unlocked: boolean;
@@ -483,6 +556,8 @@ const MatchCard = memo(function MatchCard({
   onOpen: () => void;
   onRate: () => void;
   userName: string;
+  requestStatus: "pending" | "accepted" | "rejected" | null;
+  onRequest: () => void;
 }) {
   const vMeta = vehicleMeta(m.vehicle_type);
 
@@ -592,12 +667,26 @@ const MatchCard = memo(function MatchCard({
             <Star className="size-3.5" /> Rate this rider
           </button>
         </>
+      ) : requestStatus === "pending" ? (
+        <button
+          disabled
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-muted py-2.5 text-sm font-semibold text-muted-foreground cursor-not-allowed"
+        >
+          <Clock className="size-4" /> Request Pending
+        </button>
+      ) : requestStatus === "rejected" ? (
+        <button
+          disabled
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-muted py-2.5 text-sm font-semibold text-muted-foreground cursor-not-allowed"
+        >
+          <X className="size-4" /> Request Declined
+        </button>
       ) : (
         <button
-          onClick={onOpen}
+          onClick={onRequest}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
         >
-          <Lock className="size-4" /> Unlock contact
+          <SendIcon className="size-4" /> Send Request
         </button>
       )}
     </article>

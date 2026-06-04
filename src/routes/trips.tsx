@@ -4,7 +4,9 @@ import { BottomNav } from "@/components/bottom-nav";
 import { useAuth } from "@/lib/auth-provider";
 import { useProfile } from "@/hooks/use-profile";
 import { useRidePosts } from "@/hooks/use-ride-posts";
+import { useConnectionRequests } from "@/hooks/use-connection-requests";
 import { useLiveRiderCount } from "@/lib/live-count";
+import { toast } from "sonner";
 import {
   Calendar,
   MapPin,
@@ -16,7 +18,7 @@ import {
   Sparkles,
   Users,
   MessageCircle,
-  Send,
+  Send as SendIcon,
   Pencil,
   X,
   Car,
@@ -24,6 +26,8 @@ import {
   Truck,
   ArrowUpDown,
   RefreshCw,
+  Check,
+  Clock,
 } from "lucide-react";
 import LocationInput from "@/components/LocationInput";
 
@@ -36,12 +40,13 @@ function Trips() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { posts, isLoading, deletePost, updatePost, isUpdating } = useRidePosts();
+  const { incomingRequests, sentRequests, unlockedProfiles, acceptRequest, rejectRequest } = useConnectionRequests();
   const liveCount = useLiveRiderCount();
-  const [tab, setTab] = useState<"posts" | "unlocked">("posts");
+  const [tab, setTab] = useState<"posts" | "incoming" | "sent" | "unlocked">("posts");
   const [editingPost, setEditingPost] = useState<typeof posts[0] | null>(null);
 
   const myPosts = posts.filter((p) => user && p.owner_id === user.id);
-  const unlocked = posts.filter((p) => profile?.unlocked_ids?.includes(p.id));
+  const unlocked = posts.filter((p) => unlockedProfiles?.some((up) => up.profile_id === p.owner_id));
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -67,6 +72,12 @@ function Trips() {
         <div className="mt-6 inline-flex rounded-full border border-border bg-card p-1">
           <TabBtn active={tab === "posts"} onClick={() => setTab("posts")}>
             My ride posts
+          </TabBtn>
+          <TabBtn active={tab === "incoming"} onClick={() => setTab("incoming")}>
+            Incoming Requests
+          </TabBtn>
+          <TabBtn active={tab === "sent"} onClick={() => setTab("sent")}>
+            My Requests
           </TabBtn>
           <TabBtn active={tab === "unlocked"} onClick={() => setTab("unlocked")}>
             Unlocked profiles
@@ -117,6 +128,90 @@ function Trips() {
                 </div>
               </article>
             ))}
+          </div>
+        ) : tab === "incoming" ? (
+          <div className="mt-6 space-y-3">
+            {!incomingRequests || incomingRequests.length === 0 ? (
+              <Empty msg="No incoming connection requests." />
+            ) : (
+              incomingRequests.map((request) => (
+                <article key={request.id} className="rounded-2xl border border-border bg-card p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full bg-yellow-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase text-yellow-600">
+                      Pending Request
+                    </span>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="size-3.5" />
+                      {new Date(request.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-3 text-sm">
+                    <Users className="size-4 text-primary" />
+                    <span className="font-medium">User ID: {request.sender_id.slice(0, 8)}...</span>
+                  </div>
+                  <div className="mt-3 text-xs text-muted-foreground">
+                    Ride ID: {request.ride_id.slice(0, 8)}...
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      onClick={() => {
+                        acceptRequest.mutateAsync({
+                          requestId: request.id,
+                          senderId: request.sender_id,
+                          rideId: request.ride_id,
+                        });
+                      }}
+                      disabled={acceptRequest.isPending}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-full bg-primary py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                    >
+                      <Check className="size-3.5" /> Accept
+                    </button>
+                    <button
+                      onClick={() => {
+                        rejectRequest.mutateAsync({ requestId: request.id });
+                      }}
+                      disabled={rejectRequest.isPending}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-semibold text-foreground disabled:opacity-50"
+                    >
+                      <X className="size-3.5" /> Decline
+                    </button>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        ) : tab === "sent" ? (
+          <div className="mt-6 space-y-3">
+            {!sentRequests || sentRequests.length === 0 ? (
+              <Empty msg="You haven't sent any connection requests yet." />
+            ) : (
+              sentRequests.map((request) => (
+                <article key={request.id} className="rounded-2xl border border-border bg-card p-5">
+                  <div className="flex items-center justify-between">
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${
+                      request.status === "pending"
+                        ? "bg-yellow-500/10 text-yellow-600"
+                        : request.status === "accepted"
+                        ? "bg-green-500/10 text-green-600"
+                        : "bg-red-500/10 text-red-600"
+                    }`}>
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    </span>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="size-3.5" />
+                      {new Date(request.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-3 text-sm">
+                    <Users className="size-4 text-primary" />
+                    <span className="font-medium">To: {request.receiver_id.slice(0, 8)}...</span>
+                  </div>
+                  <div className="mt-3 text-xs text-muted-foreground">
+                    Ride ID: {request.ride_id.slice(0, 8)}...
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
