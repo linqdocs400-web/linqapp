@@ -17,12 +17,10 @@ export interface ConnectionRequest {
   sender?: {
     name: string;
     bio?: string;
-    avatar_url?: string;
   };
   receiver?: {
     name: string;
     bio?: string;
-    avatar_url?: string;
   };
   ride?: {
     pickup_location: string;
@@ -42,11 +40,7 @@ export interface UnlockedProfile {
   profile?: {
     name: string;
     bio?: string;
-    avatar_url?: string;
     phone?: string;
-    whatsapp?: string;
-    instagram?: string;
-    telegram?: string;
     email?: string;
     connect_method?: string;
     connect_id?: string;
@@ -169,7 +163,7 @@ export function useConnectionRequests() {
         .from("connection_requests")
         .select(`
           *,
-          sender:profiles!sender_id(name, bio, avatar_url),
+          sender:profiles!sender_id(name, bio),
           ride:ride_posts(pickup_location, drop_location, journey_date, vehicle_type)
         `)
         .eq("receiver_id", user.id)
@@ -192,7 +186,7 @@ export function useConnectionRequests() {
         .from("connection_requests")
         .select(`
           *,
-          receiver:profiles!receiver_id(name, bio, avatar_url),
+          receiver:profiles!receiver_id(name, bio),
           ride:ride_posts(pickup_location, drop_location, journey_date, vehicle_type)
         `)
         .eq("sender_id", user.id)
@@ -290,7 +284,7 @@ export function useConnectionRequests() {
         .from("unlocked_profiles")
         .select(`
           *,
-          profile:profiles(name, bio, avatar_url, phone, whatsapp, instagram, telegram, email, connect_method, connect_id)
+          profile:profiles(name, bio, phone, email, connect_method, connect_id)
         `)
         .eq("user_id", user.id)
         .order("unlocked_at", { ascending: false });
