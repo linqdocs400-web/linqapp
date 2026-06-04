@@ -20,7 +20,7 @@ function PaymentsPage() {
 
   const history = [
     { id: "t1", label: "Weekly plan", amount: "₹19", date: "Apr 28, 2026", status: "Paid" },
-    { id: "t2", label: "Profile unlock", amount: "Free", date: "Apr 22, 2026", status: "Free" },
+    { id: "t2", label: "Connection request", amount: "Free", date: "Apr 22, 2026", status: "Free" },
   ];
 
   return (

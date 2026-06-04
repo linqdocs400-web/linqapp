@@ -5,6 +5,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth-provider";
 import { useProfile } from "@/hooks/use-profile";
+import { useConnectionRequests } from "@/hooks/use-connection-requests";
 import {
   BadgeCheck,
   ChevronRight,
@@ -47,6 +48,7 @@ function Profile() {
   const { theme, toggle } = useTheme();
   const { user, signOut } = useAuth();
   const { profile, updateProfile } = useProfile();
+  const { todayRequestCount, getDailyRequestLimit } = useConnectionRequests();
   const navigate = useNavigate();
   const isDark = theme === "sapphire-dark";
 
@@ -57,7 +59,7 @@ function Profile() {
 
   const signedIn = !!user && !!profile;
   const name = signedIn ? profile.name : "Guest";
-  const email = signedIn ? profile.email : "Sign up to unlock your profile";
+  const email = signedIn ? profile.email : "Sign up to access your profile";
 
   const handleSignOut = async () => {
     await signOut();
@@ -72,7 +74,7 @@ function Profile() {
 
   const stats = [
     { label: "Trips", value: signedIn ? myPosts.length.toString() : "—" },
-    { label: "Unlocked", value: signedIn ? profile.unlocked_ids?.length.toString() || "0" : "—" },
+    { label: "Requests", value: signedIn ? `${todayRequestCount.data || 0} / ${getDailyRequestLimit()}` : "—" },
   ];
 
   return (
@@ -190,7 +192,7 @@ function Profile() {
               <div>
                 <p className="text-sm font-semibold leading-tight">My trips</p>
                 <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-                  Posts & unlocks
+                  Posts & requests
                 </p>
               </div>
             </Link>
@@ -388,7 +390,7 @@ function Profile() {
             </span>
             <h3 className="mt-3 text-xl font-bold">Delete your account?</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              This permanently removes your profile, posts and unlocks. This action can't be undone.
+              This permanently removes your profile, posts and requests. This action can't be undone.
             </p>
             <div className="mt-5 grid grid-cols-2 gap-2">
               <button

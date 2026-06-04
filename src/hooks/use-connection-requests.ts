@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-provider";
+import { useProfile } from "@/hooks/use-profile";
 
 export type ConnectionRequestStatus = "pending" | "accepted" | "rejected";
 
@@ -54,12 +55,71 @@ export interface UnlockedProfile {
 
 export function useConnectionRequests() {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const queryClient = useQueryClient();
+
+  // Get daily request limit based on plan
+  const getDailyRequestLimit = (): number => {
+    const plan = profile?.plan || "free";
+    switch (plan) {
+      case "weekly":
+        return 5;
+      case "monthly":
+        return 8;
+      case "free":
+      default:
+        return 2;
+    }
+  };
+
+  // Fetch today's request count for current user
+  const todayRequestCount = useQuery({
+    queryKey: ["today-request-count", user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+
+      const today = new Date().toISOString().split("T")[0];
+      const { count, error } = await supabase
+        .from("connection_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("sender_id", user.id)
+        .gte("created_at", today);
+
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user,
+  });
+
+  // Check if user can send more requests
+  const canSendRequest = (): boolean => {
+    const limit = getDailyRequestLimit();
+    const todayCount = todayRequestCount.data || 0;
+    return todayCount < limit;
+  };
+
+  // Get remaining requests for today
+  const getRemainingRequests = (): number => {
+    const limit = getDailyRequestLimit();
+    const todayCount = todayRequestCount.data || 0;
+    return Math.max(0, limit - todayCount);
+  };
 
   // Create a connection request
   const createRequest = useMutation({
     mutationFn: async ({ receiverId, rideId }: { receiverId: string; rideId: string }) => {
       if (!user) throw new Error("User not authenticated");
+
+      // Check daily request limit
+      if (!canSendRequest()) {
+        const limit = getDailyRequestLimit();
+        const plan = profile?.plan || "free";
+        if (plan === "free") {
+          throw new Error("You have reached today's request limit. Upgrade to send more connection requests.");
+        } else {
+          throw new Error(`You have used all ${limit} requests for today.`);
+        }
+      }
 
       // Check if request already exists
       const { data: existing } = await supabase
@@ -91,6 +151,7 @@ export function useConnectionRequests() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["connection-requests"] });
       queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["today-request-count"] });
     },
   });
 
@@ -263,5 +324,9 @@ export function useConnectionRequests() {
     rejectRequest,
     unlockedProfiles,
     checkRequestStatus,
+    todayRequestCount,
+    canSendRequest,
+    getRemainingRequests,
+    getDailyRequestLimit,
   };
 }

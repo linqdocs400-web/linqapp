@@ -20,8 +20,8 @@ function QueryPage() {
 
   const faqs = [
     {
-      q: "How do I unlock a profile?",
-      a: "You get 2 free unlocks. After that, choose a weekly or monthly plan.",
+      q: "How do I send a connection request?",
+      a: "You get 2 free requests per day. After that, choose a weekly or monthly plan.",
     },
     {
       q: "How do refunds work?",

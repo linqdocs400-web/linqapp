@@ -38,7 +38,7 @@ function Matches() {
   const { lastQuery } = useStore();
   const { user } = useAuth();
   const { profile, updateProfile } = useProfile();
-  const { createRequest, sentRequests, unlockedProfiles } = useConnectionRequests();
+  const { createRequest, sentRequests, unlockedProfiles, getRemainingRequests } = useConnectionRequests();
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -69,7 +69,7 @@ function Matches() {
 
   // Helper function to check request status for a ride
   const getRequestStatus = (rideId: string, ownerId: string) => {
-    const request = sentRequests?.find(
+    const request = sentRequests.data?.find(
       (r) => r.ride_id === rideId && r.receiver_id === ownerId
     );
     return request?.status || null;
@@ -77,7 +77,7 @@ function Matches() {
 
   // Check if profile is unlocked via unlocked_profiles
   const isProfileUnlocked = (ownerId: string) => {
-    return unlockedProfiles?.some((up) => up.profile_id === ownerId) || false;
+    return unlockedProfiles.data?.some((up) => up.profile_id === ownerId) || false;
   };
 
   useEffect(() => {
@@ -86,80 +86,18 @@ function Matches() {
     }
   }, []);
 
-  const unlockedIds = profile?.unlocked_ids || [];
   const isLoadingMatches = isLoading || (!!hotspotId && hotspotLoading);
   const hotspotMemberCount = hotspotMembers?.length ?? 0;
-
-  // Calculate remaining unlocks based on plan
-  const today = new Date().toISOString().split('T')[0];
-  const unlockedAt = profile?.unlocked_at || [];
-  const unlocksToday = unlockedAt.filter((timestamp: string) => timestamp.startsWith(today)).length;
-  const totalUnlocks = unlockedIds.length;
-
-  let remainingUnlocks = 0;
-  if (profile?.plan === "free") {
-    if (totalUnlocks < 2) {
-      remainingUnlocks = 2 - totalUnlocks;
-    } else {
-      remainingUnlocks = 1 - unlocksToday;
-    }
-  } else if (profile?.plan === "weekly" || profile?.plan === "monthly") {
-    remainingUnlocks = 4 - unlocksToday;
-  }
 
   function handleOpen(m: RidePost) {
     if (!user) {
       navigate({ to: "/login" });
       return;
     }
-    if (unlockedIds.includes(m.id)) {
+    // Only handle rating for unlocked profiles
+    if (isProfileUnlocked(m.owner_id)) {
       setRateFor(m);
       return;
-    }
-
-    const today = new Date().toISOString().split('T')[0];
-    const unlockedAt = profile?.unlocked_at || [];
-    const unlocksToday = unlockedAt.filter((timestamp: string) => timestamp.startsWith(today)).length;
-
-    // Plan-specific limits
-    let dailyLimit = 1; // Free users: 1 unlock per day after initial 2
-    let canUnlock = false;
-
-    if (profile?.plan === "free") {
-      // Free users: 2 initial unlocks, then 1 per day
-      const totalUnlocks = unlockedIds.length;
-      if (totalUnlocks < 2) {
-        // Initial 2 unlocks allowed
-        canUnlock = true;
-      } else {
-        // After initial 2, check daily limit of 1
-        canUnlock = unlocksToday < dailyLimit;
-      }
-    } else if (profile?.plan === "weekly" || profile?.plan === "monthly") {
-      // Weekly and Monthly: 4 unlocks per day
-      dailyLimit = 4;
-      canUnlock = unlocksToday < dailyLimit;
-    } else {
-      // Default to free plan logic
-      const totalUnlocks = unlockedIds.length;
-      if (totalUnlocks < 2) {
-        canUnlock = true;
-      } else {
-        canUnlock = unlocksToday < dailyLimit;
-      }
-    }
-
-    if (canUnlock) {
-      updateProfile({
-        unlocked_ids: [...unlockedIds, m.id],
-        unlocked_at: [...unlockedAt, new Date().toISOString()]
-      });
-    } else if (unlocksToday >= dailyLimit) {
-      const planName = profile?.plan === "free" ? "free" : profile?.plan;
-      const limit = profile?.plan === "free" ? 1 : 4;
-      alert(`You've reached your daily limit of ${limit} profile unlocks on the ${planName} plan. Try again tomorrow!`);
-    } else {
-      setPaywallOpen(true);
     }
   }
 
@@ -191,7 +129,7 @@ function Matches() {
                   0 &&
                 ` · ${(matchResult?.exact?.length || 0) + (matchResult?.nearby?.length || 0) + (matchResult?.other?.length || 0)} more route matches`}
               {" · "}
-              {remainingUnlocks > 0 ? `${remainingUnlocks} unlocks left` : 'No unlocks left'}
+              {getRemainingRequests() > 0 ? `${getRemainingRequests()} requests left` : 'No requests left'}
             </p>
           </div>
           <button
@@ -765,7 +703,7 @@ function ConnectBtn({
       Icon: Instagram,
       href: `https://instagram.com/${id.replace("@", "")}`,
     },
-    telegram: { label: "Telegram", Icon: Send, href: `https://t.me/${id.replace("@", "")}` },
+    telegram: { label: "Telegram", Icon: SendIcon, href: `https://t.me/${id.replace("@", "")}` },
   }[method];
 
   if (!active) {
@@ -918,26 +856,11 @@ function RatingQuestion({ q, onYes, onNo }: { q: string; onYes: () => void; onNo
 
 function Paywall({ onClose }: { onClose: () => void }) {
   const { profile, updateProfile } = useProfile();
-  const today = new Date().toISOString().split('T')[0];
-  const unlockedAt = profile?.unlocked_at || [];
-  const unlocksToday = unlockedAt.filter((timestamp: string) => timestamp.startsWith(today)).length;
-  const totalUnlocks = profile?.unlocked_ids?.length || 0;
+  const { todayRequestCount, getDailyRequestLimit } = useConnectionRequests();
 
-  // Calculate remaining unlocks based on plan
-  let remainingUnlocks = 0;
-  let planDesc = "";
-  if (profile?.plan === "free") {
-    if (totalUnlocks < 2) {
-      remainingUnlocks = 2 - totalUnlocks;
-      planDesc = "2 free unlocks";
-    } else {
-      remainingUnlocks = 1 - unlocksToday;
-      planDesc = "1 unlock/day";
-    }
-  } else if (profile?.plan === "weekly" || profile?.plan === "monthly") {
-    remainingUnlocks = 4 - unlocksToday;
-    planDesc = "4 unlocks/day";
-  }
+  const todayCount = todayRequestCount.data || 0;
+  const dailyLimit = getDailyRequestLimit();
+  const plan = profile?.plan || "free";
 
   function pick(plan: "weekly" | "monthly") {
     const expiry = new Date();
@@ -956,31 +879,31 @@ function Paywall({ onClose }: { onClose: () => void }) {
           <X className="size-4" />
         </button>
         <Sparkles className="size-8 text-primary" />
-        <h2 className="mt-3 text-2xl font-bold">Unlock more matches</h2>
+        <h2 className="mt-3 text-2xl font-bold">Send more requests</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          You've used your {planDesc}. Pick a plan to keep connecting.
+          You've used all {dailyLimit} requests for today. Pick a plan to send more.
         </p>
 
         <div className="mt-6 space-y-3">
-          <PlanRow title="Free" price="₹0" desc="2 free unlocks + 1/day" current />
+          <PlanRow title="Free" price="₹0" desc="2 Requests Per Day" current={plan === "free"} />
           <PlanRow
-            title="Weekly pass"
+            title="Weekly"
             price="₹19"
-            desc="4 unlocks/day for 7 days"
+            desc="5 Requests Per Day, Valid For 7 Days"
             cta="Pay ₹19"
             onClick={() => pick("weekly")}
           />
           <PlanRow
             title="Monthly"
             price="₹49"
-            desc="4 unlocks/day for 30 days"
+            desc="8 Requests Per Day, Valid For 30 Days"
             highlight
             cta="Pay ₹49"
             onClick={() => pick("monthly")}
           />
         </div>
         <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          Razorpay coming soon. Mock unlock for now.
+          Razorpay coming soon. Mock upgrade for now.
         </p>
         <Link to="/pricing" className="mt-2 block text-center text-xs font-medium text-primary">
           See full pricing
