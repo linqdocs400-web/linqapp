@@ -148,7 +148,11 @@ export function useConnectionRequests() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(["sent-requests", user?.id], (oldData: any) => {
+        if (!oldData) return [data];
+        return [data, ...oldData];
+      });
       queryClient.invalidateQueries({ queryKey: ["connection-requests"] });
       queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
       queryClient.invalidateQueries({ queryKey: ["today-request-count"] });

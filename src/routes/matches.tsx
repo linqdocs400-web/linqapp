@@ -124,9 +124,9 @@ function Matches() {
                 : `${(matchResult?.exact?.length || 0) + (matchResult?.nearby?.length || 0) + (matchResult?.routeOverlap?.length || 0) + (matchResult?.other?.length || 0)} riders ${showAll ? "available now" : "matched"}`}
               {hotspotId &&
                 (matchResult?.exact?.length || 0) +
-                  (matchResult?.nearby?.length || 0) +
-                  (matchResult?.other?.length || 0) >
-                  0 &&
+                (matchResult?.nearby?.length || 0) +
+                (matchResult?.other?.length || 0) >
+                0 &&
                 ` · ${(matchResult?.exact?.length || 0) + (matchResult?.nearby?.length || 0) + (matchResult?.other?.length || 0)} more route matches`}
               {" · "}
               {getRemainingRequests() > 0 ? `${getRemainingRequests()} requests left` : 'No requests left'}
@@ -498,6 +498,7 @@ const MatchCard = memo(function MatchCard({
   onRequest: () => void;
 }) {
   const vMeta = vehicleMeta(m.vehicle_type);
+  const [isSending, setIsSending] = useState(false);
 
   const getRideTypeLabel = (type: string) => {
     if (type === "instant") return "Instant";
@@ -621,10 +622,23 @@ const MatchCard = memo(function MatchCard({
         </button>
       ) : (
         <button
-          onClick={onRequest}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
+          onClick={async () => {
+            setIsSending(true);
+            try {
+              await onRequest();
+            } finally {
+              setIsSending(false);
+            }
+          }}
+          disabled={isSending}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
-          <SendIcon className="size-4" /> Send Request
+          {isSending ? (
+            <div className="size-4 border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin rounded-full" />
+          ) : (
+            <SendIcon className="size-4" />
+          )}
+          {isSending ? "Sending..." : "Send Request"}
         </button>
       )}
     </article>
