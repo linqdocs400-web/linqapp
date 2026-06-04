@@ -46,7 +46,7 @@ function Trips() {
   const [editingPost, setEditingPost] = useState<typeof posts[0] | null>(null);
 
   const myPosts = posts.filter((p) => user && p.owner_id === user.id);
-  const unlocked = posts.filter((p) => unlockedProfiles?.some((up) => up.profile_id === p.owner_id));
+  const unlocked = posts.filter((p) => unlockedProfiles.data?.some((up) => up.profile_id === p.owner_id));
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -131,10 +131,10 @@ function Trips() {
           </div>
         ) : tab === "incoming" ? (
           <div className="mt-6 space-y-3">
-            {!incomingRequests || incomingRequests.length === 0 ? (
+            {!incomingRequests.data || incomingRequests.data.length === 0 ? (
               <Empty msg="No incoming connection requests." />
             ) : (
-              incomingRequests.map((request) => (
+              incomingRequests.data.map((request) => (
                 <article key={request.id} className="rounded-2xl border border-border bg-card p-5">
                   <div className="flex items-center justify-between">
                     <span className="rounded-full bg-yellow-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase text-yellow-600">
@@ -182,10 +182,10 @@ function Trips() {
           </div>
         ) : tab === "sent" ? (
           <div className="mt-6 space-y-3">
-            {!sentRequests || sentRequests.length === 0 ? (
+            {!sentRequests.data || sentRequests.data.length === 0 ? (
               <Empty msg="You haven't sent any connection requests yet." />
             ) : (
-              sentRequests.map((request) => (
+              sentRequests.data.map((request) => (
                 <article key={request.id} className="rounded-2xl border border-border bg-card p-5">
                   <div className="flex items-center justify-between">
                     <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${
