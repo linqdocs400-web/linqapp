@@ -21,7 +21,6 @@ export interface ConnectionRequest {
   sender?: {
     name: string;
     bio?: string;
-<<<<<<< HEAD
     avatar_url?: string;
     phone?: string;
     whatsapp?: string;
@@ -30,13 +29,10 @@ export interface ConnectionRequest {
     email?: string;
     connect_method?: string;
     connect_id?: string;
-=======
->>>>>>> 1d98238d1df0fac2c92ff3d92b55e2e4dabc09ba
   };
   receiver?: {
     name: string;
     bio?: string;
-<<<<<<< HEAD
     avatar_url?: string;
     phone?: string;
     whatsapp?: string;
@@ -45,8 +41,6 @@ export interface ConnectionRequest {
     email?: string;
     connect_method?: string;
     connect_id?: string;
-=======
->>>>>>> 1d98238d1df0fac2c92ff3d92b55e2e4dabc09ba
   };
   ride?: {
     pickup_location: string;
@@ -228,11 +222,7 @@ export function useConnectionRequests() {
         .from("connection_requests")
         .select(`
           *,
-<<<<<<< HEAD
           receiver:profiles!receiver_profile_id(name, bio, avatar_url, phone, whatsapp, instagram, telegram, email, connect_method, connect_id),
-=======
-          receiver:profiles!receiver_id(name, bio),
->>>>>>> 1d98238d1df0fac2c92ff3d92b55e2e4dabc09ba
           ride:ride_posts(pickup_location, drop_location, journey_date, vehicle_type)
         `)
         .eq("sender_id", user.id)
