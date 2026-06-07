@@ -69,15 +69,19 @@ function Matches() {
 
   // Helper function to check request status for a ride
   const getRequestStatus = (rideId: string, ownerId: string) => {
-    const request = sentRequests.data?.find(
-      (r) => r.ride_id === rideId && r.receiver_id === ownerId
-    );
+    const request = Array.isArray(sentRequests.data)
+      ? sentRequests.data.find(
+          (r) => r.ride_id === rideId && r.receiver_id === ownerId
+        )
+      : null;
     return request?.status || null;
   };
 
   // Check if profile is unlocked via unlocked_profiles
   const isProfileUnlocked = (ownerId: string) => {
-    return unlockedProfiles.data?.some((up) => up.profile_id === ownerId) || false;
+    return Array.isArray(unlockedProfiles.data)
+      ? unlockedProfiles.data.some((up) => up.profile_id === ownerId)
+      : false;
   };
 
   useEffect(() => {

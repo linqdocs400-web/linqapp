@@ -46,7 +46,9 @@ function Trips() {
   const [editingPost, setEditingPost] = useState<typeof posts[0] | null>(null);
 
   const myPosts = posts.filter((p) => user && p.owner_id === user.id);
-  const unlocked = posts.filter((p) => unlockedProfiles?.some((up) => up.profile_id === p.owner_id));
+  const unlocked = posts.filter((p) =>
+    Array.isArray(unlockedProfiles) ? unlockedProfiles.some((up) => up.profile_id === p.owner_id) : false
+  );
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -131,61 +133,10 @@ function Trips() {
           </div>
         ) : tab === "incoming" ? (
           <div className="mt-6 space-y-3">
-            {!incomingRequests || incomingRequests.length === 0 ? (
+            {!incomingRequests.data || incomingRequests.data.length === 0 ? (
               <Empty msg="No incoming connection requests." />
             ) : (
-              incomingRequests.map((request) => (
-                <article key={request.id} className="rounded-2xl border border-border bg-card p-5">
-                  <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-yellow-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase text-yellow-600">
-                      Pending Request
-                    </span>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="size-3.5" />
-                      {new Date(request.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center gap-3 text-sm">
-                    <Users className="size-4 text-primary" />
-                    <span className="font-medium">User ID: {request.sender_id.slice(0, 8)}...</span>
-                  </div>
-                  <div className="mt-3 text-xs text-muted-foreground">
-                    Ride ID: {request.ride_id.slice(0, 8)}...
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <button
-                      onClick={() => {
-                        acceptRequest.mutateAsync({
-                          requestId: request.id,
-                          senderId: request.sender_id,
-                          rideId: request.ride_id,
-                        });
-                      }}
-                      disabled={acceptRequest.isPending}
-                      className="flex-1 flex items-center justify-center gap-1.5 rounded-full bg-primary py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-                    >
-                      <Check className="size-3.5" /> Accept
-                    </button>
-                    <button
-                      onClick={() => {
-                        rejectRequest.mutateAsync({ requestId: request.id });
-                      }}
-                      disabled={rejectRequest.isPending}
-                      className="flex-1 flex items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-semibold text-foreground disabled:opacity-50"
-                    >
-                      <X className="size-3.5" /> Decline
-                    </button>
-                  </div>
-                </article>
-              ))
-            )}
-          </div>
-        ) : tab === "sent" ? (
-          <div className="mt-6 space-y-3">
-            {!sentRequests || sentRequests.length === 0 ? (
-              <Empty msg="You haven't sent any connection requests yet." />
-            ) : (
-              sentRequests.map((request) => (
+              incomingRequests.data.map((request) => (
                 <article key={request.id} className="rounded-2xl border border-border bg-card p-5">
                   <div className="flex items-center justify-between">
                     <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${
@@ -202,13 +153,154 @@ function Trips() {
                       {new Date(request.created_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center gap-3 text-sm">
-                    <Users className="size-4 text-primary" />
-                    <span className="font-medium">To: {request.receiver_id.slice(0, 8)}...</span>
+                  {request.sender && (
+                    <div className="mt-3 flex items-center gap-3">
+                      <div className="size-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {request.sender.avatar_url ? (
+                          <img
+                            src={request.sender.avatar_url}
+                            alt={request.sender.name}
+                            className="size-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <Users className="size-6 text-primary/40" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{request.sender.name}</p>
+                        {request.sender.bio && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">"{request.sender.bio}"</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {request.ride && (
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <MapPin className="size-3.5" />
+                      <span>{request.ride.pickup_location} → {request.ride.drop_location}</span>
+                    </div>
+                  )}
+                  {request.status === "pending" && (
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        onClick={() => {
+                          acceptRequest.mutate(request.id, {
+                            onSuccess: () => {
+                              toast.success("Request accepted successfully!");
+                            },
+                            onError: (error) => {
+                              toast.error("Failed to accept request. Please try again.");
+                              console.error("Accept error:", error);
+                            },
+                          });
+                        }}
+                        disabled={acceptRequest.isPending}
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-full bg-primary py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                      >
+                        <Check className="size-3.5" /> Accept
+                      </button>
+                      <button
+                        onClick={() => {
+                          rejectRequest.mutate(request.id, {
+                            onSuccess: () => {
+                              toast.success("Request declined successfully!");
+                            },
+                            onError: (error) => {
+                              toast.error("Failed to decline request. Please try again.");
+                              console.error("Reject error:", error);
+                            },
+                          });
+                        }}
+                        disabled={rejectRequest.isPending}
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-semibold text-foreground disabled:opacity-50"
+                      >
+                        <X className="size-3.5" /> Decline
+                      </button>
+                    </div>
+                  )}
+                  {request.status === "accepted" && request.sender && (
+                    <div className="mt-4">
+                      {request.sender.connect_method && request.sender.connect_id && (
+                        <a
+                          href={getContactLink(request.sender.connect_method, request.sender.connect_id)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          {getContactIcon(request.sender.connect_method)}
+                          Contact via {request.sender.connect_method}
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </article>
+              ))
+            )}
+          </div>
+        ) : tab === "sent" ? (
+          <div className="mt-6 space-y-3">
+            {!sentRequests.data || sentRequests.data.length === 0 ? (
+              <Empty msg="You haven't sent any connection requests yet." />
+            ) : (
+              sentRequests.data.map((request) => (
+                <article key={request.id} className="rounded-2xl border border-border bg-card p-5">
+                  <div className="flex items-center justify-between">
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${
+                      request.status === "pending"
+                        ? "bg-yellow-500/10 text-yellow-600"
+                        : request.status === "accepted"
+                        ? "bg-green-500/10 text-green-600"
+                        : "bg-red-500/10 text-red-600"
+                    }`}>
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    </span>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="size-3.5" />
+                      {new Date(request.created_at).toLocaleDateString()}
+                    </div>
                   </div>
-                  <div className="mt-3 text-xs text-muted-foreground">
-                    Ride ID: {request.ride_id.slice(0, 8)}...
-                  </div>
+                  {request.receiver && (
+                    <div className="mt-3 flex items-center gap-3">
+                      <div className="size-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {request.receiver.avatar_url ? (
+                          <img
+                            src={request.receiver.avatar_url}
+                            alt={request.receiver.name}
+                            className="size-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <Users className="size-6 text-primary/40" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{request.receiver.name}</p>
+                        {request.receiver.bio && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">"{request.receiver.bio}"</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {request.ride && (
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <MapPin className="size-3.5" />
+                      <span>{request.ride.pickup_location} → {request.ride.drop_location}</span>
+                    </div>
+                  )}
+                  {request.status === "accepted" && request.receiver && (
+                    <div className="mt-4">
+                      {request.receiver.connect_method && request.receiver.connect_id && (
+                        <a
+                          href={getContactLink(request.receiver.connect_method, request.receiver.connect_id)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          {getContactIcon(request.receiver.connect_method)}
+                          Contact via {request.receiver.connect_method}
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </article>
               ))
             )}
@@ -328,7 +420,7 @@ function getContactIcon(method: string) {
   } else if (method === "instagram") {
     return <MessageCircle className="size-3.5" />;
   } else if (method === "telegram") {
-    return <Send className="size-3.5" />;
+    return <SendIcon className="size-3.5" />;
   }
   return null;
 }
