@@ -21,6 +21,7 @@ export interface ConnectionRequest {
   sender?: {
     name: string;
     bio?: string;
+<<<<<<< HEAD
     avatar_url?: string;
     phone?: string;
     whatsapp?: string;
@@ -29,10 +30,13 @@ export interface ConnectionRequest {
     email?: string;
     connect_method?: string;
     connect_id?: string;
+=======
+>>>>>>> 1d98238d1df0fac2c92ff3d92b55e2e4dabc09ba
   };
   receiver?: {
     name: string;
     bio?: string;
+<<<<<<< HEAD
     avatar_url?: string;
     phone?: string;
     whatsapp?: string;
@@ -41,6 +45,8 @@ export interface ConnectionRequest {
     email?: string;
     connect_method?: string;
     connect_id?: string;
+=======
+>>>>>>> 1d98238d1df0fac2c92ff3d92b55e2e4dabc09ba
   };
   ride?: {
     pickup_location: string;
@@ -60,11 +66,7 @@ export interface UnlockedProfile {
   profile?: {
     name: string;
     bio?: string;
-    avatar_url?: string;
     phone?: string;
-    whatsapp?: string;
-    instagram?: string;
-    telegram?: string;
     email?: string;
     connect_method?: string;
     connect_id?: string;
@@ -176,7 +178,11 @@ export function useConnectionRequests() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(["sent-requests", user?.id], (oldData: any) => {
+        if (!oldData) return [data];
+        return [data, ...oldData];
+      });
       queryClient.invalidateQueries({ queryKey: ["connection-requests"] });
       queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
       queryClient.invalidateQueries({ queryKey: ["today-request-count"] });
@@ -222,7 +228,11 @@ export function useConnectionRequests() {
         .from("connection_requests")
         .select(`
           *,
+<<<<<<< HEAD
           receiver:profiles!receiver_profile_id(name, bio, avatar_url, phone, whatsapp, instagram, telegram, email, connect_method, connect_id),
+=======
+          receiver:profiles!receiver_id(name, bio),
+>>>>>>> 1d98238d1df0fac2c92ff3d92b55e2e4dabc09ba
           ride:ride_posts(pickup_location, drop_location, journey_date, vehicle_type)
         `)
         .eq("sender_id", user.id)
@@ -370,7 +380,7 @@ export function useConnectionRequests() {
         .from("unlocked_profiles")
         .select(`
           *,
-          profile:profiles(name, bio, avatar_url, phone, whatsapp, instagram, telegram, email, connect_method, connect_id)
+          profile:profiles(name, bio, phone, email, connect_method, connect_id)
         `)
         .eq("user_id", user.id)
         .order("unlocked_at", { ascending: false });
