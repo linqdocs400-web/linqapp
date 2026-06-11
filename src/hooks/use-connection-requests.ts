@@ -46,6 +46,103 @@ export interface ConnectionRequest {
   };
 }
 
+const CONNECTION_REQUEST_SELECT =
+  "id, sender_id, receiver_id, ride_id, status, created_at, updated_at";
+
+const RIDE_SELECT =
+  "id, pickup_location, drop_location, journey_date, journey_time, vehicle_type, seats, ride_type, days, return_journey, return_time";
+
+const PROFILE_SELECT = "id, name, bio, gender, connect_method, connect_id";
+
+type ProfileRow = {
+  id: string;
+  name: string;
+  bio?: string;
+  gender?: string;
+  connect_method?: string;
+  connect_id?: string;
+};
+
+type RideRow = {
+  id: string;
+  pickup_location?: string | null;
+  drop_location?: string | null;
+  journey_date?: string | null;
+  journey_time?: string | null;
+  vehicle_type?: string | null;
+  seats?: number | null;
+  ride_type?: string | null;
+  days?: string[] | null;
+  return_journey?: boolean | null;
+  return_time?: string | null;
+};
+
+async function enrichConnectionRequests(
+  requests: ConnectionRequest[],
+  profileKey: "sender" | "receiver",
+  profileIds: string[],
+): Promise<ConnectionRequest[]> {
+  if (requests.length === 0) return [];
+
+  const uniqueProfileIds = [...new Set(profileIds.filter(Boolean))];
+  const rideIds = [...new Set(requests.map((r) => r.ride_id).filter(Boolean))];
+
+  const [profilesResult, ridesResult] = await Promise.all([
+    uniqueProfileIds.length > 0
+      ? supabase.from("profiles").select(PROFILE_SELECT).in("id", uniqueProfileIds)
+      : Promise.resolve({ data: [] as ProfileRow[], error: null }),
+    rideIds.length > 0
+      ? supabase.from("ride_posts").select(RIDE_SELECT).in("id", rideIds)
+      : Promise.resolve({ data: [] as RideRow[], error: null }),
+  ]);
+
+  if (profilesResult.error) {
+    console.error("Failed to load profiles for connection requests:", profilesResult.error);
+  }
+  if (ridesResult.error) {
+    console.error("Failed to load rides for connection requests:", ridesResult.error);
+  }
+
+  const profilesById = new Map(
+    (profilesResult.data ?? []).map((p) => [p.id, p]),
+  );
+  const ridesById = new Map((ridesResult.data ?? []).map((r) => [r.id, r]));
+
+  return requests.map((request) => {
+    const profileId =
+      profileKey === "sender" ? request.sender_id : request.receiver_id;
+    const profile = profilesById.get(profileId);
+    const ride = ridesById.get(request.ride_id);
+
+    return {
+      ...request,
+      [profileKey]: profile
+        ? {
+            name: profile.name,
+            bio: profile.bio,
+            gender: profile.gender,
+            connect_method: profile.connect_method,
+            connect_id: profile.connect_id,
+          }
+        : undefined,
+      ride: ride
+        ? {
+            pickup_location: ride.pickup_location,
+            drop_location: ride.drop_location,
+            journey_date: ride.journey_date,
+            journey_time: ride.journey_time,
+            vehicle_type: ride.vehicle_type,
+            seats: ride.seats,
+            ride_type: ride.ride_type,
+            days: ride.days,
+            return_journey: ride.return_journey,
+            return_time: ride.return_time,
+          }
+        : undefined,
+    };
+  });
+}
+
 export interface UnlockedProfile {
   id: string;
   user_id: string;
@@ -88,15 +185,13 @@ export function useConnectionRequests() {
     queryFn: async () => {
       if (!user) return 0;
 
-      const today = new Date().toISOString().split("T")[0];
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
       const { count, error } = await supabase
         .from("connection_requests")
-        .select("*", { count: "exact", head: true })
+        .select("id", { count: "exact", head: true })
         .eq("sender_id", user.id)
-        .gte("created_at", today);
-
-      console.log("QUERY RESULT - todayRequestCount", count);
-      console.log("QUERY ERROR - todayRequestCount", error);
+        .gte("created_at", startOfToday.toISOString());
 
       if (error) throw error;
       return count || 0;
@@ -159,22 +254,16 @@ export function useConnectionRequests() {
         .insert({
           sender_id: user.id,
           receiver_id: receiverId,
-          sender_profile_id: user.id,
-          receiver_profile_id: receiverId,
           ride_id: rideId,
           status: "pending",
         })
-        .select()
+        .select(CONNECTION_REQUEST_SELECT)
         .single();
 
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData(["sent-requests", user?.id], (oldData: any) => {
-        if (!oldData) return [data];
-        return [data, ...oldData];
-      });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["connection-requests"] });
       queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
       queryClient.invalidateQueries({ queryKey: ["today-request-count"] });
@@ -189,23 +278,16 @@ export function useConnectionRequests() {
 
       const { data, error } = await supabase
         .from("connection_requests")
-        .select(`
-          *,
-          sender:profiles!sender_id(name, bio, gender, connect_method, connect_id),
-          ride:ride_posts(pickup_location, drop_location, journey_date, journey_time, vehicle_type, seats, ride_type, days, return_journey, return_time)
-        `)
+        .select(CONNECTION_REQUEST_SELECT)
         .eq("receiver_id", user.id)
         .order("created_at", { ascending: false });
 
-      console.log("QUERY RESULT - incomingRequests", data);
-      console.log("QUERY ERROR - incomingRequests", error);
-      console.log("QUERY ERROR CODE - incomingRequests", error?.code);
-      console.log("QUERY ERROR MESSAGE - incomingRequests", error?.message);
-      console.log("QUERY ERROR DETAILS - incomingRequests", error?.details);
-      console.log("QUERY ERROR HINT - incomingRequests", error?.hint);
-
       if (error) throw error;
-      return data as ConnectionRequest[];
+      return enrichConnectionRequests(
+        (data ?? []) as ConnectionRequest[],
+        "sender",
+        (data ?? []).map((r) => r.sender_id),
+      );
     },
     enabled: !!user,
   });
@@ -218,23 +300,16 @@ export function useConnectionRequests() {
 
       const { data, error } = await supabase
         .from("connection_requests")
-        .select(`
-          *,
-          receiver:profiles!receiver_id(name, bio, gender, connect_method, connect_id),
-          ride:ride_posts(pickup_location, drop_location, journey_date, journey_time, vehicle_type, seats, ride_type, days, return_journey, return_time)
-        `)
+        .select(CONNECTION_REQUEST_SELECT)
         .eq("sender_id", user.id)
         .order("created_at", { ascending: false });
 
-      console.log("QUERY RESULT - sentRequests", data);
-      console.log("QUERY ERROR - sentRequests", error);
-      console.log("QUERY ERROR CODE - sentRequests", error?.code);
-      console.log("QUERY ERROR MESSAGE - sentRequests", error?.message);
-      console.log("QUERY ERROR DETAILS - sentRequests", error?.details);
-      console.log("QUERY ERROR HINT - sentRequests", error?.hint);
-
       if (error) throw error;
-      return data as ConnectionRequest[];
+      return enrichConnectionRequests(
+        (data ?? []) as ConnectionRequest[],
+        "receiver",
+        (data ?? []).map((r) => r.receiver_id),
+      );
     },
     enabled: !!user,
   });
@@ -247,12 +322,9 @@ export function useConnectionRequests() {
 
       const { count, error } = await supabase
         .from("connection_requests")
-        .select("*", { count: "exact", head: true })
+        .select("id", { count: "exact", head: true })
         .eq("receiver_id", user.id)
         .eq("status", "pending");
-
-      console.log("QUERY RESULT - pendingCount", count);
-      console.log("QUERY ERROR - pendingCount", error);
 
       if (error) throw error;
       return count || 0;
@@ -270,24 +342,15 @@ export function useConnectionRequests() {
       // Update request status
       const { data: requestData, error: requestError } = await supabase
         .from("connection_requests")
-        .update({ status: "accepted", accepted_at: new Date().toISOString() })
+        .update({ status: "accepted" })
         .eq("id", requestId)
-        .select()
+        .select(CONNECTION_REQUEST_SELECT)
         .single();
-
-      console.log("ACCEPT REQUEST - requestData", requestData);
-      console.log("ACCEPT REQUEST - requestError", requestError);
-      console.log("ACCEPT REQUEST - requestError code", requestError?.code);
-      console.log("ACCEPT REQUEST - requestError message", requestError?.message);
-      console.log("ACCEPT REQUEST - requestError details", requestError?.details);
-      console.log("ACCEPT REQUEST - requestError hint", requestError?.hint);
 
       if (requestError) {
         console.error("ACCEPT REQUEST - Failed to update request status:", requestError);
         throw requestError;
       }
-
-      console.log("ACCEPT REQUEST - Successfully accepted request:", requestId);
       return requestData;
     },
     onSuccess: () => {
@@ -311,24 +374,15 @@ export function useConnectionRequests() {
 
       const { data, error } = await supabase
         .from("connection_requests")
-        .update({ status: "rejected", rejected_at: new Date().toISOString() })
+        .update({ status: "rejected" })
         .eq("id", requestId)
-        .select()
+        .select(CONNECTION_REQUEST_SELECT)
         .single();
-
-      console.log("REJECT REQUEST - data", data);
-      console.log("REJECT REQUEST - error", error);
-      console.log("REJECT REQUEST - error code", error?.code);
-      console.log("REJECT REQUEST - error message", error?.message);
-      console.log("REJECT REQUEST - error details", error?.details);
-      console.log("REJECT REQUEST - error hint", error?.hint);
 
       if (error) {
         console.error("REJECT REQUEST - Failed to reject request:", error);
         throw error;
       }
-
-      console.log("REJECT REQUEST - Successfully rejected request:", requestId);
       return data;
     },
     onSuccess: () => {
@@ -348,26 +402,53 @@ export function useConnectionRequests() {
     queryFn: async () => {
       if (!user) return [];
 
-      const { data, error } = await supabase
+      const { data: rows, error } = await supabase
         .from("unlocked_profiles")
-        .select(`
-          *,
-          profile:profiles(name, bio, phone, email, connect_method, connect_id)
-        `)
+        .select("id, user_id, profile_id, request_id, unlocked_at")
         .eq("user_id", user.id)
         .order("unlocked_at", { ascending: false });
 
-      console.log("QUERY RESULT - unlockedProfiles", data);
-      console.log("QUERY ERROR - unlockedProfiles", error);
-      console.log("QUERY ERROR CODE - unlockedProfiles", error?.code);
-      console.log("QUERY ERROR MESSAGE - unlockedProfiles", error?.message);
-      console.log("QUERY ERROR DETAILS - unlockedProfiles", error?.details);
-      console.log("QUERY ERROR HINT - unlockedProfiles", error?.hint);
-
       if (error) throw error;
-      return data as UnlockedProfile[];
+      if (!rows?.length) return [];
+
+      const profileIds = [...new Set(rows.map((r) => r.profile_id))];
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, name, bio, phone, email, connect_method, connect_id")
+        .in("id", profileIds);
+
+      if (profilesError) {
+        console.error("Failed to load unlocked profile details:", profilesError);
+      }
+
+      const profilesById = new Map((profiles ?? []).map((p) => [p.id, p]));
+
+      return rows.map((row) => ({
+        ...row,
+        profile: profilesById.get(row.profile_id),
+      })) as UnlockedProfile[];
     },
     enabled: !!user,
+  });
+
+  // Delete a sent request (sender only)
+  const deleteRequest = useMutation({
+    mutationFn: async (requestId: string) => {
+      if (!user) throw new Error("User not authenticated");
+
+      const { error } = await supabase
+        .from("connection_requests")
+        .delete()
+        .eq("id", requestId)
+        .eq("sender_id", user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["today-request-count"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-count"] });
+    },
   });
 
   // Check if request exists for a specific ride
@@ -395,6 +476,7 @@ export function useConnectionRequests() {
     pendingCount,
     acceptRequest,
     rejectRequest,
+    deleteRequest,
     unlockedProfiles,
     checkRequestStatus,
     todayRequestCount,

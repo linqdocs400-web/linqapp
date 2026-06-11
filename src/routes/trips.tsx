@@ -43,7 +43,14 @@ function Trips() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { posts, isLoading, deletePost, updatePost, isUpdating } = useRidePosts();
-  const { incomingRequests, sentRequests, unlockedProfiles, acceptRequest, rejectRequest } = useConnectionRequests();
+  const {
+    incomingRequests,
+    sentRequests,
+    unlockedProfiles,
+    acceptRequest,
+    rejectRequest,
+    deleteRequest,
+  } = useConnectionRequests();
   const liveCount = useLiveRiderCount();
   const [tab, setTab] = useState<"posts" | "incoming" | "sent" | "unlocked">("posts");
   const [editingPost, setEditingPost] = useState<typeof posts[0] | null>(null);
@@ -169,7 +176,11 @@ function Trips() {
           </div>
         ) : tab === "sent" ? (
           <div className="mt-6 space-y-3">
-            {!sentRequests.data || sentRequests.data.length === 0 ? (
+            {sentRequests.isLoading ? (
+              <p className="text-center text-sm text-muted-foreground">Loading your requests…</p>
+            ) : sentRequests.isError ? (
+              <Empty msg="Could not load your requests. Pull to refresh or try again." />
+            ) : !sentRequests.data || sentRequests.data.length === 0 ? (
               <Empty msg="You haven't sent any connection requests yet." />
             ) : (
               sentRequests.data.map((request) => (
@@ -177,6 +188,13 @@ function Trips() {
                   key={request.id}
                   request={request}
                   variant="sent"
+                  onDelete={() => {
+                    deleteRequest.mutate(request.id, {
+                      onSuccess: () => toast.success("Request deleted."),
+                      onError: () => toast.error("Failed to delete request. Please try again."),
+                    });
+                  }}
+                  deleteDisabled={deleteRequest.isPending}
                 />
               ))
             )}
@@ -327,9 +345,13 @@ function RideDetails({
 function PersonSummary({
   person,
   label,
+  showContactHint,
+  contactHint,
 }: {
-  person: { name: string; bio?: string; gender?: string };
+  person: { name: string; bio?: string; gender?: string; connect_method?: string };
   label: string;
+  showContactHint?: boolean;
+  contactHint?: string;
 }) {
   return (
     <div className="mt-3">
@@ -340,13 +362,19 @@ function PersonSummary({
         <div className="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5">
           <Users className="size-6 text-primary/40" />
         </div>
-        <div>
-          <p className="text-sm font-semibold">{person.name}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">{person.name || "Unknown rider"}</p>
           {person.gender && (
             <p className="text-xs capitalize text-muted-foreground">{person.gender}</p>
           )}
           {person.bio && (
             <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">&ldquo;{person.bio}&rdquo;</p>
+          )}
+          {showContactHint && person.connect_method && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Uses {person.connect_method.charAt(0).toUpperCase() + person.connect_method.slice(1)}
+              {contactHint ? ` · ${contactHint}` : ""}
+            </p>
           )}
         </div>
       </div>
@@ -386,33 +414,67 @@ function ConnectionRequestCard({
   variant,
   onAccept,
   onReject,
+  onDelete,
   actionsDisabled,
+  deleteDisabled,
 }: {
   request: ConnectionRequest;
   variant: "incoming" | "sent";
   onAccept?: () => void;
   onReject?: () => void;
+  onDelete?: () => void;
   actionsDisabled?: boolean;
+  deleteDisabled?: boolean;
 }) {
   const person = variant === "incoming" ? request.sender : request.receiver;
   const personLabel = variant === "incoming" ? "Request from" : "Sent to";
+  const personFallback = {
+    name: variant === "incoming" ? "Unknown sender" : "Unknown recipient",
+  };
 
   return (
     <article className="rounded-2xl border border-border bg-card p-5">
       <div className="flex items-center justify-between">
         <RequestStatusBadge status={request.status} />
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Clock className="size-3.5" />
-          {new Date(request.created_at).toLocaleDateString()}
+        <div className="flex items-center gap-2">
+          {variant === "sent" && onDelete && (
+            <button
+              onClick={onDelete}
+              disabled={deleteDisabled}
+              className="rounded-full p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+              title="Delete request"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          )}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Clock className="size-3.5" />
+            {new Date(request.created_at).toLocaleDateString()}
+          </div>
         </div>
       </div>
 
-      {person && <PersonSummary person={person} label={personLabel} />}
-      {request.ride && (
+      <PersonSummary
+        person={person ?? personFallback}
+        label={personLabel}
+        showContactHint={request.status === "pending"}
+        contactHint={
+          request.status === "pending"
+            ? variant === "sent"
+              ? "contact unlocks after they accept"
+              : "contact unlocks after you accept"
+            : undefined
+        }
+      />
+      {request.ride ? (
         <RideDetails
           ride={request.ride}
           label={variant === "incoming" ? "Your ride" : "Their ride"}
         />
+      ) : (
+        <div className="mt-3 rounded-xl border border-dashed border-border bg-background/40 p-3 text-xs text-muted-foreground">
+          Ride details are no longer available for this request.
+        </div>
       )}
 
       {variant === "incoming" && request.status === "pending" && (
@@ -435,9 +497,20 @@ function ConnectionRequestCard({
       )}
 
       {variant === "sent" && request.status === "pending" && (
-        <p className="mt-4 rounded-full bg-muted px-3 py-2 text-center text-xs font-medium text-muted-foreground">
-          Waiting for them to accept your request
-        </p>
+        <div className="mt-4 space-y-2">
+          <p className="rounded-full bg-muted px-3 py-2 text-center text-xs font-medium text-muted-foreground">
+            Waiting for them to accept your request
+          </p>
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              disabled={deleteDisabled}
+              className="flex w-full items-center justify-center gap-1.5 rounded-full border border-border py-2 text-xs font-semibold text-muted-foreground hover:border-destructive/40 hover:text-destructive disabled:opacity-50"
+            >
+              <Trash2 className="size-3.5" /> Delete request
+            </button>
+          )}
+        </div>
       )}
 
       {request.status === "accepted" && person && (
