@@ -21,32 +21,28 @@ export interface ConnectionRequest {
   sender?: {
     name: string;
     bio?: string;
-    avatar_url?: string;
-    phone?: string;
-    whatsapp?: string;
-    instagram?: string;
-    telegram?: string;
-    email?: string;
+    gender?: string;
     connect_method?: string;
     connect_id?: string;
   };
   receiver?: {
     name: string;
     bio?: string;
-    avatar_url?: string;
-    phone?: string;
-    whatsapp?: string;
-    instagram?: string;
-    telegram?: string;
-    email?: string;
+    gender?: string;
     connect_method?: string;
     connect_id?: string;
   };
   ride?: {
-    pickup_location: string;
-    drop_location: string;
-    journey_date: string;
-    vehicle_type: string;
+    pickup_location?: string | null;
+    drop_location?: string | null;
+    journey_date?: string | null;
+    journey_time?: string | null;
+    vehicle_type?: string | null;
+    seats?: number | null;
+    ride_type?: string | null;
+    days?: string[] | null;
+    return_journey?: boolean | null;
+    return_time?: string | null;
   };
 }
 
@@ -163,6 +159,8 @@ export function useConnectionRequests() {
         .insert({
           sender_id: user.id,
           receiver_id: receiverId,
+          sender_profile_id: user.id,
+          receiver_profile_id: receiverId,
           ride_id: rideId,
           status: "pending",
         })
@@ -193,8 +191,8 @@ export function useConnectionRequests() {
         .from("connection_requests")
         .select(`
           *,
-          sender:profiles!sender_profile_id(name, bio, avatar_url, phone, whatsapp, instagram, telegram, email, connect_method, connect_id),
-          ride:ride_posts(pickup_location, drop_location, journey_date, vehicle_type)
+          sender:profiles!sender_id(name, bio, gender, connect_method, connect_id),
+          ride:ride_posts(pickup_location, drop_location, journey_date, journey_time, vehicle_type, seats, ride_type, days, return_journey, return_time)
         `)
         .eq("receiver_id", user.id)
         .order("created_at", { ascending: false });
@@ -222,8 +220,8 @@ export function useConnectionRequests() {
         .from("connection_requests")
         .select(`
           *,
-          receiver:profiles!receiver_profile_id(name, bio, avatar_url, phone, whatsapp, instagram, telegram, email, connect_method, connect_id),
-          ride:ride_posts(pickup_location, drop_location, journey_date, vehicle_type)
+          receiver:profiles!receiver_id(name, bio, gender, connect_method, connect_id),
+          ride:ride_posts(pickup_location, drop_location, journey_date, journey_time, vehicle_type, seats, ride_type, days, return_journey, return_time)
         `)
         .eq("sender_id", user.id)
         .order("created_at", { ascending: false });
@@ -287,22 +285,6 @@ export function useConnectionRequests() {
       if (requestError) {
         console.error("ACCEPT REQUEST - Failed to update request status:", requestError);
         throw requestError;
-      }
-
-      // Create unlocked profile record
-      const { error: unlockError } = await supabase.from("unlocked_profiles").insert({
-        user_id: requestData.sender_id,
-        profile_id: requestData.receiver_id,
-        request_id: requestId,
-      });
-
-      console.log("ACCEPT REQUEST - unlockError", unlockError);
-      console.log("ACCEPT REQUEST - unlockError code", unlockError?.code);
-      console.log("ACCEPT REQUEST - unlockError message", unlockError?.message);
-
-      if (unlockError) {
-        console.error("ACCEPT REQUEST - Failed to create unlocked profile:", unlockError);
-        throw unlockError;
       }
 
       console.log("ACCEPT REQUEST - Successfully accepted request:", requestId);
