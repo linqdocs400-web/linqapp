@@ -66,6 +66,7 @@ function Matches() {
   const navigate = useNavigate();
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [rateFor, setRateFor] = useState<RidePost | null>(null);
+  const [requestSentOpen, setRequestSentOpen] = useState(false);
 
   // Helper function to check request status for a ride
   const getRequestStatus = (rideId: string, ownerId: string) => {
@@ -279,7 +280,7 @@ function Matches() {
                         receiverId: m.owner_id,
                         rideId: m.id,
                       });
-                      toast.success("Request sent successfully.");
+                      setRequestSentOpen(true);
                     } catch (error: any) {
                       toast.error(error.message || "Failed to send request");
                     }
@@ -325,7 +326,7 @@ function Matches() {
                       receiverId: m.owner_id,
                       rideId: m.id,
                     });
-                    toast.success("Request sent successfully.");
+                    setRequestSentOpen(true);
                   } catch (error: any) {
                     toast.error(error.message || "Failed to send request");
                   }
@@ -365,7 +366,7 @@ function Matches() {
                       receiverId: m.owner_id,
                       rideId: m.id,
                     });
-                    toast.success("Request sent successfully.");
+                    setRequestSentOpen(true);
                   } catch (error: any) {
                     toast.error(error.message || "Failed to send request");
                   }
@@ -407,7 +408,7 @@ function Matches() {
                       receiverId: m.owner_id,
                       rideId: m.id,
                     });
-                    toast.success("Request sent successfully.");
+                    setRequestSentOpen(true);
                   } catch (error: any) {
                     toast.error(error.message || "Failed to send request");
                   }
@@ -434,6 +435,7 @@ function Matches() {
 
       {paywallOpen && <Paywall onClose={() => setPaywallOpen(false)} />}
       {rateFor && <RatingModal m={rateFor} onClose={() => setRateFor(null)} />}
+      {requestSentOpen && <RequestSentModal onClose={() => setRequestSentOpen(false)} />}
       <BottomNav />
     </main>
   );
@@ -976,6 +978,50 @@ function PlanRow({
             {cta}
           </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+function RequestSentModal({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-5 backdrop-blur-sm">
+      <div className="relative w-full max-w-sm rounded-3xl border border-border bg-card p-6 text-center">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-secondary"
+        >
+          <X className="size-4" />
+        </button>
+
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+          <Check className="size-8 text-primary" />
+        </div>
+
+        <h2 className="text-2xl font-bold">Request Sent! </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Your request has been sent. If it's accepted, you'll find the connection in Your Trips.
+        </p>
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <button
+            onClick={() => {
+              onClose();
+              navigate({ to: "/trips" });
+            }}
+            className="rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Go to Your Trips
+          </button>
+          <button
+            onClick={onClose}
+            className="rounded-full border border-border bg-background py-3 text-sm font-semibold hover:bg-muted transition-colors"
+          >
+            Continue Searching
+          </button>
+        </div>
       </div>
     </div>
   );
