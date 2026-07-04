@@ -94,6 +94,13 @@ function Matches() {
   const isLoadingMatches = isLoading || (!!hotspotId && hotspotLoading);
   const hotspotMemberCount = hotspotMembers?.length ?? 0;
 
+  // Helper function to shorten address for mobile display
+  const shortenAddress = (address: string | undefined) => {
+    if (!address) return "";
+    const segments = address.split(", ");
+    return segments.slice(0, 2).join(", ");
+  };
+
   function handleOpen(m: RidePost) {
     if (!user) {
       navigate({ to: "/login" });
@@ -110,19 +117,25 @@ function Matches() {
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-6xl px-5 pt-8 pb-32 lg:px-8 lg:pt-12">
         <div className="flex items-end justify-between">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
               {showAll ? "Available matches" : "Live matches"}
             </p>
-            <h1 className="mt-2 text-3xl font-bold lg:text-4xl">
+            <h1 className="mt-2 text-xl font-bold leading-tight md:text-2xl lg:text-4xl">
               {showAll
                 ? "All available riders"
                 : hotspotName
                   ? hotspotName
                   : lastQuery
-                    ? `${lastQuery.pickup || "Anywhere"} → ${lastQuery.drop || "Anywhere"}`
+                    ? `${shortenAddress(lastQuery.pickup) || "Anywhere"} → ${shortenAddress(lastQuery.drop) || "Anywhere"}`
                     : "All matches"}
             </h1>
+            {/* Full address on mobile only */}
+            {lastQuery && !hotspotName && !showAll && (
+              <p className="mt-1 text-xs text-muted-foreground md:hidden">
+                {lastQuery.pickup || "Anywhere"} → {lastQuery.drop || "Anywhere"}
+              </p>
+            )}
             <p className="mt-2 text-sm text-muted-foreground">
               {hotspotId
                 ? `${hotspotMemberCount} member${hotspotMemberCount !== 1 ? "s" : ""} at this hotspot`
