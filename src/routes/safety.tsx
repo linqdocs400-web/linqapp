@@ -111,11 +111,6 @@ Please keep this location for safety.
     "Trust your instincts — cancel if something feels off.",
   ];
 
-  const contacts = [
-    { name: "Mom", phone: "+91 98xxxx0011" },
-    { name: "Roommate", phone: "+91 90xxxx2233" },
-  ];
-
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-5 pt-6 pb-32 lg:px-8 lg:pt-10">
@@ -192,22 +187,26 @@ Please keep this location for safety.
 
             <div className="rounded-3xl border border-border bg-card p-6">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                <Phone className="size-4 text-primary" /> EMERGENCY CONTACTS
+                <Phone className="size-4 text-primary" /> EMERGENCY CONTACT
               </h3>
-              <div className="mt-3 space-y-2">
-                {contacts.map((c) => (
-                  <div
-                    key={c.name}
-                    className="flex items-center justify-between rounded-xl bg-secondary p-3 text-sm"
-                  >
-                    <span className="font-medium">{c.name}</span>
-                    <span className="text-muted-foreground">{c.phone}</span>
+              {profile?.emergency_name && profile?.emergency_phone ? (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center justify-between rounded-xl bg-secondary p-3 text-sm">
+                    <span className="font-medium">{profile.emergency_name}</span>
+                    <span className="text-muted-foreground">{profile.emergency_phone}</span>
                   </div>
-                ))}
-              </div>
-              <button className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary">
-                <UserPlus className="size-4" /> Add contact
-              </button>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  No emergency contact added yet.
+                </p>
+              )}
+              <Link
+                to="/profile"
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary"
+              >
+                <UserPlus className="size-4" /> {profile?.emergency_name ? "Update contact" : "Add contact"}
+              </Link>
             </div>
           </section>
         </div>
