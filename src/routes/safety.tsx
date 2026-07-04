@@ -8,8 +8,11 @@ import {
   BadgeCheck,
   UserPlus,
   AlertTriangle,
+  MessageCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { useProfile } from "@/hooks/use-profile";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/safety")({
   head: () => ({
@@ -23,6 +26,82 @@ export const Route = createFileRoute("/safety")({
 
 function SafetyPage() {
   const [sosOpen, setSosOpen] = useState(false);
+  const { profile } = useProfile();
+  const [isSharingLocation, setIsSharingLocation] = useState(false);
+
+  const handleShareLocation = async () => {
+    if (!profile?.emergency_phone) {
+      toast.error("Please add an emergency contact first.");
+      return;
+    }
+
+    setIsSharingLocation(true);
+
+    try {
+      // Get current location
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          }
+        );
+      });
+
+      const { latitude, longitude } = position.coords;
+      const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      const currentTime = new Date().toLocaleString();
+
+      // Format phone number (remove non-digits)
+      const phone = profile.emergency_phone.replace(/\D/g, "");
+
+      // Create message
+      const message = `🚗 Hi!
+
+I'm travelling with LinqRides.
+
+📍 Current Location:
+${mapsLink}
+
+🕒 Time:
+${currentTime}
+
+Please keep this location for safety.
+
+- Sent via LinqRides`;
+
+      // Encode message for URL
+      const encodedMessage = encodeURIComponent(message);
+
+      // Open WhatsApp
+      window.open(`https://wa.me/${phone}?text=${encodedMessage}`, "_blank");
+
+      toast.success("Location shared via WhatsApp");
+    } catch (error) {
+      if (error instanceof GeolocationPositionError) {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error("Location permission denied. Please enable location access.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            toast.error("Location unavailable. Please try again.");
+            break;
+          case error.TIMEOUT:
+            toast.error("Location request timed out. Please try again.");
+            break;
+          default:
+            toast.error("Failed to get location. Please try again.");
+        }
+      } else {
+        toast.error("Failed to share location. Please try again.");
+      }
+    } finally {
+      setIsSharingLocation(false);
+    }
+  };
 
   const tips = [
     "Always verify the rider's profile and ratings before meeting.",
@@ -87,13 +166,27 @@ function SafetyPage() {
           <section className="space-y-4">
             <div className="rounded-3xl border border-border bg-card p-6">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                <BadgeCheck className="size-4 text-primary" /> SHARE LIVE TRIP
+                <MessageCircle className="size-4 text-primary" /> SHARE VIA WHATSAPP
               </h3>
               <p className="mt-2 text-sm">
-                Share your live location with a trusted contact for every ride.
+                Share your current location with your emergency contact via WhatsApp.
               </p>
-              <button className="mt-3 w-full rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-95">
-                Share live trip
+              <button
+                onClick={handleShareLocation}
+                disabled={isSharingLocation}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-95 disabled:opacity-50"
+              >
+                {isSharingLocation ? (
+                  <>
+                    <div className="size-4 border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin rounded-full" />
+                    Getting location...
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle className="size-4" />
+                    Share via WhatsApp
+                  </>
+                )}
               </button>
             </div>
 
