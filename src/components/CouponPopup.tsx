@@ -4,6 +4,7 @@ import { useCouponStore } from "@/lib/coupon-provider";
 import { validateCouponCode, Campaign } from "@/lib/campaigns";
 import { X, Gift, Loader2, PartyPopper } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 import { useProfile } from "@/hooks/use-profile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-provider";
@@ -65,11 +66,48 @@ export function CouponPopup() {
       return;
     }
 
-    // Activate the plan directly for 100% off mock
-    await updateProfile({
-      plan: success.planTarget,
-      plan_expiry: success.expiryDate,
-    });
+    // Auto-add to "🚩 Protest Travelers" hotspot
+    try {
+      const { data: hotspots } = await supabase
+        .from("hotspots")
+        .select("id")
+        .eq("name", "🚩 Protest Travelers");
+        
+      let hotspotId = hotspots?.[0]?.id;
+      
+      if (!hotspotId) {
+        const { data: newHotspot } = await supabase
+          .from("hotspots")
+          .insert({ name: "🚩 Protest Travelers", type: "college" })
+          .select("id")
+          .single();
+        hotspotId = newHotspot?.id;
+      }
+      
+      if (hotspotId) {
+        await updateProfile({
+          plan: success.planTarget,
+          plan_expiry: success.expiryDate,
+          institution_hotspot_id: hotspotId,
+        });
+        
+        await supabase
+          .from("hotspot_members")
+          .upsert({ hotspot_id: hotspotId, user_id: user.id, role: "member" });
+      } else {
+        await updateProfile({
+          plan: success.planTarget,
+          plan_expiry: success.expiryDate,
+        });
+      }
+    } catch (err) {
+      console.error("Error auto-adding to hotspot:", err);
+      // Fallback
+      await updateProfile({
+        plan: success.planTarget,
+        plan_expiry: success.expiryDate,
+      });
+    }
     
     queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
     toast.success(success.successMessage || "Plan activated successfully!");
