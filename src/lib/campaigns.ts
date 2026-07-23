@@ -59,13 +59,13 @@ export const activeCampaigns: Campaign[] = [
     id: "camp_genz_lets_go",
     name: "GenZ Lets Go",
     code: "GENZ-LETS-GO",
-    planTarget: "weekly",
+    planTarget: "monthly",
     discountPercentage: 100,
-    discountAmount: 19,
+    discountAmount: 49,
     expiryDate: "2026-12-31T23:59:59Z",
     isActive: true,
     isFeatured: false,
-    successMessage: "Your Weekly Membership has been activated.",
+    successMessage: "Your Monthly Membership has been activated.",
   }
 ];
 
