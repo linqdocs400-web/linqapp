@@ -101,8 +101,8 @@ function SearchPage() {
 
       setOrgs(
         (hotspotsWithCounts as { id: string; name: string; type: string; memberCount: number }[]).sort((a, b) => {
-          if (a.name.toLowerCase() === "cjp hyd") return -1;
-          if (b.name.toLowerCase() === "cjp hyd") return 1;
+          if (a.name.toLowerCase() === "🚩 protest travelers") return -1;
+          if (b.name.toLowerCase() === "🚩 protest travelers") return 1;
           return 0;
         })
       );
