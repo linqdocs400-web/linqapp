@@ -218,7 +218,7 @@ function Profile() {
       </div>
 
       {/* DESKTOP LAYOUT */}
-      <div className="mx-auto hidden max-w-7xl px-8 pt-10 pb-20 lg:block">
+      <div className="mx-auto hidden max-w-7xl px-8 pt-10 pb-20 md:block">
         <div className="mb-8 flex items-end justify-between">
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Profile</h1>

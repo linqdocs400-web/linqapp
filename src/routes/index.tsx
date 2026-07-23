@@ -81,10 +81,10 @@ function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <CampaignBanner />
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <MobileHome />
       </div>
-      <div className="hidden lg:block">
+      <div className="hidden md:block">
         <DesktopHome />
       </div>
       <BottomNav />
@@ -777,7 +777,7 @@ function RideForm({
 
           <div className="mt-3">
             <span className="text-xs text-muted-foreground">Travel time</span>
-            <div className="lg:hidden">
+            <div className="md:hidden">
               <input
                 type="time"
                 value={state.travelTime}
@@ -785,7 +785,7 @@ function RideForm({
                 className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm touch-manipulation"
               />
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden md:block">
               <select
                 value={state.travelTime}
                 onChange={(e) => set.setTravelTime(e.target.value)}

@@ -23,7 +23,7 @@ export function TopNav() {
   const { openPopup } = useCouponStore();
 
   return (
-    <header className="sticky top-0 z-50 hidden w-full border-b border-border/60 bg-background/80 backdrop-blur-xl lg:block">
+    <header className="sticky top-0 z-50 hidden w-full border-b border-border/60 bg-background/80 backdrop-blur-xl md:block">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-8">
         <Link to="/" className="flex items-center gap-2">
           <Logo size="default" />

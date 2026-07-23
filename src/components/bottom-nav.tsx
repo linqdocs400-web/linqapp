@@ -15,7 +15,7 @@ export function BottomNav() {
   const { pendingCount } = useConnectionRequests();
 
   return (
-    <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex max-w-md justify-center px-5 lg:hidden">
+    <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex max-w-md justify-center px-5 md:hidden">
       <div className="flex w-full items-center justify-between rounded-full border border-border bg-card/90 px-4 py-3 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl">
         {items.map(({ to, label, Icon }) => {
           const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
