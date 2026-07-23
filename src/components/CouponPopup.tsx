@@ -100,11 +100,11 @@ export function CouponPopup() {
                 <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <PartyPopper className="size-8" />
                 </div>
-                <h2 className="mb-2 text-2xl font-bold">Coupon Applied Successfully</h2>
+                <Drawer.Title className="mb-2 text-2xl font-bold">Coupon Applied Successfully</Drawer.Title>
                 <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left w-full">
                   <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">Offer</p>
                   <p className="text-lg font-bold">{success.discountPercentage}% OFF {success.planTarget.toUpperCase()} PLAN</p>
-                  <p className="text-sm text-muted-foreground mt-2">{success.successMessage}</p>
+                  <Drawer.Description className="text-sm text-muted-foreground mt-2">{success.successMessage}</Drawer.Description>
                 </div>
                 <button
                   onClick={handleActivate}
@@ -116,18 +116,18 @@ export function CouponPopup() {
             ) : (
               <div className="pb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Drawer.Title className="text-xl font-bold flex items-center gap-2">
                     <Gift className="size-5 text-primary" /> Redeem Coupon
-                  </h2>
+                  </Drawer.Title>
                   <Drawer.Close asChild>
                     <button className="rounded-full p-2 bg-secondary text-muted-foreground hover:text-foreground transition">
                       <X className="size-4" />
                     </button>
                   </Drawer.Close>
                 </div>
-                <p className="text-sm text-muted-foreground mb-6">
+                <Drawer.Description className="text-sm text-muted-foreground mb-6">
                   Enter your coupon code below to unlock exclusive offers.
-                </p>
+                </Drawer.Description>
 
                 <div className="mb-4">
                   <input
@@ -138,7 +138,7 @@ export function CouponPopup() {
                       setCode(e.target.value.toUpperCase());
                       setError("");
                     }}
-                    className={`w-full rounded-2xl border ${error ? "border-destructive focus:ring-destructive/20" : "border-border focus:border-primary focus:ring-primary/20"} bg-background px-4 py-4 text-center text-lg font-bold uppercase tracking-widest placeholder:text-muted-foreground/50 focus:outline-none focus:ring-4`}
+                    className={`w-full rounded-2xl border ${error ? "border-destructive focus:ring-destructive/20" : "border-border focus:border-primary focus:ring-primary/20"} bg-background px-4 py-4 text-center text-lg font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-4`}
                   />
                   {error && (
                     <p className="mt-2 text-center text-sm font-medium text-destructive">

@@ -105,7 +105,12 @@ serve(async (req) => {
       }
     )
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+    const jwt = token ? token.replace("Bearer ", "") : ""
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser(jwt)
 
     if (userError || !user) {
       console.error('Verify payment error: User not authenticated', { userError })

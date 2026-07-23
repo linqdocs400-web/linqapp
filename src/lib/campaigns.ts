@@ -52,7 +52,7 @@ export function validateCouponCode(code: string): { valid: boolean; campaign?: C
   const campaign = activeCampaigns.find((c) => c.code === upperCode && c.isActive);
 
   if (!campaign) {
-    return { valid: false, error: "Invalid or expired coupon." };
+    return { valid: false, error: "Invalid coupon code." };
   }
 
   if (new Date(campaign.expiryDate) < new Date()) {
