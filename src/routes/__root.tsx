@@ -4,6 +4,8 @@ import { StoreProvider } from "@/lib/store";
 import { AuthProvider } from "@/lib/auth-provider";
 import { QueryProvider } from "@/lib/query-provider";
 import { TopNav } from "@/components/top-nav";
+import { CouponPopup } from "@/components/CouponPopup";
+import { CouponProvider } from "@/lib/coupon-provider";
 
 import appCss from "../styles.css?url";
 
@@ -40,10 +42,13 @@ function RootComponent() {
       <QueryProvider>
         <AuthProvider>
           <StoreProvider>
-            <div className="min-h-screen bg-background">
-              <TopNav />
-              <Outlet />
-            </div>
+            <CouponProvider>
+              <div className="min-h-screen bg-background">
+                <TopNav />
+                <Outlet />
+                <CouponPopup />
+              </div>
+            </CouponProvider>
           </StoreProvider>
         </AuthProvider>
       </QueryProvider>

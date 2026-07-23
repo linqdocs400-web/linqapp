@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, ClipboardList, CreditCard, User, Sun, Moon, Briefcase } from "lucide-react";
+import { Home, Search, ClipboardList, CreditCard, User, Sun, Moon, Briefcase, Gift } from "lucide-react";
 import { useAuth } from "@/lib/auth-provider";
 import { useProfile } from "@/hooks/use-profile";
 import { useTheme } from "@/lib/theme";
 import { Logo } from "@/components/logo";
+import { useCouponStore } from "@/lib/coupon-provider";
 
 const links = [
   { to: "/", label: "Home", Icon: Home },
@@ -19,6 +20,7 @@ export function TopNav() {
   const signedIn = !!user && !!profile;
   const { theme, toggle } = useTheme();
   const isDark = theme === "sapphire-dark";
+  const { openPopup } = useCouponStore();
 
   return (
     <header className="sticky top-0 z-50 hidden w-full border-b border-border/60 bg-background/80 backdrop-blur-xl lg:block">
@@ -62,6 +64,13 @@ export function TopNav() {
             className="flex size-10 items-center justify-center rounded-full border border-border bg-card/60 text-foreground transition hover:bg-secondary"
           >
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </button>
+          <button
+            onClick={() => openPopup()}
+            className="flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1.5 text-sm font-medium hover:bg-secondary transition"
+          >
+            <Gift className="size-4 text-primary" />
+            <span className="hidden sm:inline">Redeem Coupon</span>
           </button>
           {signedIn ? (
             <Link

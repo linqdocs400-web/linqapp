@@ -23,6 +23,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Gift,
 } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { useTheme } from "@/lib/theme";
@@ -33,6 +34,8 @@ import LocationInput from "@/components/LocationInput";
 import { useAuth } from "@/lib/auth-provider";
 import { useProfile } from "@/hooks/use-profile";
 import { useRidePosts } from "@/hooks/use-ride-posts";
+import { CampaignBanner } from "@/components/CampaignBanner";
+import { useCouponStore } from "@/lib/coupon-provider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -77,6 +80,7 @@ const rideTypes: {
 function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <CampaignBanner />
       <div className="lg:hidden">
         <MobileHome />
       </div>
@@ -281,6 +285,7 @@ function MobileHome() {
   const { posts, isLoading } = useRidePosts();
   const form = useRideForm();
   const { state, set, swap, findMatch, confirmPost } = form;
+  const { openPopup } = useCouponStore();
 
   return (
     <div className="mx-auto w-full max-w-md px-5 pt-6 pb-32">
@@ -293,6 +298,13 @@ function MobileHome() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => openPopup()}
+            className="flex items-center justify-center rounded-full bg-secondary/80 size-8 text-primary hover:bg-secondary transition-colors"
+            aria-label="Redeem Coupon"
+          >
+            <Gift className="size-4 text-primary" />
+          </button>
           <ThemeToggleBtn />
           <a
             href="https://tally.so/r/5BedVQ"

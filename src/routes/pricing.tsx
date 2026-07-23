@@ -3,11 +3,12 @@ import { BottomNav } from "@/components/bottom-nav";
 import { useProfile } from "@/hooks/use-profile";
 import { useRazorpay } from "@/hooks/use-razorpay";
 import { RazorpayCheckout } from "@/components/razorpay-checkout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-provider";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCouponStore } from "@/lib/coupon-provider";
 
 export type Plan = "free" | "weekly" | "monthly";
 export const Route = createFileRoute("/pricing")({
@@ -63,6 +64,24 @@ function Pricing() {
   const hasPaidOrOnPaidPlan = everPaid || plan !== "free" || !!profile?.plan_expiry;
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const { openPopup } = useCouponStore();
+
+  useEffect(() => {
+    const handleResumePayment = async (e: any) => {
+      const p = e.detail.plan as Plan;
+      const amount = p === "weekly" ? 1900 : 4900;
+      try {
+        const order = await createOrder(amount, `plan_${p}_${Date.now()}`);
+        setOrderId(order.id);
+        setSelectedPlan(p);
+      } catch (err) {
+        console.error("Failed to create order:", err);
+      }
+    };
+
+    window.addEventListener("resume-payment", handleResumePayment);
+    return () => window.removeEventListener("resume-payment", handleResumePayment);
+  }, [createOrder]);
 
   const handleUpgrade = async (p: Plan) => {
     if (p === "free") {
@@ -76,14 +95,8 @@ function Pricing() {
       return;
     }
 
-    const amount = p === "weekly" ? 1900 : 4900;
-    try {
-      const order = await createOrder(amount, `plan_${p}_${Date.now()}`);
-      setOrderId(order.id);
-      setSelectedPlan(p);
-    } catch (err) {
-      console.error("Failed to create order:", err);
-    }
+    // Open coupon popup instead of immediately creating an order
+    openPopup(p);
   };
 
   const handlePaymentSuccess = async (response: any) => {
@@ -93,7 +106,7 @@ function Pricing() {
         response.razorpay_order_id,
         response.razorpay_payment_id,
         response.razorpay_signature,
-        selectedPlan
+        selectedPlan || undefined
       );
 
       console.log("Verification response:", verification);
