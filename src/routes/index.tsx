@@ -399,7 +399,7 @@ function DesktopOnboardingHint() {
   return (
     <div
       className="absolute -top-[45px] -right-[15px] pointer-events-none hidden md:flex flex-col items-center animate-[floathint_3s_ease-in-out_infinite]"
-      style={{ opacity: 0.85, zIndex: 100 }}
+      style={{ opacity: 0.85, zIndex: 40 }}
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap');
