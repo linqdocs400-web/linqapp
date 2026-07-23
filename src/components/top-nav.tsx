@@ -8,7 +8,7 @@ import { useCouponStore } from "@/lib/coupon-provider";
 
 const links = [
   { to: "/", label: "Home", Icon: Home },
-  { to: "/search", label: "Find a ride", Icon: Search },
+  { to: "/search", label: "Hotspots", Icon: Search },
   { to: "/trips", label: "Trips", Icon: ClipboardList },
   { to: "/pricing", label: "Pricing", Icon: CreditCard },
 ] as const;
