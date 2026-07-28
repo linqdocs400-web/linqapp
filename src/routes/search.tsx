@@ -13,6 +13,7 @@ import {
   Smartphone,
   Flame,
 } from "lucide-react";
+import { SEO, SchemaBuilders } from "@/components/seo";
 
 export const Route = createFileRoute("/search")({
   head: () => ({ meta: [{ title: "Hotspots — linQ" }] }),
@@ -128,6 +129,17 @@ function SearchPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Find Hotspots"
+        description="Search for popular colleges and office destinations on linQ to find your perfect carpool match."
+        canonical="https://linqrides.in/search"
+        schemas={[
+          SchemaBuilders.breadcrumb([
+            { name: "Home", url: "https://linqrides.in" },
+            { name: "Search Hotspots", url: "https://linqrides.in/search" },
+          ]),
+        ]}
+      />
       <div className="mx-auto max-w-6xl px-5 pt-8 pb-32 lg:px-8 lg:pt-12">
         <div className="flex items-center gap-2">
           <Flame className="size-7 text-primary" />

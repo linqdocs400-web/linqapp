@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, memo, useMemo } from "react";
 import { BottomNav } from "@/components/bottom-nav";
+import { SEO, SchemaBuilders } from "@/components/seo";
 import { useAuth } from "@/lib/auth-provider";
 import { useProfile } from "@/hooks/use-profile";
 import { useMatches } from "@/hooks/use-matches";
@@ -114,7 +115,13 @@ function Matches() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-background text-foreground pb-20">
+      <SEO
+        title="Find Matches"
+        description="View carpool and bikepool matches going your way."
+        canonical="https://linqrides.in/matches"
+        noindex={true}
+      />
       <div className="mx-auto max-w-6xl px-5 pt-8 pb-32 lg:px-8 lg:pt-12">
         <div className="flex items-end justify-between">
           <div className="min-w-0 flex-1">

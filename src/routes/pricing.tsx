@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCouponStore } from "@/lib/coupon-provider";
+import { SEO, SchemaBuilders } from "@/components/seo";
 
 export type Plan = "free" | "weekly" | "monthly";
 export const Route = createFileRoute("/pricing")({
@@ -137,6 +138,27 @@ function Pricing() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Pricing Plans"
+        description="Affordable and transparent pricing for daily commuters. Choose a plan that fits your carpooling needs."
+        canonical="https://linqrides.in/pricing"
+        schemas={[
+          SchemaBuilders.breadcrumb([
+            { name: "Home", url: "https://linqrides.in" },
+            { name: "Pricing", url: "https://linqrides.in/pricing" },
+          ]),
+          SchemaBuilders.faq([
+            {
+              question: "How does the pricing work?",
+              answer: "We offer weekly and monthly plans to match your commute frequency without hidden charges.",
+            },
+            {
+              question: "Is payment secure?",
+              answer: "Yes, we use Razorpay for secure and reliable payment processing.",
+            },
+          ]),
+        ]}
+      />
       <div className="mx-auto max-w-6xl px-5 pt-10 pb-32 lg:px-8 lg:pt-16">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Pricing</p>

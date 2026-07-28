@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   MessageCircle,
 } from "lucide-react";
+import { SEO, SchemaBuilders } from "@/components/seo";
 import { useState } from "react";
 import { useProfile } from "@/hooks/use-profile";
 import { toast } from "sonner";
@@ -113,6 +114,17 @@ Please keep this location for safety.
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Safety Guidelines"
+        description="Learn about the safety measures and guidelines on linQ. We prioritize secure, verified, and transparent carpooling experiences."
+        canonical="https://linqrides.in/safety"
+        schemas={[
+          SchemaBuilders.breadcrumb([
+            { name: "Home", url: "https://linqrides.in" },
+            { name: "Safety", url: "https://linqrides.in/safety" },
+          ]),
+        ]}
+      />
       <div className="mx-auto max-w-5xl px-5 pt-6 pb-32 lg:px-8 lg:pt-10">
         <Link
           to="/profile"

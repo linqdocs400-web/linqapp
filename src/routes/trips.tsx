@@ -32,6 +32,7 @@ import {
   Check,
   Clock,
 } from "lucide-react";
+import { SEO, SchemaBuilders } from "@/components/seo";
 import LocationInput from "@/components/LocationInput";
 
 export const Route = createFileRoute("/trips")({
@@ -62,6 +63,12 @@ function Trips() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Your Trips"
+        description="View your active and past carpool trips on linQ."
+        canonical="https://linqrides.in/trips"
+        noindex={true}
+      />
       <div className="mx-auto max-w-4xl px-5 pt-8 pb-32 lg:pt-12">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold lg:text-4xl">Your trips</h1>

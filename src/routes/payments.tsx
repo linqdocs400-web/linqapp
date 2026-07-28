@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BottomNav } from "@/components/bottom-nav";
 import { CreditCard, Plus, ArrowLeft, Receipt, CheckCircle2 } from "lucide-react";
+import { SEO } from "@/components/seo";
 import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/payments")({
@@ -25,6 +26,12 @@ function PaymentsPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Payment History"
+        description="View your past transactions and subscription history."
+        canonical="https://linqrides.in/payments"
+        noindex={true}
+      />
       <div className="mx-auto max-w-5xl px-5 pt-6 pb-32 lg:px-8 lg:pt-10">
         <Link
           to="/profile"

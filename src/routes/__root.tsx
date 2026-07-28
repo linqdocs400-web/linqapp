@@ -6,6 +6,7 @@ import { QueryProvider } from "@/lib/query-provider";
 import { TopNav } from "@/components/top-nav";
 import { CouponPopup } from "@/components/CouponPopup";
 import { CouponProvider } from "@/lib/coupon-provider";
+import { HelmetProvider } from "react-helmet-async";
 
 import appCss from "../styles.css?url";
 
@@ -38,9 +39,10 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <ThemeProvider>
-      <QueryProvider>
-        <AuthProvider>
+    <HelmetProvider>
+      <ThemeProvider>
+        <QueryProvider>
+          <AuthProvider>
           <StoreProvider>
             <CouponProvider>
               <div className="min-h-screen bg-background">
@@ -53,5 +55,6 @@ function RootComponent() {
         </AuthProvider>
       </QueryProvider>
     </ThemeProvider>
+    </HelmetProvider>
   );
 }

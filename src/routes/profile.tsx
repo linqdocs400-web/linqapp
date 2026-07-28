@@ -4,6 +4,8 @@ import { useRidePosts } from "@/hooks/use-ride-posts";
 import { BottomNav } from "@/components/bottom-nav";
 import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth-provider";
+import { DesktopProfile } from "@/components/DesktopProfile";
+import { SEO } from "@/components/seo";
 import { useProfile } from "@/hooks/use-profile";
 import { useConnectionRequests } from "@/hooks/use-connection-requests";
 import {
@@ -78,7 +80,13 @@ function Profile() {
   ];
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-background text-foreground pb-20">
+      <SEO
+        title="Your Profile"
+        description="Manage your linQ profile, view stats, and access settings."
+        canonical="https://linqrides.in/profile"
+        noindex={true}
+      />
       {/* MOBILE LAYOUT */}
       <div className="lg:hidden">
         <div className="relative overflow-hidden">

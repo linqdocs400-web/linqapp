@@ -32,9 +32,12 @@ import { useLiveRiderCount } from "@/lib/live-count";
 import { Logo } from "@/components/logo";
 import LocationInput from "@/components/LocationInput";
 import { useAuth } from "@/lib/auth-provider";
+import { MobileHome } from "@/components/MobileHome";
+import { DesktopHome } from "@/components/DesktopHome";
 import { useProfile } from "@/hooks/use-profile";
 import { useRidePosts } from "@/hooks/use-ride-posts";
 import { CampaignBanner } from "@/components/CampaignBanner";
+import { SEO, SchemaBuilders } from "@/components/seo";
 import { useCouponStore } from "@/lib/coupon-provider";
 
 export const Route = createFileRoute("/")({
@@ -80,6 +83,17 @@ const rideTypes: {
 function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Share your daily commute"
+        description="linQ connects you with verified riders going your way. Carpool, bikepool, or share a cab easily."
+        canonical="https://linqrides.in"
+        schemas={[
+          SchemaBuilders.website(),
+          SchemaBuilders.organization(),
+          SchemaBuilders.softwareApplication(),
+          SchemaBuilders.searchAction(),
+        ]}
+      />
       <CampaignBanner />
       <div className="md:hidden">
         <MobileHome />
