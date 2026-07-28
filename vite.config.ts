@@ -5,6 +5,7 @@ import viteTsconfigPaths from "vite-tsconfig-paths";
 import viteCompression from "vite-plugin-compression";
 import Sitemap from "vite-plugin-sitemap";
 import { visualizer } from "rollup-plugin-visualizer";
+import { seoPrerenderPlugin } from "./scripts/seo-plugin";
 
 export default defineConfig(({ mode }) => {
   const isDev = mode === "development";
@@ -17,6 +18,7 @@ export default defineConfig(({ mode }) => {
       viteCompression({ algorithm: "gzip", ext: ".gz" }),
       viteCompression({ algorithm: "brotliCompress", ext: ".br" }),
       Sitemap({ hostname: "https://linqrides.in", dynamicRoutes: ["/search", "/pricing", "/safety", "/trips", "/profile", "/payments", "/matches"] }),
+      seoPrerenderPlugin(),
       isDev && visualizer({ open: false, filename: "bundle-analysis.html" }),
     ],
     build: {
