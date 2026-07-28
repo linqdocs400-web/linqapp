@@ -32,8 +32,6 @@ import { useLiveRiderCount } from "@/lib/live-count";
 import { Logo } from "@/components/logo";
 import LocationInput from "@/components/LocationInput";
 import { useAuth } from "@/lib/auth-provider";
-import { MobileHome } from "@/components/MobileHome";
-import { DesktopHome } from "@/components/DesktopHome";
 import { useProfile } from "@/hooks/use-profile";
 import { useRidePosts } from "@/hooks/use-ride-posts";
 import { CampaignBanner } from "@/components/CampaignBanner";

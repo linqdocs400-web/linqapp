@@ -4,7 +4,6 @@ import { useRidePosts } from "@/hooks/use-ride-posts";
 import { BottomNav } from "@/components/bottom-nav";
 import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth-provider";
-import { DesktopProfile } from "@/components/DesktopProfile";
 import { SEO } from "@/components/seo";
 import { useProfile } from "@/hooks/use-profile";
 import { useConnectionRequests } from "@/hooks/use-connection-requests";
