@@ -26,14 +26,11 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 250, // Performance budget: 250 KB
       rollupOptions: {
         output: {
-          manualChunks(id) {
-            if (id.includes("node_modules")) {
-              if (id.includes("react") || id.includes("react-dom")) return "vendor-react";
-              if (id.includes("@tanstack")) return "vendor-tanstack";
-              if (id.includes("@supabase")) return "vendor-supabase";
-              if (id.includes("lucide-react")) return "vendor-icons";
-              return "vendor"; // catch-all for other dependencies
-            }
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-helmet-async'],
+            'vendor-tanstack': ['@tanstack/react-router', '@tanstack/react-query'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-icons': ['lucide-react']
           },
         },
       },
