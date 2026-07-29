@@ -318,13 +318,13 @@ function MobileHome() {
             <Gift className="size-4 text-primary" />
           </button>
           <ThemeToggleBtn />
-          <a
-            href="https://tally.so/r/5BedVQ"
+          <Link
+            to="/careers"
             className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
           >
             <Briefcase className="size-3.5" />
             Career
-          </a>
+          </Link>
         </div>
       </header>
 

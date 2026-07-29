@@ -27,6 +27,7 @@ const seoData: Record<string, { title: string; description?: string; noindex: bo
   '/profile': { title: 'Your Profile | linQ', noindex: true },
   '/payments': { title: 'Payment History | linQ', noindex: true },
   '/matches': { title: 'Find Matches | linQ', noindex: true },
+  '/careers': { title: 'Careers | linQ', description: 'Join the linQ team and help us build the future of mobility.', noindex: false },
 };
 
 export function seoPrerenderPlugin(): Plugin {

@@ -68,12 +68,7 @@ function Onboarding() {
         .select("id, name, type")
         .order("name", { ascending: true });
       if (data && !error) {
-        const sortedData = [...data].sort((a, b) => {
-          if (a.name.toLowerCase() === "🚩 protest travelers") return -1;
-          if (b.name.toLowerCase() === "🚩 protest travelers") return 1;
-          return 0;
-        });
-        setHotspots(sortedData as Hotspot[]);
+        setHotspots(data as Hotspot[]);
       }
     }
     fetchHotspots();

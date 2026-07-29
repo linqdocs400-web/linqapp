@@ -27,8 +27,8 @@ export const activeCampaigns: Campaign[] = [
     expiryDate: "2026-12-31T23:59:59Z",
     isActive: true,
     isFeatured: true,
-    bannerText: "🚩 Going to the Student Protest?",
-    bannerSubtext: "Activate your FREE Monthly Plan.",
+    bannerText: "Got a coupon? - redeem it now",
+    bannerSubtext: "Text us on Insta to get the coupon code",
     successMessage: "Your Monthly Membership has been activated.",
   },
   {

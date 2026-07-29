@@ -48,13 +48,13 @@ export function TopNav() {
               </Link>
             );
           })}
-          <a
-            href="https://tally.so/r/5BedVQ"
+          <Link
+            to="/careers"
             className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition text-muted-foreground hover:bg-secondary hover:text-foreground"
           >
             <Briefcase className="size-4" />
             Career
-          </a>
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3">
