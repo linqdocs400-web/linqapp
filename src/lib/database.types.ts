@@ -90,6 +90,56 @@ export interface Database {
         Update: any;
         Relationships: any[];
       };
+      events: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          subtitle: string | null;
+          description: string | null;
+          logo_url: string | null;
+          start_date: string | null;
+          end_date: string | null;
+          is_active: boolean | null;
+          created_at: string | null;
+        };
+        Insert: any;
+        Update: any;
+        Relationships: any[];
+      };
+      event_participants: {
+        Row: {
+          id: string;
+          event_id: string | null;
+          user_id: string | null;
+          full_name: string;
+          city: string;
+          profession: string;
+          organization: string;
+          bio: string;
+          interests: string[];
+          linkedin_url: string | null;
+          photo_url: string | null;
+          created_at: string | null;
+        };
+        Insert: any;
+        Update: any;
+        Relationships: any[];
+      };
+      event_connections: {
+        Row: {
+          id: string;
+          event_id: string | null;
+          requester_id: string | null;
+          receiver_id: string | null;
+          status: string;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: any;
+        Update: any;
+        Relationships: any[];
+      };
     };
   };
 }

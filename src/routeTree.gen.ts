@@ -21,6 +21,7 @@ import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CareersRouteImport } from './routes/careers'
+import { Route as LaunchPadXRouteImport } from './routes/launchpadx-2026'
 
 const TripsRoute = TripsRouteImport.update({
   id: '/trips',
@@ -82,6 +83,11 @@ const CareersRoute = CareersRouteImport.update({
   path: '/careers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LaunchPadXRoute = LaunchPadXRouteImport.update({
+  id: '/launchpadx-2026',
+  path: '/launchpadx-2026',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/trips': typeof TripsRoute
   '/careers': typeof CareersRoute
+  '/launchpadx-2026': typeof LaunchPadXRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/trips': typeof TripsRoute
   '/careers': typeof CareersRoute
+  '/launchpadx-2026': typeof LaunchPadXRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/trips': typeof TripsRoute
   '/careers': typeof CareersRoute
+  '/launchpadx-2026': typeof LaunchPadXRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/trips'
     | '/careers'
+    | '/launchpadx-2026'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/trips'
     | '/careers'
+    | '/launchpadx-2026'
   id:
     | '__root__'
     | '/'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/trips'
     | '/careers'
+    | '/launchpadx-2026'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   TripsRoute: typeof TripsRoute
   CareersRoute: typeof CareersRoute
+  LaunchPadXRoute: typeof LaunchPadXRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/launchpadx-2026': {
+      id: '/launchpadx-2026'
+      path: '/launchpadx-2026'
+      fullPath: '/launchpadx-2026'
+      preLoaderRoute: typeof LaunchPadXRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   TripsRoute: TripsRoute,
   CareersRoute: CareersRoute,
+  LaunchPadXRoute: LaunchPadXRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

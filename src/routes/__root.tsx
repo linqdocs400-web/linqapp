@@ -4,6 +4,7 @@ import { StoreProvider } from "@/lib/store";
 import { AuthProvider } from "@/lib/auth-provider";
 import { QueryProvider } from "@/lib/query-provider";
 import { TopNav } from "@/components/top-nav";
+import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { CouponPopup } from "@/components/CouponPopup";
 import { CouponProvider } from "@/lib/coupon-provider";
 import { HelmetProvider } from "react-helmet-async";
@@ -46,6 +47,7 @@ function RootComponent() {
           <StoreProvider>
             <CouponProvider>
               <div className="min-h-screen bg-background">
+                <AnnouncementBar />
                 <TopNav />
                 <Outlet />
                 <CouponPopup />
