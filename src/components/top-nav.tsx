@@ -65,13 +65,6 @@ export function TopNav() {
           >
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <button
-            onClick={() => openPopup()}
-            className="flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1.5 text-sm font-medium hover:bg-secondary transition"
-          >
-            <Gift className="size-4 text-primary" />
-            <span className="hidden sm:inline">Redeem Coupon</span>
-          </button>
           {signedIn ? (
             <Link
               to="/profile"

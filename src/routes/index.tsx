@@ -92,7 +92,6 @@ function Home() {
           SchemaBuilders.searchAction(),
         ]}
       />
-      <CampaignBanner />
       <div className="md:hidden">
         <MobileHome />
       </div>
@@ -310,13 +309,6 @@ function MobileHome() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => openPopup()}
-            className="flex items-center justify-center rounded-full bg-secondary/80 size-8 text-primary hover:bg-secondary transition-colors"
-            aria-label="Redeem Coupon"
-          >
-            <Gift className="size-4 text-primary" />
-          </button>
           <ThemeToggleBtn />
           <Link
             to="/careers"
