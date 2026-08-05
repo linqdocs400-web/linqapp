@@ -61,45 +61,50 @@ function LaunchPadXHub() {
         canonical="https://linqrides.in/launchpadx-2026"
       />
 
-      {/* Hero Section */}
-      <div className="bg-primary px-6 py-16 text-center text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            {event?.title || "VetriaAI LaunchPadX 2026"}
-          </h1>
-          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto">
-            {event?.subtitle || "Connect, discover, and network with fellow participants before the event."}
-          </p>
-
-          {!myRegistration && user && (
-             <div className="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 text-left max-w-xl mx-auto border border-white/20">
-               <h3 className="text-xl font-bold mb-4">Register for the Hub</h3>
-               <LaunchpadRegistrationForm eventId={event?.id} onSuccess={() => {}} />
-             </div>
-          )}
-          {!user && (
-            <p className="text-sm mt-4 opacity-80">Please log in to join the networking hub.</p>
-          )}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="sticky top-0 md:top-16 z-40 bg-slate-50/90 backdrop-blur-md px-2 py-3 border-b border-border">
+          <div className="max-w-5xl mx-auto">
+            <TabsList className="grid w-full grid-cols-4 h-12 bg-white shadow-sm border border-border rounded-xl">
+              <TabsTrigger value="directory" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1">
+                Directory
+              </TabsTrigger>
+              <TabsTrigger value="sent" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1">
+                Sent
+              </TabsTrigger>
+              <TabsTrigger value="incoming" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1">
+                Incoming
+              </TabsTrigger>
+              <TabsTrigger value="connections" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1 truncate">
+                Connections
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 mt-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 h-14 bg-white shadow-sm border border-border rounded-xl">
-            <TabsTrigger value="directory" className="rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary flex gap-2">
-              <Users className="size-4" /> <span className="hidden sm:inline">Directory</span>
-            </TabsTrigger>
-            <TabsTrigger value="sent" className="rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary flex gap-2">
-              <Clock className="size-4" /> <span className="hidden sm:inline">Sent</span>
-            </TabsTrigger>
-            <TabsTrigger value="incoming" className="rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary flex gap-2">
-              <UserPlus className="size-4" /> <span className="hidden sm:inline">Incoming</span>
-            </TabsTrigger>
-            <TabsTrigger value="connections" className="rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary flex gap-2">
-              <UserCheck className="size-4" /> <span className="hidden sm:inline">Connections</span>
-            </TabsTrigger>
-          </TabsList>
+        {/* Hero Section */}
+        <div className="bg-primary px-6 py-16 text-center text-primary-foreground relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+          <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              {event?.title || "VetriaAI LaunchPadX 2026"}
+            </h1>
+            <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto">
+              {event?.subtitle || "Connect, discover, and network with fellow participants before the event."}
+            </p>
+
+            {!myRegistration && user && (
+               <div className="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 text-left max-w-xl mx-auto border border-white/20">
+                 <h3 className="text-xl font-bold mb-4">Register for the Hub</h3>
+                 <LaunchpadRegistrationForm eventId={event?.id} onSuccess={() => {}} />
+               </div>
+            )}
+            {!user && (
+              <p className="text-sm mt-4 opacity-80">Please log in to join the networking hub.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4">
           
           <div className="mt-8">
             <TabsContent value="directory">
