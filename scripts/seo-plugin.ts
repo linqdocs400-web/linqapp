@@ -35,16 +35,14 @@ export function seoPrerenderPlugin(): Plugin {
     name: 'vite-plugin-seo-prerender',
     enforce: 'post',
     apply: 'build',
-    closeBundle() {
-      const distPath = path.resolve(process.cwd(), 'dist');
-      const baseHtmlPath = path.join(distPath, 'index.html');
-      
-      if (!fs.existsSync(baseHtmlPath)) {
-        console.warn('index.html not found in dist. Skipping SEO prerendering.');
+    generateBundle(options, bundle) {
+      const indexAsset = bundle['index.html'];
+      if (!indexAsset || indexAsset.type !== 'asset') {
+        console.warn('index.html not found in bundle. Skipping SEO prerendering.');
         return;
       }
       
-      let baseHtml = fs.readFileSync(baseHtmlPath, 'utf-8');
+      const baseHtml = indexAsset.source.toString();
       
       for (const [route, data] of Object.entries(seoData)) {
         let routeHtml = baseHtml;
@@ -77,15 +75,15 @@ export function seoPrerenderPlugin(): Plugin {
         routeHtml = routeHtml.replace('</head>', `${metaTags}\n  </head>`);
         
         if (route === '/') {
-          fs.writeFileSync(baseHtmlPath, routeHtml);
+          indexAsset.source = routeHtml;
         } else {
-          // Remove leading slash for folder creation inside dist
+          // Remove leading slash for folder creation
           const folderName = route.substring(1);
-          const routeDir = path.join(distPath, folderName);
-          if (!fs.existsSync(routeDir)) {
-            fs.mkdirSync(routeDir, { recursive: true });
-          }
-          fs.writeFileSync(path.join(routeDir, 'index.html'), routeHtml);
+          this.emitFile({
+            type: 'asset',
+            fileName: `${folderName}/index.html`,
+            source: routeHtml
+          });
         }
       }
       console.log('✅ Generated static HTML files with SEO metadata for pure SPA!');

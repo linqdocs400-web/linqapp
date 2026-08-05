@@ -129,8 +129,8 @@ function LaunchPadXHub() {
               </div>
             </TabsContent>
           </div>
-        </Tabs>
-      </div>
+        </div>
+      </Tabs>
 
       <BottomNav />
     </main>

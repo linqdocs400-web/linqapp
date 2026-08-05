@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
       viteTsconfigPaths(),
       viteCompression({ algorithm: "gzip", ext: ".gz" }),
       viteCompression({ algorithm: "brotliCompress", ext: ".br" }),
-      Sitemap({ hostname: "https://linqrides.in", dynamicRoutes: ["/search", "/pricing", "/safety", "/trips", "/profile", "/payments", "/matches"] }),
+      Sitemap({ hostname: "https://linqrides.in", dynamicRoutes: ["/search", "/pricing", "/safety", "/trips", "/profile", "/payments", "/matches"], outDir: "dist" }),
       seoPrerenderPlugin(),
       isDev && visualizer({ open: false, filename: "bundle-analysis.html" }),
     ],
