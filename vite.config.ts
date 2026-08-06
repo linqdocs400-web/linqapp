@@ -1,3 +1,4 @@
+import fs from "fs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -17,6 +18,12 @@ export default defineConfig(({ mode }) => {
       viteTsconfigPaths(),
       viteCompression({ algorithm: "gzip", ext: ".gz" }),
       viteCompression({ algorithm: "brotliCompress", ext: ".br" }),
+      {
+        name: 'ensure-dist-for-sitemap',
+        closeBundle() {
+          if (!fs.existsSync('dist')) fs.mkdirSync('dist', { recursive: true });
+        }
+      },
       Sitemap({ hostname: "https://linqrides.in", dynamicRoutes: ["/search", "/pricing", "/safety", "/trips", "/profile", "/payments", "/matches"], outDir: "dist" }),
       seoPrerenderPlugin(),
       isDev && visualizer({ open: false, filename: "bundle-analysis.html" }),
