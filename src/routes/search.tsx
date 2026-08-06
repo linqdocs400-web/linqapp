@@ -57,7 +57,27 @@ function ReferCard({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function SearchPage() {
+function LaunchPadCard({ compact = false }: { compact?: boolean }) {
+  return (
+    <Link
+      to="/launchpadx-2026"
+      className={`block rounded-3xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors ${compact ? "p-4" : "p-6"}`}
+    >
+      <div className="flex items-center gap-2">
+        <span className="text-xl">🚀</span>
+        <h2 className={compact ? "text-base font-bold text-primary" : "text-lg font-bold text-primary"}>LaunchPadX 2026</h2>
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Attending the VetriaAI LaunchPadX 2026 event? Connect with other participants before the event!
+      </p>
+      <div className="mt-4 text-xs font-semibold text-primary flex items-center gap-1">
+        Join Networking Hub →
+      </div>
+    </Link>
+  );
+}
+
+function ReferCard({ compact = false }: { compact?: boolean }) {
   const { setLastQuery } = useStore();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -146,7 +166,8 @@ function SearchPage() {
         </p>
 
         {/* Mobile: refer at top */}
-        <div className="mt-5 lg:hidden">
+        <div className="mt-5 lg:hidden space-y-4">
+          <LaunchPadCard compact />
           <ReferCard compact />
         </div>
 
@@ -157,7 +178,7 @@ function SearchPage() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search college or office name…"
+                placeholder="Search pickup or drop location, college, or office..."
                 className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
@@ -189,7 +210,8 @@ function SearchPage() {
 
           {/* Desktop: refer on right side */}
           <aside className="hidden lg:col-span-1 lg:block">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-4">
+              <LaunchPadCard />
               <ReferCard />
             </div>
           </aside>
