@@ -77,7 +77,7 @@ function LaunchPadCard({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function ReferCard({ compact = false }: { compact?: boolean }) {
+function SearchPage() {
   const { setLastQuery } = useStore();
   const { user } = useAuth();
   const navigate = useNavigate();
