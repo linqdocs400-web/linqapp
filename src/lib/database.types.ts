@@ -120,6 +120,12 @@ export interface Database {
           interests: string[];
           linkedin_url: string | null;
           photo_url: string | null;
+          pickup_location: string | null;
+          drop_location: string | null;
+          has_vehicle: boolean | null;
+          vehicle_details: string | null;
+          role: string | null;
+          seats: number | null;
           created_at: string | null;
         };
         Insert: any;
@@ -140,6 +146,9 @@ export interface Database {
         Update: any;
         Relationships: any[];
       };
+      hotspots: { Row: { id: string, name: string, type: string }, Insert: any, Update: any, Relationships: any[] };
+      hotspot_members: { Row: { id: string, hotspot_id: string, user_id: string, owner_id?: string, role: string, name?: string, connect_method?: string, connect_id?: string, bio?: string }, Insert: any, Update: any, Relationships: any[] };
+      connection_requests: { Row: { id: string, sender_id: string, receiver_id: string, status: string, profile_id?: string }, Insert: any, Update: any, Relationships: any[] };
     };
   };
 }

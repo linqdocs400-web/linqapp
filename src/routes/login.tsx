@@ -15,12 +15,15 @@ function Login() {
   const { profile, isLoading: profileLoading } = useProfile();
   const navigate = useNavigate();
 
+  const search: any = Route.useSearch();
+  const redirect = search.redirect || "/";
+
   useEffect(() => {
     if (!authLoading && user && !profileLoading) {
-      if (profile) navigate({ to: "/" });
-      else navigate({ to: "/onboarding" });
+      if (profile) navigate({ to: redirect });
+      else navigate({ to: "/onboarding", search: { redirect } });
     }
-  }, [user, authLoading, profile, profileLoading, navigate]);
+  }, [user, authLoading, profile, profileLoading, navigate, redirect]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-5">

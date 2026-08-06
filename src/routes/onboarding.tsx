@@ -18,10 +18,13 @@ function Onboarding() {
   const [created, setCreated] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
+  const search: any = Route.useSearch();
+  const redirect = search.redirect || "/";
+
   useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/login" });
-    if (!profileLoading && profile) navigate({ to: "/" });
-  }, [user, authLoading, profile, profileLoading, navigate]);
+    if (!authLoading && !user) navigate({ to: "/login", search: { redirect } });
+    if (!profileLoading && profile) navigate({ to: redirect });
+  }, [user, authLoading, profile, profileLoading, navigate, redirect]);
 
   const [name, setName] = useState(user?.user_metadata?.full_name ?? "");
   const [phone, setPhone] = useState("");
@@ -144,7 +147,7 @@ function Onboarding() {
       }
 
       setCreated(true);
-      setTimeout(() => navigate({ to: "/" }), 1400);
+      setTimeout(() => navigate({ to: redirect }), 1400);
     } catch (err) {
       console.error("Profile creation error:", err);
       alert("Error creating profile. Please check your connection and try again.");

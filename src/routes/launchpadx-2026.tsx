@@ -1,12 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SEO } from "@/components/seo";
 import { BottomNav } from "@/components/bottom-nav";
 import { useAuth } from "@/lib/auth-provider";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserPlus, Clock, UserCheck } from "lucide-react";
+import { Users, UserPlus, Search as SearchIcon, MapPin, Car } from "lucide-react";
 import { LaunchpadRegistrationForm } from "@/components/LaunchpadRegistrationForm";
 
 export const Route = createFileRoute("/launchpadx-2026")({
@@ -21,7 +21,10 @@ export const Route = createFileRoute("/launchpadx-2026")({
 
 function LaunchPadXHub() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("directory");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
 
   // Fetch Event details
   const { data: event } = useQuery({
@@ -53,6 +56,76 @@ function LaunchPadXHub() {
     },
   });
 
+  // Fetch all participants
+  const { data: participantsData } = useQuery({
+    queryKey: ["event_participants", event?.id],
+    enabled: !!event?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("event_participants")
+        .select("*")
+        .eq("event_id", event!.id);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleAddParticipantClick = () => {
+    if (!user) {
+      navigate({ to: "/login", search: { redirect: "/launchpadx-2026" } });
+      return;
+    }
+    setIsRegistrationModalOpen(true);
+  };
+
+  const handleConnectClick = (participantId: string) => {
+    if (!user) {
+      navigate({ to: "/login", search: { redirect: "/launchpadx-2026" } });
+      return;
+    }
+    if (!myRegistration) {
+      setIsRegistrationModalOpen(true);
+      return;
+    }
+    // Handle connection request logic here...
+    alert("Connection request functionality coming soon!");
+  };
+
+  const participants = useMemo(() => {
+    let list = participantsData || [];
+    
+    // Add mock participant Anjana if not already in list
+    const hasAnjana = list.some(p => p.full_name === "Anjana");
+    if (!hasAnjana) {
+      list = [
+        ...list,
+        {
+          id: "mock-anjana-id",
+          full_name: "Anjana",
+          pickup_location: "Nagole",
+          drop_location: "SNIST, LaunchpadX",
+          has_vehicle: true,
+          role: "driver",
+          seats: 4,
+          vehicle_details: "Car",
+          profession: "Student",
+          organization: "SNIST",
+          photo_url: null,
+        } as any
+      ];
+    }
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p => 
+        (p.full_name && p.full_name.toLowerCase().includes(q)) ||
+        (p.pickup_location && p.pickup_location.toLowerCase().includes(q)) ||
+        (p.drop_location && p.drop_location.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [participantsData, searchQuery]);
+
   return (
     <main className="min-h-screen bg-slate-50 text-foreground pb-24">
       <SEO
@@ -62,8 +135,32 @@ function LaunchPadXHub() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="sticky top-0 md:top-16 z-40 bg-slate-50/90 backdrop-blur-md px-2 py-3 border-b border-border">
-          <div className="max-w-5xl mx-auto">
+        <div className="sticky top-0 md:top-16 z-30 bg-slate-50/90 backdrop-blur-md px-2 py-3 border-b border-border shadow-sm">
+          <div className="max-w-5xl mx-auto space-y-3">
+            
+            <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+              {/* Search Bar */}
+              <div className="relative w-full sm:max-w-md">
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search participants, pickup, or drop location..."
+                  className="w-full rounded-full border border-input bg-white pl-9 pr-4 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                />
+              </div>
+
+              {!myRegistration && (
+                <button
+                  onClick={handleAddParticipantClick}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors shrink-0"
+                >
+                  <UserPlus className="size-4" />
+                  Add Participant
+                </button>
+              )}
+            </div>
+
             <TabsList className="grid w-full grid-cols-4 h-12 bg-white shadow-sm border border-border rounded-xl">
               <TabsTrigger value="directory" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1">
                 Participants
@@ -82,49 +179,107 @@ function LaunchPadXHub() {
         </div>
 
         {/* Hero Section */}
-        <div className="bg-primary px-6 py-16 text-center text-primary-foreground relative overflow-hidden">
+        <div className="bg-primary px-6 py-12 text-center text-primary-foreground relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-          <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+          <div className="relative z-10 max-w-3xl mx-auto space-y-4">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
               {event?.title || "VetriaAI LaunchPadX 2026"}
             </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-primary-foreground/80 max-w-2xl mx-auto">
               {event?.subtitle || "Connect, discover, and network with fellow participants before the event."}
             </p>
-
-            {!myRegistration && user && (
-               <div className="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 text-left max-w-xl mx-auto border border-white/20">
-                 <h3 className="text-xl font-bold mb-4">Register for the Hub</h3>
-                 <LaunchpadRegistrationForm eventId={event?.id} onSuccess={() => {}} />
-               </div>
-            )}
-            {!user && (
-              <p className="text-sm mt-4 opacity-80">Please log in to join the networking hub.</p>
-            )}
           </div>
         </div>
 
         <div className="max-w-5xl mx-auto px-4">
-          
           <div className="mt-8">
-            <TabsContent value="directory">
-              <div className="text-center py-20 text-muted-foreground">
-                <Users className="size-12 mx-auto mb-4 opacity-20" />
-                <p>Participant directory goes here.</p>
-              </div>
+            <TabsContent value="directory" className="space-y-4 focus-visible:outline-none">
+              {participants.length === 0 ? (
+                <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
+                  <Users className="size-12 mx-auto mb-4 opacity-20" />
+                  <p>No participants found.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {participants.map(p => (
+                    <div key={p.id} className="bg-white rounded-2xl border border-border p-5 flex flex-col shadow-sm">
+                      <div className="flex items-start gap-4">
+                        <div className="size-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0">
+                          {p.photo_url ? (
+                            <img src={p.photo_url} alt={p.full_name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-lg font-bold text-muted-foreground">{p.full_name?.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-base truncate text-foreground">{p.full_name}</h3>
+                          <p className="text-xs text-muted-foreground truncate">{p.profession} at {p.organization}</p>
+                        </div>
+                      </div>
+
+                      {(p.pickup_location || p.drop_location) && (
+                        <div className="mt-4 p-3 bg-secondary/50 rounded-xl space-y-2 border border-border/50">
+                          <div className="flex items-start gap-2 text-xs">
+                            <MapPin className="size-3.5 text-primary mt-0.5 shrink-0" />
+                            <div className="flex-1 text-muted-foreground">
+                              <span className="font-medium text-foreground">Pick:</span> {p.pickup_location || "Not specified"}
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2 text-xs">
+                            <MapPin className="size-3.5 text-red-500 mt-0.5 shrink-0" />
+                            <div className="flex-1 text-muted-foreground">
+                              <span className="font-medium text-foreground">Drop:</span> {p.drop_location || "Not specified"}
+                            </div>
+                          </div>
+                          
+                          {p.role === "driver" && (
+                            <div className="flex items-start gap-2 text-xs pt-2 mt-2 border-t border-border/50">
+                              <Car className="size-3.5 text-green-600 mt-0.5 shrink-0" />
+                              <div className="flex-1 text-green-700 font-medium">
+                                Offering Lift • {p.seats} seat{p.seats !== 1 ? 's' : ''} available
+                                {p.vehicle_details && <span className="block font-normal opacity-80">{p.vehicle_details}</span>}
+                              </div>
+                            </div>
+                          )}
+                          {p.role === "passenger" && (
+                            <div className="flex items-start gap-2 text-xs pt-2 mt-2 border-t border-border/50">
+                              <Users className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
+                              <div className="flex-1 text-blue-700 font-medium">
+                                Needs Lift • {p.seats} seat{p.seats !== 1 ? 's' : ''} required
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="mt-auto pt-4 flex gap-2">
+                        {p.id !== user?.id && (
+                          <button
+                            onClick={() => handleConnectClick(p.id)}
+                            className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 text-primary px-3 py-2 text-sm font-semibold hover:bg-primary/20 transition-colors"
+                          >
+                            {p.role === "driver" ? "Request Seat" : "Connect"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
+            
             <TabsContent value="sent">
-               <div className="text-center py-20 text-muted-foreground">
+               <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
                 <p>Sent connection requests goes here.</p>
               </div>
             </TabsContent>
             <TabsContent value="incoming">
-               <div className="text-center py-20 text-muted-foreground">
+               <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
                 <p>Incoming connection requests goes here.</p>
               </div>
             </TabsContent>
             <TabsContent value="connections">
-               <div className="text-center py-20 text-muted-foreground">
+               <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
                 <p>Mutually accepted connections goes here.</p>
               </div>
             </TabsContent>
@@ -133,6 +288,36 @@ function LaunchPadXHub() {
       </Tabs>
 
       <BottomNav />
+
+      {/* Registration Modal */}
+      {isRegistrationModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-xl my-8 bg-white rounded-3xl shadow-xl">
+            <button
+              onClick={() => setIsRegistrationModalOpen(false)}
+              className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-secondary hover:bg-secondary/80 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <div className="p-6 md:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold">Join the Networking Hub</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Create your profile to connect with others and share rides to the event.
+                </p>
+              </div>
+              <LaunchpadRegistrationForm 
+                eventId={event?.id as string} 
+                onSuccess={() => {
+                  setIsRegistrationModalOpen(false);
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/lib/supabase";
@@ -16,6 +16,14 @@ const formSchema = z.object({
   linkedin_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   photo_url: z.string().url().optional().or(z.literal("")),
   interests: z.array(z.string()).min(1, "Select at least one interest"),
+  
+  // Ride-sharing fields
+  pickup_location: z.string().min(2, "Pickup location is required"),
+  drop_location: z.string().min(2, "Drop location is required"),
+  has_vehicle: z.boolean().default(false),
+  willing_to_give_lift: z.boolean().default(false),
+  vehicle_details: z.string().optional(),
+  seats: z.coerce.number().min(1, "Must be at least 1").default(1),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -48,8 +56,17 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       linkedin_url: "",
       photo_url: user?.user_metadata?.avatar_url || "",
       interests: [],
+      pickup_location: "",
+      drop_location: "",
+      has_vehicle: false,
+      willing_to_give_lift: false,
+      vehicle_details: "",
+      seats: 1,
     },
   });
+
+  const hasVehicle = form.watch("has_vehicle");
+  const willingToGiveLift = form.watch("willing_to_give_lift");
 
   const onSubmit = async (values: FormValues) => {
     if (!user) return;
@@ -57,12 +74,22 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
     setError("");
 
     try {
+      let role = "passenger";
+      if (values.has_vehicle && values.willing_to_give_lift) {
+        role = "driver";
+      } else if (values.has_vehicle && !values.willing_to_give_lift) {
+        role = "participant";
+      }
+
+      const { willing_to_give_lift, ...dbValues } = values;
+
       const { error: submitError } = await supabase
         .from("event_participants")
         .insert({
           event_id: eventId,
           user_id: user.id,
-          ...values,
+          ...dbValues,
+          role,
           linkedin_url: values.linkedin_url || null,
           photo_url: values.photo_url || null,
         });
@@ -80,10 +107,12 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 text-left">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-left">
       {error && <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
       
       <div className="space-y-4">
+        <h3 className="text-lg font-semibold border-b pb-2">1. Personal Info</h3>
+        
         <div>
           <label className="block text-sm font-medium mb-1">Full Name *</label>
           <input 
@@ -154,24 +183,89 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
           </div>
           {form.formState.errors.interests && <p className="text-red-500 text-xs mt-1">{form.formState.errors.interests.message}</p>}
         </div>
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">LinkedIn URL (Optional)</label>
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold border-b pb-2">2. Ride Sharing Options</h3>
+        <p className="text-xs text-muted-foreground">Find people to travel with to LaunchPadX 2026.</p>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Pickup Location *</label>
+            <input 
+              {...form.register("pickup_location")}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="e.g. Madhapur"
+            />
+            {form.formState.errors.pickup_location && <p className="text-red-500 text-xs mt-1">{form.formState.errors.pickup_location.message}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Drop Location *</label>
+            <input 
+              {...form.register("drop_location")}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="e.g. Hitex Exhibition Center"
+            />
+            {form.formState.errors.drop_location && <p className="text-red-500 text-xs mt-1">{form.formState.errors.drop_location.message}</p>}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
           <input 
-            {...form.register("linkedin_url")}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="https://linkedin.com/in/johndoe"
+            type="checkbox" 
+            id="has_vehicle"
+            {...form.register("has_vehicle")}
+            className="rounded border-gray-300 text-primary focus:ring-primary size-4"
           />
-          {form.formState.errors.linkedin_url && <p className="text-red-500 text-xs mt-1">{form.formState.errors.linkedin_url.message}</p>}
+          <label htmlFor="has_vehicle" className="text-sm font-medium cursor-pointer">Do you have a vehicle?</label>
+        </div>
+
+        {hasVehicle && (
+          <div className="pl-7 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div>
+              <label className="block text-sm font-medium mb-1">Vehicle Details (Optional)</label>
+              <input 
+                {...form.register("vehicle_details")}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="e.g. Honda City (White)"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <input 
+                type="checkbox" 
+                id="willing_to_give_lift"
+                {...form.register("willing_to_give_lift")}
+                className="rounded border-gray-300 text-primary focus:ring-primary size-4"
+              />
+              <label htmlFor="willing_to_give_lift" className="text-sm font-medium cursor-pointer">
+                Are you willing to give a lift to someone heading in the same direction?
+              </label>
+            </div>
+          </div>
+        )}
+
+        <div className="pl-7">
+          <label className="block text-sm font-medium mb-1">
+            {hasVehicle && willingToGiveLift ? "Number of Vacant Seats *" : "Number of Seats Required *"}
+          </label>
+          <input 
+            type="number"
+            min="1"
+            max="10"
+            {...form.register("seats")}
+            className="w-32 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+          {form.formState.errors.seats && <p className="text-red-500 text-xs mt-1">{form.formState.errors.seats.message}</p>}
         </div>
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-95 disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-95 disabled:opacity-50 flex items-center justify-center gap-2 mt-8"
       >
-        {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : "Complete Profile"}
+        {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : "Complete Profile & Join Hub"}
       </button>
     </form>
   );
