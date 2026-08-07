@@ -16,14 +16,19 @@ const formSchema = z.object({
   linkedin_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   photo_url: z.string().url().optional().or(z.literal("")),
   interests: z.array(z.string()).min(1, "Select at least one interest"),
+  // Team & Travel details
+  team_name: z.string().min(2, "Team name is required"),
+  team_size: z.coerce.number().min(1, "Must be at least 1").default(1),
+  is_local: z.boolean().default(true),
   
-  // Ride-sharing fields
-  pickup_location: z.string().min(2, "Pickup location is required"),
-  drop_location: z.string().min(2, "Drop location is required"),
-  has_vehicle: z.boolean().default(false),
-  willing_to_give_lift: z.boolean().default(false),
-  vehicle_details: z.string().optional(),
-  seats: z.coerce.number().min(1, "Must be at least 1").default(1),
+  // Local fields
+  local_location: z.string().optional(),
+  travel_time: z.string().optional(),
+
+  // Non-local fields
+  origin_city: z.string().optional(),
+  travel_medium: z.string().optional(),
+  pickup_station: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -56,17 +61,19 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       linkedin_url: "",
       photo_url: user?.user_metadata?.avatar_url || "",
       interests: [],
-      pickup_location: "",
-      drop_location: "",
-      has_vehicle: false,
-      willing_to_give_lift: false,
-      vehicle_details: "",
-      seats: 1,
+      team_name: "",
+      team_size: 1,
+      is_local: true,
+      local_location: "",
+      travel_time: "",
+      origin_city: "",
+      travel_medium: "",
+      pickup_station: "",
     },
   });
 
-  const hasVehicle = form.watch("has_vehicle");
-  const willingToGiveLift = form.watch("willing_to_give_lift");
+  const isLocal = form.watch("is_local");
+
 
   const onSubmit = async (values: FormValues) => {
     if (!user) return;
@@ -74,22 +81,12 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
     setError("");
 
     try {
-      let role = "passenger";
-      if (values.has_vehicle && values.willing_to_give_lift) {
-        role = "driver";
-      } else if (values.has_vehicle && !values.willing_to_give_lift) {
-        role = "participant";
-      }
-
-      const { willing_to_give_lift, ...dbValues } = values;
-
       const { error: submitError } = await supabase
         .from("event_participants")
         .insert({
           event_id: eventId,
           user_id: user.id,
-          ...dbValues,
-          role,
+          ...values,
           linkedin_url: values.linkedin_url || null,
           photo_url: values.photo_url || null,
         });
@@ -186,77 +183,88 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold border-b pb-2">2. Ride Sharing Options</h3>
-        <p className="text-xs text-muted-foreground">Find people to travel with to LaunchPadX 2026.</p>
+        <h3 className="text-lg font-semibold border-b pb-2">2. Team & Travel Details</h3>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Pickup Location *</label>
+            <label className="block text-sm font-medium mb-1">Team Name *</label>
             <input 
-              {...form.register("pickup_location")}
+              {...form.register("team_name")}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="e.g. Madhapur"
+              placeholder="e.g. Innovators"
             />
-            {form.formState.errors.pickup_location && <p className="text-red-500 text-xs mt-1">{form.formState.errors.pickup_location.message}</p>}
+            {form.formState.errors.team_name && <p className="text-red-500 text-xs mt-1">{form.formState.errors.team_name.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Drop Location *</label>
+            <label className="block text-sm font-medium mb-1">Team Strength (No. of people) *</label>
             <input 
-              {...form.register("drop_location")}
+              type="number"
+              min="1"
+              {...form.register("team_size")}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="e.g. Hitex Exhibition Center"
             />
-            {form.formState.errors.drop_location && <p className="text-red-500 text-xs mt-1">{form.formState.errors.drop_location.message}</p>}
+            {form.formState.errors.team_size && <p className="text-red-500 text-xs mt-1">{form.formState.errors.team_size.message}</p>}
           </div>
         </div>
 
         <div className="flex items-center gap-3 pt-2">
           <input 
             type="checkbox" 
-            id="has_vehicle"
-            {...form.register("has_vehicle")}
+            id="is_local"
+            {...form.register("is_local")}
             className="rounded border-gray-300 text-primary focus:ring-primary size-4"
           />
-          <label htmlFor="has_vehicle" className="text-sm font-medium cursor-pointer">Do you have a vehicle?</label>
+          <label htmlFor="is_local" className="text-sm font-medium cursor-pointer">Are you local to the event city?</label>
         </div>
 
-        {hasVehicle && (
-          <div className="pl-7 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div>
-              <label className="block text-sm font-medium mb-1">Vehicle Details (Optional)</label>
-              <input 
-                {...form.register("vehicle_details")}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="e.g. Honda City (White)"
-              />
+        <div className="pl-7 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          {isLocal ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Location</label>
+                <input 
+                  {...form.register("local_location")}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="e.g. Madhapur"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Time & Date</label>
+                <input 
+                  {...form.register("travel_time")}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="e.g. Oct 12, 9:00 AM"
+                />
+              </div>
             </div>
-
-            <div className="flex items-center gap-3">
-              <input 
-                type="checkbox" 
-                id="willing_to_give_lift"
-                {...form.register("willing_to_give_lift")}
-                className="rounded border-gray-300 text-primary focus:ring-primary size-4"
-              />
-              <label htmlFor="willing_to_give_lift" className="text-sm font-medium cursor-pointer">
-                Are you willing to give a lift to someone heading in the same direction?
-              </label>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Travelling From</label>
+                <input 
+                  {...form.register("origin_city")}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="e.g. Bangalore"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Travel Media</label>
+                <input 
+                  {...form.register("travel_medium")}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="e.g. Train, Bus, Flight"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Station / Airport of Pickup</label>
+                <input 
+                  {...form.register("pickup_station")}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="e.g. Secunderabad Junction"
+                />
+              </div>
             </div>
-          </div>
-        )}
-
-        <div className="pl-7">
-          <label className="block text-sm font-medium mb-1">
-            {hasVehicle && willingToGiveLift ? "Number of Vacant Seats *" : "Number of Seats Required *"}
-          </label>
-          <input 
-            type="number"
-            min="1"
-            max="10"
-            {...form.register("seats")}
-            className="w-32 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-          {form.formState.errors.seats && <p className="text-red-500 text-xs mt-1">{form.formState.errors.seats.message}</p>}
+          )}
         </div>
       </div>
 

@@ -102,12 +102,12 @@ function LaunchPadXHub() {
         {
           id: "mock-anjana-id",
           full_name: "Anjana",
-          pickup_location: "Nagole",
-          drop_location: "SNIST, LaunchpadX",
-          has_vehicle: true,
-          role: "driver",
-          seats: 4,
-          vehicle_details: "Car",
+          team_name: "Tech Titans",
+          team_size: 4,
+          is_local: false,
+          origin_city: "Bangalore",
+          travel_medium: "Flight",
+          pickup_station: "RGIA Airport",
           profession: "Student",
           organization: "SNIST",
           photo_url: null,
@@ -119,8 +119,9 @@ function LaunchPadXHub() {
       const q = searchQuery.toLowerCase();
       list = list.filter(p => 
         (p.full_name && p.full_name.toLowerCase().includes(q)) ||
-        (p.pickup_location && p.pickup_location.toLowerCase().includes(q)) ||
-        (p.drop_location && p.drop_location.toLowerCase().includes(q))
+        (p.team_name && p.team_name.toLowerCase().includes(q)) ||
+        (p.origin_city && p.origin_city.toLowerCase().includes(q)) ||
+        (p.local_location && p.local_location.toLowerCase().includes(q))
       );
     }
     return list;
@@ -217,37 +218,46 @@ function LaunchPadXHub() {
                         </div>
                       </div>
 
-                      {(p.pickup_location || p.drop_location) && (
+                      {(p.team_name || p.origin_city || p.local_location) && (
                         <div className="mt-4 p-3 bg-secondary/50 rounded-xl space-y-2 border border-border/50">
-                          <div className="flex items-start gap-2 text-xs">
-                            <MapPin className="size-3.5 text-primary mt-0.5 shrink-0" />
-                            <div className="flex-1 text-muted-foreground">
-                              <span className="font-medium text-foreground">Pick:</span> {p.pickup_location || "Not specified"}
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-2 text-xs">
-                            <MapPin className="size-3.5 text-red-500 mt-0.5 shrink-0" />
-                            <div className="flex-1 text-muted-foreground">
-                              <span className="font-medium text-foreground">Drop:</span> {p.drop_location || "Not specified"}
-                            </div>
-                          </div>
-                          
-                          {p.role === "driver" && (
-                            <div className="flex items-start gap-2 text-xs pt-2 mt-2 border-t border-border/50">
-                              <Car className="size-3.5 text-green-600 mt-0.5 shrink-0" />
-                              <div className="flex-1 text-green-700 font-medium">
-                                Offering Lift • {p.seats} seat{p.seats !== 1 ? 's' : ''} available
-                                {p.vehicle_details && <span className="block font-normal opacity-80">{p.vehicle_details}</span>}
+                          {p.team_name && (
+                            <div className="flex items-start gap-2 text-xs">
+                              <Users className="size-3.5 text-primary mt-0.5 shrink-0" />
+                              <div className="flex-1 text-muted-foreground">
+                                <span className="font-medium text-foreground">Team:</span> {p.team_name} ({p.team_size} members)
                               </div>
                             </div>
                           )}
-                          {p.role === "passenger" && (
-                            <div className="flex items-start gap-2 text-xs pt-2 mt-2 border-t border-border/50">
-                              <Users className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
-                              <div className="flex-1 text-blue-700 font-medium">
-                                Needs Lift • {p.seats} seat{p.seats !== 1 ? 's' : ''} required
+                          
+                          {p.is_local ? (
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-green-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-green-700">Local:</span> {p.local_location || "Not specified"}
+                                </div>
                               </div>
-                            </div>
+                              {p.travel_time && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground">
+                                  <span className="font-medium text-foreground">Time & Date:</span> {p.travel_time}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-blue-700">Travelling From:</span> {p.origin_city || "Not specified"}
+                                </div>
+                              </div>
+                              {(p.travel_medium || p.pickup_station) && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground flex-col sm:flex-row sm:gap-4">
+                                  {p.travel_medium && <span><span className="font-medium text-foreground">By:</span> {p.travel_medium}</span>}
+                                  {p.pickup_station && <span><span className="font-medium text-foreground">Pickup:</span> {p.pickup_station}</span>}
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       )}
@@ -258,7 +268,7 @@ function LaunchPadXHub() {
                             onClick={() => handleConnectClick(p.id)}
                             className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 text-primary px-3 py-2 text-sm font-semibold hover:bg-primary/20 transition-colors"
                           >
-                            {p.role === "driver" ? "Request Seat" : "Connect"}
+                            Connect
                           </button>
                         )}
                       </div>
