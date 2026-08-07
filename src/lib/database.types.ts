@@ -123,6 +123,7 @@ export interface Database {
           team_name: string | null;
           team_size: number | null;
           is_local: boolean | null;
+          willing_to_pool_cab: boolean | null;
           origin_city: string | null;
           travel_medium: string | null;
           pickup_station: string | null;

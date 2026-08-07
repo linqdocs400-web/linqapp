@@ -12,7 +12,6 @@ const formSchema = z.object({
   city: z.string().min(2, "City is required"),
   profession: z.string().min(2, "Profession is required"),
   organization: z.string().min(2, "Organization is required"),
-  bio: z.string().min(10, "Bio must be at least 10 characters"),
   linkedin_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   photo_url: z.string().url().optional().or(z.literal("")),
   interests: z.array(z.string()).min(1, "Select at least one interest"),
@@ -20,6 +19,7 @@ const formSchema = z.object({
   team_name: z.string().min(2, "Team name is required"),
   team_size: z.coerce.number().min(1, "Must be at least 1").default(1),
   is_local: z.boolean().default(true),
+  willing_to_pool_cab: z.boolean().default(false),
   
   // Local fields
   local_location: z.string().optional(),
@@ -57,13 +57,13 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       city: "",
       profession: "",
       organization: "",
-      bio: "",
       linkedin_url: "",
       photo_url: user?.user_metadata?.avatar_url || "",
       interests: [],
       team_name: "",
       team_size: 1,
       is_local: true,
+      willing_to_pool_cab: false,
       local_location: "",
       travel_time: "",
       origin_city: "",
@@ -115,7 +115,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
           <input 
             {...form.register("full_name")}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="John Doe"
+            placeholder="Anjana"
           />
           {form.formState.errors.full_name && <p className="text-red-500 text-xs mt-1">{form.formState.errors.full_name.message}</p>}
         </div>
@@ -126,7 +126,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
             <input 
               {...form.register("city")}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="San Francisco"
+              placeholder="Hyderabad"
             />
             {form.formState.errors.city && <p className="text-red-500 text-xs mt-1">{form.formState.errors.city.message}</p>}
           </div>
@@ -148,19 +148,9 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
           <input 
             {...form.register("organization")}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Stanford University"
+            placeholder="IIIT Hyderabad"
           />
           {form.formState.errors.organization && <p className="text-red-500 text-xs mt-1">{form.formState.errors.organization.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Short Bio *</label>
-          <textarea 
-            {...form.register("bio")}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px]"
-            placeholder="I am a researcher focusing on AGI..."
-          />
-          {form.formState.errors.bio && <p className="text-red-500 text-xs mt-1">{form.formState.errors.bio.message}</p>}
         </div>
 
         <div>
@@ -207,14 +197,26 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pt-2">
-          <input 
-            type="checkbox" 
-            id="is_local"
-            {...form.register("is_local")}
-            className="rounded border-gray-300 text-primary focus:ring-primary size-4"
-          />
-          <label htmlFor="is_local" className="text-sm font-medium cursor-pointer">Are you local to the event city?</label>
+        <div className="flex flex-col gap-3 pt-2">
+          <div className="flex items-center gap-3">
+            <input 
+              type="checkbox" 
+              id="is_local"
+              {...form.register("is_local")}
+              className="rounded border-gray-300 text-primary focus:ring-primary size-4"
+            />
+            <label htmlFor="is_local" className="text-sm font-medium cursor-pointer">Are you local to the event city?</label>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <input 
+              type="checkbox" 
+              id="willing_to_pool_cab"
+              {...form.register("willing_to_pool_cab")}
+              className="rounded border-gray-300 text-primary focus:ring-primary size-4"
+            />
+            <label htmlFor="willing_to_pool_cab" className="text-sm font-medium cursor-pointer">Are you willing for auto or cab pool too? (chargeable)</label>
+          </div>
         </div>
 
         <div className="pl-7 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">

@@ -8,6 +8,7 @@ import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserPlus, Search as SearchIcon, MapPin, Car } from "lucide-react";
 import { LaunchpadRegistrationForm } from "@/components/LaunchpadRegistrationForm";
+import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/launchpadx-2026")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/launchpadx-2026")({
 
 function LaunchPadXHub() {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("directory");
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,12 +77,20 @@ function LaunchPadXHub() {
       navigate({ to: "/login", search: { redirect: "/launchpadx-2026" } });
       return;
     }
+    if (!profile) {
+      navigate({ to: "/onboarding", search: { redirect: "/launchpadx-2026" } });
+      return;
+    }
     setIsRegistrationModalOpen(true);
   };
 
   const handleConnectClick = (participantId: string) => {
     if (!user) {
       navigate({ to: "/login", search: { redirect: "/launchpadx-2026" } });
+      return;
+    }
+    if (!profile) {
+      navigate({ to: "/onboarding", search: { redirect: "/launchpadx-2026" } });
       return;
     }
     if (!myRegistration) {
@@ -93,27 +103,6 @@ function LaunchPadXHub() {
 
   const participants = useMemo(() => {
     let list = participantsData || [];
-    
-    // Add mock participant Anjana if not already in list
-    const hasAnjana = list.some(p => p.full_name === "Anjana");
-    if (!hasAnjana) {
-      list = [
-        ...list,
-        {
-          id: "mock-anjana-id",
-          full_name: "Anjana",
-          team_name: "Tech Titans",
-          team_size: 4,
-          is_local: false,
-          origin_city: "Bangalore",
-          travel_medium: "Flight",
-          pickup_station: "RGIA Airport",
-          profession: "Student",
-          organization: "SNIST",
-          photo_url: null,
-        } as any
-      ];
-    }
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
