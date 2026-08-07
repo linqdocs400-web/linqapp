@@ -18,7 +18,7 @@ const formSchema = z.object({
   // Team & Travel details
   team_name: z.string().min(2, "Team name is required"),
   team_size: z.coerce.number().min(1, "Must be at least 1").default(1),
-  is_local: z.boolean().default(true),
+  is_local: z.boolean().default(false),
   willing_to_pool_cab: z.boolean().default(false),
   
   // Local fields
@@ -62,7 +62,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       interests: [],
       team_name: "",
       team_size: 1,
-      is_local: true,
+      is_local: false,
       willing_to_pool_cab: false,
       local_location: "",
       travel_time: "",
@@ -223,7 +223,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
           {isLocal ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Location</label>
+                <label className="block text-sm font-medium mb-1">Where are you coming from?</label>
                 <input 
                   {...form.register("local_location")}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
