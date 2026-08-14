@@ -20,7 +20,7 @@ const formSchema = z.object({
   team_size: z.coerce.number().min(1, "Must be at least 1").default(1),
   is_local: z.boolean().default(false),
   willing_to_pool_cab: z.boolean().default(false),
-  has_vehicle: z.boolean().default(false),
+  has_vehicle: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).default(false),
   vehicle_seats: z.coerce.number().max(6, "Maximum 6 seats allowed").optional(),
   
   // Local fields
