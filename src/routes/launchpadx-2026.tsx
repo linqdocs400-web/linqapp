@@ -312,14 +312,14 @@ function LaunchPadXHub() {
                     <div key={req.id} className="bg-white rounded-2xl border border-border p-5 flex flex-col shadow-sm">
                       <div className="flex items-start gap-4">
                         <div className="size-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0">
-                          {req.profile?.avatar_url ? (
-                            <img src={req.profile.avatar_url} alt={req.profile.name} className="w-full h-full object-cover" />
+                          {(req.participant?.photo_url || req.profile?.avatar_url) ? (
+                            <img src={(req.participant?.photo_url || req.profile?.avatar_url)!} alt={req.participant?.full_name || req.profile?.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-lg font-bold text-muted-foreground">{req.profile?.name?.charAt(0)}</span>
+                            <span className="text-lg font-bold text-muted-foreground">{(req.participant?.full_name || req.profile?.name)?.charAt(0)}</span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-base truncate text-foreground">{req.profile?.name}</h3>
+                          <h3 className="font-bold text-base truncate text-foreground">{req.participant?.full_name || req.profile?.name}</h3>
                           <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
                         </div>
                       </div>
@@ -394,14 +394,14 @@ function LaunchPadXHub() {
                     <div key={req.id} className="bg-white rounded-2xl border border-border p-5 flex flex-col shadow-sm">
                       <div className="flex items-start gap-4">
                         <div className="size-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0">
-                          {req.profile?.avatar_url ? (
-                            <img src={req.profile.avatar_url} alt={req.profile.name} className="w-full h-full object-cover" />
+                          {(req.participant?.photo_url || req.profile?.avatar_url) ? (
+                            <img src={(req.participant?.photo_url || req.profile?.avatar_url)!} alt={req.participant?.full_name || req.profile?.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-lg font-bold text-muted-foreground">{req.profile?.name?.charAt(0)}</span>
+                            <span className="text-lg font-bold text-muted-foreground">{(req.participant?.full_name || req.profile?.name)?.charAt(0)}</span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-base truncate text-foreground">{req.profile?.name}</h3>
+                          <h3 className="font-bold text-base truncate text-foreground">{req.participant?.full_name || req.profile?.name}</h3>
                           <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
                         </div>
                       </div>
@@ -483,14 +483,14 @@ function LaunchPadXHub() {
                     <div key={req.id} className="bg-white rounded-2xl border border-border p-5 flex flex-col shadow-sm">
                       <div className="flex items-start gap-4">
                         <div className="size-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0">
-                          {req.profile?.avatar_url ? (
-                            <img src={req.profile.avatar_url} alt={req.profile.name} className="w-full h-full object-cover" />
+                          {(req.participant?.photo_url || req.profile?.avatar_url) ? (
+                            <img src={(req.participant?.photo_url || req.profile?.avatar_url)!} alt={req.participant?.full_name || req.profile?.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-lg font-bold text-muted-foreground">{req.profile?.name?.charAt(0)}</span>
+                            <span className="text-lg font-bold text-muted-foreground">{(req.participant?.full_name || req.profile?.name)?.charAt(0)}</span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-base truncate text-foreground">{req.profile?.name}</h3>
+                          <h3 className="font-bold text-base truncate text-foreground">{req.participant?.full_name || req.profile?.name}</h3>
                           <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
                           <a href={`tel:${req.profile?.phone}`} className="inline-flex items-center gap-1 text-sm font-medium text-primary mt-1 hover:underline">
                             {req.profile?.phone}
