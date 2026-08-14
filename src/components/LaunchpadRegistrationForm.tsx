@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   full_name: z.string().min(2, "Name is required"),
@@ -94,14 +95,20 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       await queryClient.invalidateQueries({ queryKey: ["event_participants"] });
       onSuccess();
     } catch (err: any) {
-      setError(err.message || "Failed to register");
+      const errorMessage = err.message || "Failed to register";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const onFormError = (errors: any) => {
+    toast.error("Please fill in all required fields correctly.");
+  };
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-left">
+    <form onSubmit={form.handleSubmit(onSubmit, onFormError)} className="space-y-8 text-left">
       {error && <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
       
       <div className="space-y-4">
