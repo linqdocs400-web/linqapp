@@ -20,7 +20,7 @@ const formSchema = z.object({
   is_local: z.boolean().default(false),
   willing_to_pool_cab: z.boolean().default(false),
   has_vehicle: z.boolean().default(false),
-  vehicle_seats: z.coerce.number().optional(),
+  vehicle_seats: z.coerce.number().max(6, "Maximum 6 seats allowed").optional(),
   
   // Local fields
   local_location: z.string().optional(),
@@ -232,6 +232,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
               <input 
                 type="number"
                 min="1"
+                max="6"
                 {...form.register("vehicle_seats")}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="Example: 3"
