@@ -27,6 +27,8 @@ import {
   Check,
   Search,
 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { formatTime } from "@/lib/utils";
 import { toast } from "sonner";
 import { generateConnectionMessage, encodeMessageForUrl, copyToClipboard } from "@/lib/connection-message";
 
@@ -547,9 +549,9 @@ const MatchCard = memo(function MatchCard({
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             <Star className="size-3 fill-primary text-primary" /> 4.9 ·{" "}
             {m.journey_date && m.journey_time
-              ? `${formatDate(m.journey_date)} at ${m.journey_time}`
-              : m.journey_time || "Time not specified"}
-            {m.return_time && ` · Return: ${m.return_time}`}
+              ? `${formatDate(m.journey_date)} at ${formatTime(m.journey_time)}`
+              : formatTime(m.journey_time) || "Time not specified"}
+            {m.return_time && ` · Return: ${formatTime(m.return_time)}`}
           </p>
         </div>
       </div>

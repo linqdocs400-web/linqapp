@@ -138,10 +138,10 @@ function Trips() {
                 <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {!!p.vehicle_type && <Tag>{p.seats} seats available</Tag>}
                   {p.days && p.days.length > 0 && <Tag>{p.days.join(", ")}</Tag>}
-                  {p.return_journey && <Tag>Return @ {p.return_time || "tbd"}</Tag>}
+                  {p.return_journey && <Tag>Return @ {formatTime(p.return_time) || "tbd"}</Tag>}
                   {p.journey_date && (
                     <Tag>
-                      <Calendar className="size-3" /> {p.journey_date} {p.journey_time}
+                      <Calendar className="size-3" /> {p.journey_date} {formatTime(p.journey_time)}
                     </Tag>
                   )}
                 </div>
@@ -339,11 +339,11 @@ function RideDetails({
         {ride.journey_date && (
           <Tag>
             <Calendar className="size-3" /> {ride.journey_date}
-            {ride.journey_time ? ` @ ${ride.journey_time}` : ""}
+            {ride.journey_time ? ` @ ${formatTime(ride.journey_time)}` : ""}
           </Tag>
         )}
         {ride.days && ride.days.length > 0 && <Tag>{ride.days.join(", ")}</Tag>}
-        {ride.return_journey && <Tag>Return @ {ride.return_time || "tbd"}</Tag>}
+        {ride.return_journey && <Tag>Return @ {formatTime(ride.return_time) || "tbd"}</Tag>}
       </div>
     </div>
   );
