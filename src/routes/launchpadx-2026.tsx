@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserPlus, Search as SearchIcon, MapPin, Car } from "lucide-react";
 import { LaunchpadRegistrationForm } from "@/components/LaunchpadRegistrationForm";
 import { useProfile } from "@/hooks/use-profile";
+import { useEventConnections } from "@/hooks/use-event-connections";
 
 export const Route = createFileRoute("/launchpadx-2026")({
   head: () => ({
@@ -58,6 +59,18 @@ function LaunchPadXHub() {
     },
   });
 
+  const {
+    sentRequests,
+    incomingRequests,
+    acceptedConnections,
+    allUserConnections,
+    pendingIncomingCount,
+    sendRequest,
+    acceptRequest,
+    declineRequest,
+    deleteRequest
+  } = useEventConnections(event?.id);
+
   // Fetch all participants
   const { data: participantsData } = useQuery({
     queryKey: ["event_participants", event?.id],
@@ -97,8 +110,8 @@ function LaunchPadXHub() {
       setIsRegistrationModalOpen(true);
       return;
     }
-    // Handle connection request logic here...
-    alert("Connection request functionality coming soon!");
+    
+    sendRequest.mutate(participantId);
   };
 
   const participants = useMemo(() => {
@@ -158,8 +171,11 @@ function LaunchPadXHub() {
               <TabsTrigger value="sent" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1">
                 Sent
               </TabsTrigger>
-              <TabsTrigger value="incoming" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1">
+              <TabsTrigger value="incoming" className="relative text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1">
                 Incoming
+                {pendingIncomingCount.data && pendingIncomingCount.data > 0 ? (
+                  <span className="absolute top-2 right-1 size-2 rounded-full bg-red-500 animate-pulse"></span>
+                ) : null}
               </TabsTrigger>
               <TabsTrigger value="connections" className="text-[11px] sm:text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium px-1 truncate">
                 Connections
@@ -252,14 +268,32 @@ function LaunchPadXHub() {
                       )}
 
                       <div className="mt-auto pt-4 flex gap-2">
-                        {p.id !== user?.id && (
-                          <button
-                            onClick={() => handleConnectClick(p.id)}
-                            className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 text-primary px-3 py-2 text-sm font-semibold hover:bg-primary/20 transition-colors"
-                          >
-                            Connect
-                          </button>
-                        )}
+                        {p.user_id !== user?.id && (() => {
+                          const conn = allUserConnections.data?.find(c => c.receiver_id === p.user_id || c.requester_id === p.user_id);
+                          if (conn?.status === 'accepted') {
+                            return (
+                              <button disabled className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-green-50 text-green-700 px-3 py-2 text-sm font-semibold">
+                                Connected
+                              </button>
+                            );
+                          }
+                          if (conn?.status === 'pending') {
+                            return (
+                              <button disabled className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-secondary text-muted-foreground px-3 py-2 text-sm font-semibold">
+                                Requested
+                              </button>
+                            );
+                          }
+                          return (
+                            <button
+                              onClick={() => handleConnectClick(p.user_id!)}
+                              disabled={sendRequest.isPending}
+                              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 text-primary px-3 py-2 text-sm font-semibold hover:bg-primary/20 transition-colors disabled:opacity-50"
+                            >
+                              Connect
+                            </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   ))}
@@ -267,20 +301,145 @@ function LaunchPadXHub() {
               )}
             </TabsContent>
             
-            <TabsContent value="sent">
-               <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
-                <p>Sent connection requests goes here.</p>
-              </div>
+            <TabsContent value="sent" className="space-y-4">
+              {sentRequests.data?.length === 0 ? (
+                <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
+                  <p>No sent requests.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sentRequests.data?.map(req => (
+                    <div key={req.id} className="bg-white rounded-2xl border border-border p-5 flex flex-col shadow-sm">
+                      <div className="flex items-start gap-4">
+                        <div className="size-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0">
+                          {req.profile?.avatar_url ? (
+                            <img src={req.profile.avatar_url} alt={req.profile.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-lg font-bold text-muted-foreground">{req.profile?.name?.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-base truncate text-foreground">{req.profile?.name}</h3>
+                          <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
+                        </div>
+                      </div>
+                      <div className="mt-auto pt-4 flex gap-2">
+                        <button
+                          onClick={() => deleteRequest.mutate(req.id)}
+                          disabled={deleteRequest.isPending}
+                          className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50"
+                        >
+                          Delete Request
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
-            <TabsContent value="incoming">
-               <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
-                <p>Incoming connection requests goes here.</p>
-              </div>
+            
+            <TabsContent value="incoming" className="space-y-4">
+              {incomingRequests.data?.length === 0 ? (
+                <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
+                  <p>No incoming requests.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {incomingRequests.data?.map(req => (
+                    <div key={req.id} className="bg-white rounded-2xl border border-border p-5 flex flex-col shadow-sm">
+                      <div className="flex items-start gap-4">
+                        <div className="size-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0">
+                          {req.profile?.avatar_url ? (
+                            <img src={req.profile.avatar_url} alt={req.profile.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-lg font-bold text-muted-foreground">{req.profile?.name?.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-base truncate text-foreground">{req.profile?.name}</h3>
+                          <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
+                        </div>
+                      </div>
+                      <div className="mt-auto pt-4 flex gap-2">
+                        <button
+                          onClick={() => acceptRequest.mutate(req.id)}
+                          disabled={acceptRequest.isPending}
+                          className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => declineRequest.mutate(req.id)}
+                          disabled={declineRequest.isPending}
+                          className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-secondary text-foreground px-3 py-2 text-sm font-semibold hover:bg-secondary/80 transition-colors disabled:opacity-50"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
-            <TabsContent value="connections">
-               <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
-                <p>Mutually accepted connections goes here.</p>
-              </div>
+            
+            <TabsContent value="connections" className="space-y-4">
+              {acceptedConnections.data?.length === 0 ? (
+                <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
+                  <p>No connections yet.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {acceptedConnections.data?.map(req => (
+                    <div key={req.id} className="bg-white rounded-2xl border border-border p-5 flex flex-col shadow-sm">
+                      <div className="flex items-start gap-4">
+                        <div className="size-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0">
+                          {req.profile?.avatar_url ? (
+                            <img src={req.profile.avatar_url} alt={req.profile.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-lg font-bold text-muted-foreground">{req.profile?.name?.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-base truncate text-foreground">{req.profile?.name}</h3>
+                          <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
+                          <a href={`tel:${req.profile?.phone}`} className="inline-flex items-center gap-1 text-sm font-medium text-primary mt-1 hover:underline">
+                            {req.profile?.phone}
+                          </a>
+                        </div>
+                      </div>
+                      
+                      {(req.participant?.team_name || req.participant?.origin_city || req.participant?.local_location) && (
+                        <div className="mt-4 p-3 bg-secondary/50 rounded-xl space-y-2 border border-border/50">
+                          {req.participant.team_name && (
+                            <div className="flex items-start gap-2 text-xs">
+                              <Users className="size-3.5 text-primary mt-0.5 shrink-0" />
+                              <div className="flex-1 text-muted-foreground">
+                                <span className="font-medium text-foreground">Team:</span> {req.participant.team_name} ({req.participant.team_size} members)
+                              </div>
+                            </div>
+                          )}
+                          
+                          {req.participant.is_local ? (
+                            <div className="flex items-start gap-2 text-xs">
+                              <MapPin className="size-3.5 text-green-600 mt-0.5 shrink-0" />
+                              <div className="flex-1 text-muted-foreground">
+                                <span className="font-medium text-foreground text-green-700">Local:</span> {req.participant.local_location || "Not specified"}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-start gap-2 text-xs">
+                              <MapPin className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
+                              <div className="flex-1 text-muted-foreground">
+                                <span className="font-medium text-foreground text-blue-700">From:</span> {req.participant.origin_city || "Not specified"}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
           </div>
         </div>
