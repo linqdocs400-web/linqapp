@@ -105,7 +105,13 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
   };
 
   const onFormError = (errors: any) => {
-    toast.error("Please fill in all required fields correctly.");
+    const errorKeys = Object.keys(errors);
+    if (errorKeys.length > 0) {
+      const firstError = errors[errorKeys[0]];
+      toast.error(firstError.message || "Please fill in all required fields correctly.");
+    } else {
+      toast.error("Please fill in all required fields correctly.");
+    }
   };
 
   return (
