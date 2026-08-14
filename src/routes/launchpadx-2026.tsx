@@ -323,6 +323,51 @@ function LaunchPadXHub() {
                           <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
                         </div>
                       </div>
+
+                      {(req.participant?.team_name || req.participant?.origin_city || req.participant?.local_location) && (
+                        <div className="mt-4 p-3 bg-secondary/50 rounded-xl space-y-2 border border-border/50">
+                          {req.participant.team_name && (
+                            <div className="flex items-start gap-2 text-xs">
+                              <Users className="size-3.5 text-primary mt-0.5 shrink-0" />
+                              <div className="flex-1 text-muted-foreground">
+                                <span className="font-medium text-foreground">Team:</span> {req.participant.team_name} ({req.participant.team_size} members)
+                              </div>
+                            </div>
+                          )}
+                          
+                          {req.participant.is_local ? (
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-green-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-green-700">Local:</span> {req.participant.local_location || "Not specified"}
+                                </div>
+                              </div>
+                              {req.participant.travel_time && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground">
+                                  <span className="font-medium text-foreground">Time & Date:</span> {req.participant.travel_time}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-blue-700">Travelling From:</span> {req.participant.origin_city || "Not specified"}
+                                </div>
+                              </div>
+                              {(req.participant.travel_medium || req.participant.pickup_station) && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground flex-col sm:flex-row sm:gap-4">
+                                  {req.participant.travel_medium && <span><span className="font-medium text-foreground">By:</span> {req.participant.travel_medium}</span>}
+                                  {req.participant.pickup_station && <span><span className="font-medium text-foreground">Pickup:</span> {req.participant.pickup_station}</span>}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+
                       <div className="mt-auto pt-4 flex gap-2">
                         <button
                           onClick={() => deleteRequest.mutate(req.id)}
@@ -360,6 +405,51 @@ function LaunchPadXHub() {
                           <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
                         </div>
                       </div>
+
+                      {(req.participant?.team_name || req.participant?.origin_city || req.participant?.local_location) && (
+                        <div className="mt-4 p-3 bg-secondary/50 rounded-xl space-y-2 border border-border/50">
+                          {req.participant.team_name && (
+                            <div className="flex items-start gap-2 text-xs">
+                              <Users className="size-3.5 text-primary mt-0.5 shrink-0" />
+                              <div className="flex-1 text-muted-foreground">
+                                <span className="font-medium text-foreground">Team:</span> {req.participant.team_name} ({req.participant.team_size} members)
+                              </div>
+                            </div>
+                          )}
+                          
+                          {req.participant.is_local ? (
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-green-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-green-700">Local:</span> {req.participant.local_location || "Not specified"}
+                                </div>
+                              </div>
+                              {req.participant.travel_time && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground">
+                                  <span className="font-medium text-foreground">Time & Date:</span> {req.participant.travel_time}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-blue-700">Travelling From:</span> {req.participant.origin_city || "Not specified"}
+                                </div>
+                              </div>
+                              {(req.participant.travel_medium || req.participant.pickup_station) && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground flex-col sm:flex-row sm:gap-4">
+                                  {req.participant.travel_medium && <span><span className="font-medium text-foreground">By:</span> {req.participant.travel_medium}</span>}
+                                  {req.participant.pickup_station && <span><span className="font-medium text-foreground">Pickup:</span> {req.participant.pickup_station}</span>}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+
                       <div className="mt-auto pt-4 flex gap-2">
                         <button
                           onClick={() => acceptRequest.mutate(req.id)}
@@ -420,19 +510,34 @@ function LaunchPadXHub() {
                           )}
                           
                           {req.participant.is_local ? (
-                            <div className="flex items-start gap-2 text-xs">
-                              <MapPin className="size-3.5 text-green-600 mt-0.5 shrink-0" />
-                              <div className="flex-1 text-muted-foreground">
-                                <span className="font-medium text-foreground text-green-700">Local:</span> {req.participant.local_location || "Not specified"}
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-green-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-green-700">Local:</span> {req.participant.local_location || "Not specified"}
+                                </div>
                               </div>
-                            </div>
+                              {req.participant.travel_time && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground">
+                                  <span className="font-medium text-foreground">Time & Date:</span> {req.participant.travel_time}
+                                </div>
+                              )}
+                            </>
                           ) : (
-                            <div className="flex items-start gap-2 text-xs">
-                              <MapPin className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
-                              <div className="flex-1 text-muted-foreground">
-                                <span className="font-medium text-foreground text-blue-700">From:</span> {req.participant.origin_city || "Not specified"}
+                            <>
+                              <div className="flex items-start gap-2 text-xs">
+                                <MapPin className="size-3.5 text-blue-600 mt-0.5 shrink-0" />
+                                <div className="flex-1 text-muted-foreground">
+                                  <span className="font-medium text-foreground text-blue-700">Travelling From:</span> {req.participant.origin_city || "Not specified"}
+                                </div>
                               </div>
-                            </div>
+                              {(req.participant.travel_medium || req.participant.pickup_station) && (
+                                <div className="flex items-start gap-2 text-xs pl-5 text-muted-foreground flex-col sm:flex-row sm:gap-4">
+                                  {req.participant.travel_medium && <span><span className="font-medium text-foreground">By:</span> {req.participant.travel_medium}</span>}
+                                  {req.participant.pickup_station && <span><span className="font-medium text-foreground">Pickup:</span> {req.participant.pickup_station}</span>}
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       )}
