@@ -474,7 +474,6 @@ function LaunchPadXHub() {
             </TabsContent>
             
             <TabsContent value="connections" className="space-y-4">
-              <DebugProfiles otherUserIds={acceptedConnections.data?.map(req => req.requester_id === user?.id ? req.receiver_id : req.requester_id) || []} />
               {acceptedConnections.data?.length === 0 ? (
                 <div className="text-center py-20 text-muted-foreground bg-white rounded-2xl border border-border">
                   <p>No connections yet.</p>
