@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserPlus, Search as SearchIcon, MapPin, Car } from "lucide-react";
+import { Users, UserPlus, Search as SearchIcon, MapPin, Car, Phone } from "lucide-react";
 import { LaunchpadRegistrationForm } from "@/components/LaunchpadRegistrationForm";
 import { useProfile } from "@/hooks/use-profile";
 import { useEventConnections } from "@/hooks/use-event-connections";
@@ -492,9 +492,12 @@ function LaunchPadXHub() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-base truncate text-foreground">{req.participant?.full_name || req.profile?.name}</h3>
                           <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
-                          <a href={`tel:${req.profile?.phone}`} className="inline-flex items-center gap-1 text-sm font-medium text-primary mt-1 hover:underline">
-                            {req.profile?.phone}
-                          </a>
+                          {req.profile?.phone && (
+                            <a href={`tel:${req.profile.phone}`} className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground px-3 py-1.5 rounded-full mt-2 hover:bg-primary/90 transition-colors w-fit">
+                              <Phone className="size-3.5" />
+                              Call {req.profile.phone}
+                            </a>
+                          )}
                         </div>
                       </div>
                       
