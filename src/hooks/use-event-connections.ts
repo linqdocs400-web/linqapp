@@ -50,15 +50,15 @@ async function enrichConnections(
   // Fetch profiles (for phone number and avatar)
   const { data: profilesData, error: profilesError } = await supabase
     .from("profiles")
-    .select("id, user_id, name, phone, avatar_url")
-    .or(`id.in.(${otherUserIds.join(",")}),user_id.in.(${otherUserIds.join(",")})`);
+    .select("id, name, phone")
+    .in("id", otherUserIds);
 
   if (profilesError) {
     console.error("Failed to load profiles for connections:", profilesError);
   }
 
   const participantsByUserId = new Map((participantsData ?? []).map((p) => [p.user_id, p]));
-  const profilesByUserId = new Map((profilesData ?? []).map((p) => [p.user_id || p.id, p]));
+  const profilesByUserId = new Map((profilesData ?? []).map((p) => [p.id, p]));
 
   return connections.map((conn) => {
     const otherUserId = conn[otherUserIdKey];
@@ -71,7 +71,7 @@ async function enrichConnections(
       profile: profile ? {
         name: profile.name,
         phone: profile.phone,
-        avatar_url: profile.avatar_url,
+        avatar_url: "",
       } : undefined,
     };
   });
