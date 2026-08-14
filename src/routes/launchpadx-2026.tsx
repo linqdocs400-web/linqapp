@@ -492,6 +492,9 @@ function LaunchPadXHub() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-base truncate text-foreground">{req.participant?.full_name || req.profile?.name}</h3>
                           <p className="text-xs text-muted-foreground truncate">{req.participant?.profession} at {req.participant?.organization}</p>
+                          <div className="mt-1 text-[10px] bg-red-50 text-red-600 p-1 rounded overflow-hidden">
+                            DEBUG PROFILE: {JSON.stringify(req.profile)}
+                          </div>
                           {req.profile?.phone && (
                             <a href={`tel:${req.profile.phone}`} className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground px-3 py-1.5 rounded-full mt-2 hover:bg-primary/90 transition-colors w-fit">
                               <Phone className="size-3.5" />
