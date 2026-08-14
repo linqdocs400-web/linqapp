@@ -226,7 +226,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
             </div>
           </div>
 
-          {hasVehicle && (
+          {String(hasVehicle) === "true" && (
             <div className="pt-1">
               <label className="block text-sm font-medium mb-1">How many seats are available? *</label>
               <input 
