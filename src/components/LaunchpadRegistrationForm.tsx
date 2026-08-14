@@ -84,6 +84,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
         .insert({
           event_id: eventId,
           user_id: user.id,
+          bio: "",
           ...values,
           linkedin_url: values.linkedin_url || null,
           photo_url: values.photo_url || null,
