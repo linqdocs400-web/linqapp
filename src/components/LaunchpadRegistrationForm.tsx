@@ -14,12 +14,13 @@ const formSchema = z.object({
   organization: z.string().min(2, "Organization is required"),
   linkedin_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   photo_url: z.string().url().optional().or(z.literal("")),
-  interests: z.array(z.string()).min(1, "Select at least one interest"),
   // Team & Travel details
   team_name: z.string().min(2, "Team name is required"),
   team_size: z.coerce.number().min(1, "Must be at least 1").default(1),
   is_local: z.boolean().default(false),
   willing_to_pool_cab: z.boolean().default(false),
+  has_vehicle: z.boolean().default(false),
+  vehicle_seats: z.coerce.number().optional(),
   
   // Local fields
   local_location: z.string().optional(),
@@ -38,12 +39,6 @@ const PROFESSIONS = [
   "Designer", "Researcher", "Recruiter", "Entrepreneur", "Other"
 ];
 
-const INTERESTS = [
-  "Networking", "Co-founder", "Hiring", "Looking for Job", "AI", 
-  "ML", "Robotics", "Startup", "Investment", "Mentorship", 
-  "Collaboration", "Product", "Research"
-];
-
 export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: string, onSuccess: () => void }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -59,7 +54,6 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       organization: "",
       linkedin_url: "",
       photo_url: user?.user_metadata?.avatar_url || "",
-      interests: [],
       team_name: "",
       team_size: 1,
       is_local: false,
@@ -69,10 +63,13 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
       origin_city: "",
       travel_medium: "",
       pickup_station: "",
+      has_vehicle: false,
+      vehicle_seats: undefined,
     },
   });
 
   const isLocal = form.watch("is_local");
+  const hasVehicle = form.watch("has_vehicle");
 
 
   const onSubmit = async (values: FormValues) => {
@@ -152,24 +149,6 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
           />
           {form.formState.errors.organization && <p className="text-red-500 text-xs mt-1">{form.formState.errors.organization.message}</p>}
         </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Interests / Looking For *</label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {INTERESTS.map(interest => (
-              <label key={interest} className="flex items-center gap-1.5 cursor-pointer bg-secondary/50 hover:bg-secondary px-3 py-1.5 rounded-full text-sm transition-colors border border-border">
-                <input 
-                  type="checkbox" 
-                  value={interest} 
-                  {...form.register("interests")}
-                  className="rounded border-gray-300 text-primary focus:ring-primary size-3.5"
-                />
-                {interest}
-              </label>
-            ))}
-          </div>
-          {form.formState.errors.interests && <p className="text-red-500 text-xs mt-1">{form.formState.errors.interests.message}</p>}
-        </div>
       </div>
 
       <div className="space-y-4">
@@ -205,7 +184,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
               {...form.register("is_local")}
               className="rounded border-gray-300 text-primary focus:ring-primary size-4"
             />
-            <label htmlFor="is_local" className="text-sm font-medium cursor-pointer">Are you local to the event city?</label>
+            <label htmlFor="is_local" className="text-sm font-medium cursor-pointer">Do you currently live in Hyderabad?</label>
           </div>
           
           <div className="flex items-center gap-3">
@@ -217,6 +196,49 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
             />
             <label htmlFor="willing_to_pool_cab" className="text-sm font-medium cursor-pointer">Are you willing for auto or cab pool too? (chargeable)</label>
           </div>
+
+          <div className="pt-2">
+            <label className="block text-sm font-medium mb-2">Do you have a vehicle available?</label>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input 
+                  type="radio" 
+                  value="true"
+                  {...form.register("has_vehicle", {
+                    setValueAs: v => v === "true" || v === true
+                  })}
+                  className="text-primary focus:ring-primary size-4"
+                />
+                Yes
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input 
+                  type="radio" 
+                  value="false"
+                  defaultChecked
+                  {...form.register("has_vehicle", {
+                    setValueAs: v => v === "true" || v === true
+                  })}
+                  className="text-primary focus:ring-primary size-4"
+                />
+                No
+              </label>
+            </div>
+          </div>
+
+          {hasVehicle && (
+            <div className="pt-1">
+              <label className="block text-sm font-medium mb-1">How many seats are available? *</label>
+              <input 
+                type="number"
+                min="1"
+                {...form.register("vehicle_seats")}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="Example: 3"
+              />
+              {form.formState.errors.vehicle_seats && <p className="text-red-500 text-xs mt-1">{form.formState.errors.vehicle_seats.message}</p>}
+            </div>
+          )}
         </div>
 
         <div className="pl-7 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
