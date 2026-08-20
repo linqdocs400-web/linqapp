@@ -45,7 +45,7 @@ function Login() {
         </p>
 
         <button
-          onClick={signInWithGoogle}
+          onClick={() => signInWithGoogle(redirect)}
           className="mt-8 flex w-full items-center justify-center gap-3 rounded-full border border-border bg-background py-3.5 font-semibold transition hover:bg-secondary"
         >
           <GoogleIcon />

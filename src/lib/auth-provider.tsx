@@ -7,7 +7,7 @@ type AuthContextType = {
   session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (redirectPath?: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,11 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut: async () => {
       await supabase.auth.signOut();
     },
-    signInWithGoogle: async () => {
+    signInWithGoogle: async (redirectPath?: string) => {
+      const redirectUrl = new URL(window.location.origin + "/onboarding");
+      if (redirectPath) {
+        redirectUrl.searchParams.set("redirect", redirectPath);
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/onboarding",
+          redirectTo: redirectUrl.toString(),
         },
       });
       if (error) throw error;
