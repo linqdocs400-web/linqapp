@@ -94,6 +94,7 @@ export function LaunchpadRegistrationForm({ eventId, onSuccess }: { eventId: str
 
       await queryClient.invalidateQueries({ queryKey: ["event_registration"] });
       await queryClient.invalidateQueries({ queryKey: ["event_participants"] });
+      toast.success("Account created successfully and participant is added successfully");
       onSuccess();
     } catch (err: any) {
       const errorMessage = err.message || "Failed to register";
