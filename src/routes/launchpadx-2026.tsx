@@ -115,11 +115,11 @@ function LaunchPadXHub() {
 
   const handleConnectClick = (participantId: string) => {
     if (!user) {
-      navigate({ to: "/login", search: { redirect: "/launchpadx-2026" } });
+      navigate({ to: "/login", search: { redirect: "/launchpadx-2026?action=join" } });
       return;
     }
     if (!profile) {
-      navigate({ to: "/onboarding", search: { redirect: "/launchpadx-2026" } });
+      navigate({ to: "/onboarding", search: { redirect: "/launchpadx-2026?action=join" } });
       return;
     }
     if (!myRegistration) {
