@@ -4,7 +4,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { useAuth } from "@/lib/auth-provider";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserPlus, Search as SearchIcon, MapPin, Car, Phone } from "lucide-react";
 import { LaunchpadRegistrationForm } from "@/components/LaunchpadRegistrationForm";
@@ -13,6 +13,11 @@ import { useProfile } from "@/hooks/use-profile";
 import { useEventConnections } from "@/hooks/use-event-connections";
 
 export const Route = createFileRoute("/launchpadx-2026")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      action: search.action as string | undefined,
+    }
+  },
   head: () => ({
     meta: [
       { title: "VetriaAI LaunchPadX 2026 Networking Hub" },
@@ -23,12 +28,22 @@ export const Route = createFileRoute("/launchpadx-2026")({
 });
 
 function LaunchPadXHub() {
+  const { action } = Route.useSearch();
   const { user } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("directory");
   const [searchQuery, setSearchQuery] = useState("");
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+
+  // Automatically open modal if action=join and user is ready
+  useEffect(() => {
+    if (action === "join" && user && profile && !isRegistrationModalOpen) {
+      setIsRegistrationModalOpen(true);
+      // clear the action param
+      navigate({ search: { action: undefined }, replace: true });
+    }
+  }, [action, user, profile, isRegistrationModalOpen, navigate]);
 
   // Fetch Event details
   const { data: event } = useQuery({
@@ -88,11 +103,11 @@ function LaunchPadXHub() {
 
   const handleAddParticipantClick = () => {
     if (!user) {
-      navigate({ to: "/login", search: { redirect: "/launchpadx-2026" } });
+      navigate({ to: "/login", search: { redirect: "/launchpadx-2026?action=join" } });
       return;
     }
     if (!profile) {
-      navigate({ to: "/onboarding", search: { redirect: "/launchpadx-2026" } });
+      navigate({ to: "/onboarding", search: { redirect: "/launchpadx-2026?action=join" } });
       return;
     }
     setIsRegistrationModalOpen(true);

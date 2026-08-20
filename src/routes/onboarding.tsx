@@ -191,12 +191,17 @@ function Onboarding() {
             <input value={name} onChange={(e) => setName(e.target.value)} className="input" />
           </Field>
           <Field label="Phone number">
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+91 …"
-              className="input"
-            />
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 items-center justify-center rounded-lg border border-border bg-muted/50 px-3 text-sm text-muted-foreground font-medium shrink-0">
+                +91
+              </div>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="98..."
+                className="input flex-1 min-w-0"
+              />
+            </div>
           </Field>
 
           <Field label="Gender">
@@ -364,12 +369,17 @@ function Onboarding() {
                 />
               </Field>
               <Field label="Phone">
-                <input
-                  value={emergencyPhone}
-                  onChange={(e) => setEmergencyPhone(e.target.value)}
-                  className="input"
-                  placeholder="+91 …"
-                />
+                <div className="flex items-center gap-2">
+                  <div className="flex h-10 items-center justify-center rounded-lg border border-border bg-muted/50 px-2 text-sm text-muted-foreground font-medium shrink-0">
+                    +91
+                  </div>
+                  <input
+                    value={emergencyPhone}
+                    onChange={(e) => setEmergencyPhone(e.target.value)}
+                    className="input flex-1 min-w-0"
+                    placeholder="98..."
+                  />
+                </div>
               </Field>
             </div>
           </div>
