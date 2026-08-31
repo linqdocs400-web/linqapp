@@ -12,7 +12,9 @@ import {
   MessageCircle,
   Smartphone,
   Flame,
+  Instagram,
 } from "lucide-react";
+import { toast } from "sonner";
 import { SEO, SchemaBuilders } from "@/components/seo";
 
 export const Route = createFileRoute("/search")({
@@ -37,14 +39,14 @@ function ReferCard({ compact = false }: { compact?: boolean }) {
       <p className="mt-2 text-xs text-muted-foreground">
         More riders from your college / office = better matches. Invite them in one tap.
       </p>
-      <div className={`mt-4 grid ${compact ? "grid-cols-2" : "grid-cols-1"} gap-2`}>
+      <div className={`mt-4 grid ${compact ? "grid-cols-3" : "grid-cols-1"} gap-2`}>
         <a
           href={`https://wa.me/?text=${referralMsg}`}
           target="_blank"
           rel="noreferrer"
           className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-3 py-2.5 text-xs font-semibold text-white"
         >
-          <MessageCircle className="size-4" /> WhatsApp
+          <MessageCircle className="size-4" /> {compact ? "WA" : "WhatsApp"}
         </a>
         <a
           href={`sms:?body=${referralMsg}`}
@@ -52,28 +54,20 @@ function ReferCard({ compact = false }: { compact?: boolean }) {
         >
           <Smartphone className="size-4" /> SMS
         </a>
+        <a
+          href="https://instagram.com/"
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => {
+            navigator.clipboard.writeText(decodeURIComponent(referralMsg));
+            toast.success("Message copied! Paste it in your Instagram story or DM.");
+          }}
+          className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-tr from-[#FFDC80] via-[#F56040] to-[#833AB4] px-3 py-2.5 text-xs font-semibold text-white"
+        >
+          <Instagram className="size-4" /> Insta
+        </a>
       </div>
     </section>
-  );
-}
-
-function LaunchPadCard({ compact = false }: { compact?: boolean }) {
-  return (
-    <Link
-      to="/launchpadx-2026"
-      className={`block rounded-3xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors ${compact ? "p-4" : "p-6"}`}
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-xl">🚀</span>
-        <h2 className={compact ? "text-base font-bold text-primary" : "text-lg font-bold text-primary"}>LaunchPadX 2026</h2>
-      </div>
-      <p className="mt-2 text-xs text-muted-foreground">
-        Attending the VetriaAI LaunchPadX 2026 event? Connect with other participants before the event!
-      </p>
-      <div className="mt-4 text-xs font-semibold text-primary flex items-center gap-1">
-        Join Networking Hub →
-      </div>
-    </Link>
   );
 }
 
@@ -167,7 +161,6 @@ function SearchPage() {
 
         {/* Mobile: refer at top */}
         <div className="mt-5 lg:hidden space-y-4">
-          <LaunchPadCard compact />
           <ReferCard compact />
         </div>
 
@@ -211,7 +204,6 @@ function SearchPage() {
           {/* Desktop: refer on right side */}
           <aside className="hidden lg:col-span-1 lg:block">
             <div className="sticky top-6 space-y-4">
-              <LaunchPadCard />
               <ReferCard />
             </div>
           </aside>

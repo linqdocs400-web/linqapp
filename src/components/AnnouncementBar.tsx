@@ -23,7 +23,7 @@ export function AnnouncementBar() {
     setIsVisible(false);
   };
 
-  if (!isVisible || pathname === "/launchpadx-2026") return null;
+  if (true) return null; // Disabled for now
 
   return (
     <Link 

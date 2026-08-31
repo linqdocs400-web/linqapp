@@ -547,11 +547,8 @@ const MatchCard = memo(function MatchCard({
             <BadgeCheck className="size-4 text-primary" />
           </div>
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Star className="size-3 fill-primary text-primary" /> 4.9 ·{" "}
-            {m.journey_date && m.journey_time
-              ? `${formatDate(m.journey_date)} at ${formatTime(m.journey_time)}`
-              : formatTime(m.journey_time) || "Time not specified"}
-            {m.return_time && ` · Return: ${formatTime(m.return_time)}`}
+            <Star className="size-3 fill-primary text-primary" /> 4.9
+            {m.journey_date && ` · ${formatDate(m.journey_date)}`}
           </p>
         </div>
       </div>
@@ -571,13 +568,18 @@ const MatchCard = memo(function MatchCard({
       </div>
 
       {/* Trip details - only show data that user provided */}
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="mt-3 flex flex-wrap gap-2">
         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
           {getRideTypeLabel(m.ride_type)}
         </span>
         {m.journey_time && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-1 text-[10px] font-medium">
-            <Clock className="size-3" /> {m.journey_time}
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2.5 py-1 text-[11px] font-bold shadow-sm">
+            <Clock className="size-3" /> {formatTime(m.journey_time)}
+          </span>
+        )}
+        {m.return_time && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2.5 py-1 text-[11px] font-bold shadow-sm">
+            Return <Clock className="size-3" /> {formatTime(m.return_time)}
           </span>
         )}
         {m.days && m.days.length > 0 && (
