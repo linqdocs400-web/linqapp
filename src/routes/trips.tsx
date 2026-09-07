@@ -142,10 +142,11 @@ function Trips() {
                         });
                         navigate({ to: "/matches" });
                       }}
-                      className="text-muted-foreground hover:text-primary"
+                      className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
                       title="Search matches for this ride"
                     >
-                      <Search className="size-4" />
+                      <Search className="size-3.5" />
+                      Find Matches
                     </button>
                     <button
                       onClick={() => setEditingPost(p)}
