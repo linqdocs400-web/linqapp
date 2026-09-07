@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useStore } from "@/lib/store";
 import { useState } from "react";
 import { BottomNav } from "@/components/bottom-nav";
 import { useAuth } from "@/lib/auth-provider";
@@ -32,6 +33,7 @@ import {
   RefreshCw,
   Check,
   Clock,
+  Search,
 } from "lucide-react";
 import { SEO, SchemaBuilders } from "@/components/seo";
 import LocationInput from "@/components/LocationInput";
@@ -42,6 +44,8 @@ export const Route = createFileRoute("/trips")({
 });
 
 function Trips() {
+  const navigate = useNavigate();
+  const { setLastQuery } = useStore();
   const { user } = useAuth();
   const { profile } = useProfile();
   const { posts, isLoading, deletePost, updatePost, isUpdating } = useRidePosts();
@@ -116,6 +120,33 @@ function Trips() {
                     {p.ride_type === "long" ? "Planned" : p.ride_type}
                   </span>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setLastQuery({
+                          rideType: p.ride_type,
+                          pickup: p.pickup_location,
+                          drop: p.drop_location,
+                          pickupLat: p.pickup_lat,
+                          pickupLon: p.pickup_lon,
+                          dropLat: p.drop_lat,
+                          dropLon: p.drop_lon,
+                          hasVehicle: !!p.vehicle_type,
+                          vehicleType: (p.vehicle_type as any) || "",
+                          seats: p.seats,
+                          days: p.days || [],
+                          returnJourney: p.return_journey || false,
+                          returnTime: p.return_time || "",
+                          travelTime: p.journey_time || "07:00",
+                          date: p.journey_date || "",
+                          time: p.journey_time || "",
+                        });
+                        navigate({ to: "/matches" });
+                      }}
+                      className="text-muted-foreground hover:text-primary"
+                      title="Search matches for this ride"
+                    >
+                      <Search className="size-4" />
+                    </button>
                     <button
                       onClick={() => setEditingPost(p)}
                       className="text-muted-foreground hover:text-primary"
