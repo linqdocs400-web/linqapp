@@ -125,7 +125,7 @@ function SearchPage() {
 
   const handleOrgClick = (org: (typeof orgs)[0]) => {
     setLastQuery({
-      rideType: "instant",
+      rideType: "daily",
       pickup: "",
       drop: org.name,
       hasVehicle: false,

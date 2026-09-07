@@ -116,6 +116,23 @@ function Matches() {
     }
   }
 
+  const handleSendRequest = async (m: RidePost) => {
+    if (!user) {
+      toast.error("Please sign in to send requests");
+      navigate({ to: "/login", search: { redirect: "/matches" } });
+      return;
+    }
+    try {
+      await createRequest.mutateAsync({
+        receiverId: m.owner_id,
+        rideId: m.id,
+      });
+      setRequestSentOpen(true);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send request");
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground pb-20">
       <SEO
@@ -296,17 +313,6 @@ function Matches() {
                   const m = member.ride;
                   const unlocked = isProfileUnlocked(m.owner_id);
                   const requestStatus = getRequestStatus(m.id, m.owner_id);
-                  const handleSendRequest = async () => {
-                    try {
-                      await createRequest.mutateAsync({
-                        receiverId: m.owner_id,
-                        rideId: m.id,
-                      });
-                      setRequestSentOpen(true);
-                    } catch (error: any) {
-                      toast.error(error.message || "Failed to send request");
-                    }
-                  };
                   return (
                     <MatchCard
                       key={m.id}
@@ -318,7 +324,7 @@ function Matches() {
                       onRate={() => setRateFor(m)}
                       userName={profile?.name || "User"}
                       requestStatus={requestStatus}
-                      onRequest={handleSendRequest}
+                      onRequest={() => handleSendRequest(m)}
                     />
                   );
                 }
@@ -342,17 +348,6 @@ function Matches() {
               {matchResult?.exact?.map((m: RidePost) => {
                 const unlocked = isProfileUnlocked(m.owner_id);
                 const requestStatus = getRequestStatus(m.id, m.owner_id);
-                const handleSendRequest = async () => {
-                  try {
-                    await createRequest.mutateAsync({
-                      receiverId: m.owner_id,
-                      rideId: m.id,
-                    });
-                    setRequestSentOpen(true);
-                  } catch (error: any) {
-                    toast.error(error.message || "Failed to send request");
-                  }
-                };
                 return (
                   <MatchCard
                     key={m.id}
@@ -364,7 +359,7 @@ function Matches() {
                     onRate={() => setRateFor(m)}
                     userName={profile?.name || "User"}
                     requestStatus={requestStatus}
-                    onRequest={handleSendRequest}
+                    onRequest={() => handleSendRequest(m)}
                   />
                 );
               })}
@@ -382,17 +377,6 @@ function Matches() {
               {matchResult?.nearby?.map((m: RidePost) => {
                 const unlocked = isProfileUnlocked(m.owner_id);
                 const requestStatus = getRequestStatus(m.id, m.owner_id);
-                const handleSendRequest = async () => {
-                  try {
-                    await createRequest.mutateAsync({
-                      receiverId: m.owner_id,
-                      rideId: m.id,
-                    });
-                    setRequestSentOpen(true);
-                  } catch (error: any) {
-                    toast.error(error.message || "Failed to send request");
-                  }
-                };
                 return (
                   <MatchCard
                     key={m.id}
@@ -404,7 +388,7 @@ function Matches() {
                     onRate={() => setRateFor(m)}
                     userName={profile?.name || "User"}
                     requestStatus={requestStatus}
-                    onRequest={handleSendRequest}
+                    onRequest={() => handleSendRequest(m)}
                   />
                 );
               })}
@@ -424,17 +408,6 @@ function Matches() {
               {matchResult?.other?.map((m: RidePost) => {
                 const unlocked = isProfileUnlocked(m.owner_id);
                 const requestStatus = getRequestStatus(m.id, m.owner_id);
-                const handleSendRequest = async () => {
-                  try {
-                    await createRequest.mutateAsync({
-                      receiverId: m.owner_id,
-                      rideId: m.id,
-                    });
-                    setRequestSentOpen(true);
-                  } catch (error: any) {
-                    toast.error(error.message || "Failed to send request");
-                  }
-                };
                 return (
                   <MatchCard
                     key={m.id}
@@ -446,7 +419,7 @@ function Matches() {
                     onRate={() => setRateFor(m)}
                     userName={profile?.name || "User"}
                     requestStatus={requestStatus}
-                    onRequest={handleSendRequest}
+                    onRequest={() => handleSendRequest(m)}
                   />
                 );
               })}

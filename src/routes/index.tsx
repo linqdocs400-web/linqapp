@@ -61,7 +61,6 @@ const rideTypes: {
   subtitle: string;
   Icon: typeof Zap;
 }[] = [
-    { id: "instant", tag: "NOW", title: "Instant", subtitle: "Match in minutes", Icon: Zap },
     {
       id: "daily",
       tag: "COMMUTE",
@@ -113,7 +112,7 @@ function useRideForm() {
 
   const signedIn = !!user && !!profile;
 
-  const [selected, setSelected] = useState<RideType>(lastQuery?.rideType ?? "instant");
+  const [selected, setSelected] = useState<RideType>(lastQuery?.rideType ?? "daily");
   const [pickup, setPickup] = useState(lastQuery?.pickup ?? "");
   const [drop, setDrop] = useState(lastQuery?.drop ?? "");
   const [hasVehicle, setHasVehicle] = useState(lastQuery?.hasVehicle ?? false);
