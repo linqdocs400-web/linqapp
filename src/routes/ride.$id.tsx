@@ -33,6 +33,8 @@ function RideDetails() {
   const { createRequest, sentRequests, unlockedProfiles } = useConnectionRequests();
   const [isSending, setIsSending] = useState(false);
 
+  const [activeMapLayer, setActiveMapLayer] = useState<'all' | 'user' | 'match'>('all');
+
   useEffect(() => {
     async function fetchRide() {
       setIsLoading(true);
@@ -156,14 +158,36 @@ function RideDetails() {
                 Route map is temporarily unavailable or coordinates are missing.
               </div>
             ) : (
-              <RouteMap userRoute={userRoute} matchRoute={matchRoute} sharedGeometry={metrics?.sharedGeometry || null} />
+              <RouteMap userRoute={userRoute} matchRoute={matchRoute} sharedGeometry={metrics?.sharedGeometry || null} visibleLayer={activeMapLayer} />
             )}
             
             {!isRouting && !routingError && (
-              <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm p-3 rounded-xl border border-border/50 shadow-lg text-xs flex justify-between">
-                <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-blue-500 rounded"></div> Your Route</div>
-                <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-gray-400 rounded"></div> Their Route</div>
-                {metrics && metrics.overlapPct > 0 && <div className="flex items-center gap-1.5 font-bold"><div className="w-3 h-1.5 bg-violet-500 rounded"></div> Shared</div>}
+              <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm p-3 rounded-xl border border-border/50 shadow-lg text-xs flex justify-between flex-wrap gap-2">
+                <button 
+                  onClick={() => setActiveMapLayer('user')}
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded transition-colors ${activeMapLayer === 'user' ? 'bg-muted font-semibold' : 'hover:bg-muted/50'}`}
+                >
+                  <div className="w-3 h-1 bg-blue-500 rounded"></div> Your Route
+                </button>
+                <button 
+                  onClick={() => setActiveMapLayer('match')}
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded transition-colors ${activeMapLayer === 'match' ? 'bg-muted font-semibold' : 'hover:bg-muted/50'}`}
+                >
+                  <div className="w-3 h-1 bg-gray-400 rounded"></div> Their Route
+                </button>
+                {metrics && metrics.overlapPct > 0 && activeMapLayer === 'all' && (
+                  <div className="flex items-center gap-1.5 font-bold px-2 py-1">
+                    <div className="w-3 h-1.5 bg-violet-500 rounded"></div> Shared
+                  </div>
+                )}
+                {activeMapLayer !== 'all' && (
+                  <button 
+                    onClick={() => setActiveMapLayer('all')}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 text-primary font-semibold hover:bg-primary/20 transition-colors"
+                  >
+                    Reset Map
+                  </button>
+                )}
               </div>
             )}
           </div>

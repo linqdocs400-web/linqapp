@@ -31,20 +31,21 @@ interface RouteMapProps {
   userRoute: RouteData | null;
   matchRoute: RouteData | null;
   sharedGeometry: GeoJSON.LineString | GeoJSON.MultiLineString | null;
+  visibleLayer?: 'all' | 'user' | 'match';
 }
 
 // Component to handle auto-fitting bounds when routes change
-const MapBounds = ({ userRoute, matchRoute }: { userRoute: RouteData | null, matchRoute: RouteData | null }) => {
+const MapBounds = ({ userRoute, matchRoute, visibleLayer }: { userRoute: RouteData | null, matchRoute: RouteData | null, visibleLayer?: 'all' | 'user' | 'match' }) => {
   const map = useMap();
   
   useEffect(() => {
     const allCoords: [number, number][] = [];
     
-    if (userRoute) {
+    if (userRoute && (visibleLayer === 'all' || visibleLayer === 'user')) {
       userRoute.coordinates.forEach(coord => allCoords.push([coord[1], coord[0]])); // leaflet wants [lat, lon]
     }
     
-    if (matchRoute) {
+    if (matchRoute && (visibleLayer === 'all' || visibleLayer === 'match')) {
       matchRoute.coordinates.forEach(coord => allCoords.push([coord[1], coord[0]]));
     }
 
@@ -52,12 +53,12 @@ const MapBounds = ({ userRoute, matchRoute }: { userRoute: RouteData | null, mat
       const bounds = L.latLngBounds(allCoords);
       map.fitBounds(bounds, { padding: [50, 50], animate: true });
     }
-  }, [map, userRoute, matchRoute]);
+  }, [map, userRoute, matchRoute, visibleLayer]);
 
   return null;
 };
 
-export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, sharedGeometry }) => {
+export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, sharedGeometry, visibleLayer = 'all' }) => {
   // Convert [lon, lat] from Turf/GeoJSON to [lat, lon] for Leaflet
   const formatCoords = (coords: [number, number][]) => coords.map(c => [c[1], c[0]] as [number, number]);
 
@@ -70,23 +71,27 @@ export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, share
     return formatCoords(sharedGeometry.coordinates as [number, number][]);
   };
 
+  const showUser = visibleLayer === 'all' || visibleLayer === 'user';
+  const showMatch = visibleLayer === 'all' || visibleLayer === 'match';
+  const showShared = visibleLayer === 'all';
+
   return (
     <div className="h-[300px] sm:h-[400px] w-full rounded-2xl overflow-hidden border border-border relative z-0">
       <MapContainer 
         center={[17.3850, 78.4867]} // Default Hyderabad
         zoom={11} 
         scrollWheelZoom={false}
-        className="h-full w-full"
+        className="h-full w-full z-0"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <MapBounds userRoute={userRoute} matchRoute={matchRoute} />
+        <MapBounds userRoute={userRoute} matchRoute={matchRoute} visibleLayer={visibleLayer} />
 
         {/* Matched User Route - Gray */}
-        {matchRoute && (
+        {matchRoute && showMatch && (
           <>
             <Polyline 
               positions={formatCoords(matchRoute.coordinates)} 
@@ -102,7 +107,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, share
         )}
 
         {/* Current User Route - Blue */}
-        {userRoute && (
+        {userRoute && showUser && (
           <>
             <Polyline 
               positions={formatCoords(userRoute.coordinates)} 
@@ -118,7 +123,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, share
         )}
 
         {/* Shared Route - Thick Primary Color */}
-        {sharedGeometry && (
+        {sharedGeometry && showShared && (
           <Polyline 
             positions={getSharedPositions()} 
             pathOptions={{ color: '#8b5cf6', weight: 12, opacity: 0.7 }} 
