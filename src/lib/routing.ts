@@ -19,7 +19,7 @@ export interface OverlapMetrics {
   overlapPct: number;
   sharedDistanceKm: number;
   sharedDurationSec: number;
-  sharedGeometry: GeoJSON.LineString | null;
+  sharedGeometry: GeoJSON.LineString | GeoJSON.MultiLineString | null;
 }
 
 // Simple in-memory cache for OSRM routes
@@ -67,13 +67,11 @@ export function calculateOverlap(routeA: RouteData, routeB: RouteData): OverlapM
   const lineA = lineString(routeA.coordinates);
   const lineB = lineString(routeB.coordinates);
   
-  const TOLERANCE_KM = 0.05; // 50 meters tolerance for road matching
+  const TOLERANCE_KM = 0.15; // 150 meters tolerance (accounts for divided highways and offset parallel paths)
   
-  let sharedCoords: [number, number][] = [];
+  const sharedSegments: [number, number][][] = [];
   let currentSegment: [number, number][] = [];
-  let longestSharedSegment: [number, number][] = [];
 
-  // Sample points along route A
   for (let i = 0; i < routeA.coordinates.length; i++) {
     const pt = routeA.coordinates[i];
     
@@ -82,8 +80,8 @@ export function calculateOverlap(routeA: RouteData, routeB: RouteData): OverlapM
       if (nearest && nearest.properties.dist && nearest.properties.dist <= TOLERANCE_KM) {
         currentSegment.push(pt);
       } else {
-        if (currentSegment.length > longestSharedSegment.length) {
-          longestSharedSegment = [...currentSegment];
+        if (currentSegment.length > 1) {
+          sharedSegments.push([...currentSegment]);
         }
         currentSegment = [];
       }
@@ -92,35 +90,41 @@ export function calculateOverlap(routeA: RouteData, routeB: RouteData): OverlapM
     }
   }
 
-  // Check if the last segment was the longest
-  if (currentSegment.length > longestSharedSegment.length) {
-    longestSharedSegment = [...currentSegment];
+  if (currentSegment.length > 1) {
+    sharedSegments.push([...currentSegment]);
   }
 
-  // Require at least 2 points for a valid shared segment
-  if (longestSharedSegment.length < 2) {
+  if (sharedSegments.length === 0) {
     return { overlapPct: 0, sharedDistanceKm: 0, sharedDurationSec: 0, sharedGeometry: null };
   }
 
-  const sharedGeo = lineString(longestSharedSegment);
-  const sharedDistanceKm = length(sharedGeo, { units: 'kilometers' });
+  let totalSharedDistanceKm = 0;
+  for (const segment of sharedSegments) {
+    const segLine = lineString(segment);
+    totalSharedDistanceKm += length(segLine, { units: 'kilometers' });
+  }
+
+  // Create geometry for visual display
+  const sharedGeometry: GeoJSON.LineString | GeoJSON.MultiLineString = 
+    sharedSegments.length === 1 
+      ? { type: "LineString", coordinates: sharedSegments[0] }
+      : { type: "MultiLineString", coordinates: sharedSegments };
+
   const routeAKm = routeA.distanceMeters / 1000;
   
   let overlapPct = 0;
   if (routeAKm > 0) {
-    overlapPct = Math.round((sharedDistanceKm / routeAKm) * 100);
-    // Cap at 100%
+    overlapPct = Math.round((totalSharedDistanceKm / routeAKm) * 100);
     if (overlapPct > 100) overlapPct = 100;
   }
 
-  // Estimate shared duration based on average speed of route A
   const speedKmPerSec = routeAKm / (routeA.durationSeconds || 1);
-  const sharedDurationSec = speedKmPerSec > 0 ? Math.round(sharedDistanceKm / speedKmPerSec) : 0;
+  const sharedDurationSec = speedKmPerSec > 0 ? Math.round(totalSharedDistanceKm / speedKmPerSec) : 0;
 
   return {
     overlapPct,
-    sharedDistanceKm: Number(sharedDistanceKm.toFixed(2)),
+    sharedDistanceKm: Number(totalSharedDistanceKm.toFixed(2)),
     sharedDurationSec,
-    sharedGeometry: sharedGeo.geometry
+    sharedGeometry
   };
 }

@@ -30,7 +30,7 @@ const matchDropIcon = createCustomIcon('#9ca3af');   // gray-400
 interface RouteMapProps {
   userRoute: RouteData | null;
   matchRoute: RouteData | null;
-  sharedGeometry: GeoJSON.LineString | null;
+  sharedGeometry: GeoJSON.LineString | GeoJSON.MultiLineString | null;
 }
 
 // Component to handle auto-fitting bounds when routes change
@@ -61,6 +61,15 @@ export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, share
   // Convert [lon, lat] from Turf/GeoJSON to [lat, lon] for Leaflet
   const formatCoords = (coords: [number, number][]) => coords.map(c => [c[1], c[0]] as [number, number]);
 
+  // Handle MultiLineString for shared route
+  const getSharedPositions = () => {
+    if (!sharedGeometry) return [];
+    if (sharedGeometry.type === 'MultiLineString') {
+      return (sharedGeometry.coordinates as [number, number][][]).map(formatCoords);
+    }
+    return formatCoords(sharedGeometry.coordinates as [number, number][]);
+  };
+
   return (
     <div className="h-[300px] sm:h-[400px] w-full rounded-2xl overflow-hidden border border-border relative z-0">
       <MapContainer 
@@ -81,7 +90,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, share
           <>
             <Polyline 
               positions={formatCoords(matchRoute.coordinates)} 
-              pathOptions={{ color: '#9ca3af', weight: 4, opacity: 0.6, dashArray: '5, 10' }} 
+              pathOptions={{ color: '#6b7280', weight: 6, opacity: 0.8, dashArray: '8, 8' }} 
             />
             <Marker position={[matchRoute.coordinates[0][1], matchRoute.coordinates[0][0]]} icon={matchPickupIcon}>
               <Popup>Their Pickup</Popup>
@@ -97,7 +106,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, share
           <>
             <Polyline 
               positions={formatCoords(userRoute.coordinates)} 
-              pathOptions={{ color: '#3b82f6', weight: 5, opacity: 0.8 }} 
+              pathOptions={{ color: '#3b82f6', weight: 6, opacity: 0.9 }} 
             />
             <Marker position={[userRoute.coordinates[0][1], userRoute.coordinates[0][0]]} icon={userPickupIcon}>
               <Popup>Your Pickup</Popup>
@@ -111,8 +120,8 @@ export const RouteMap: React.FC<RouteMapProps> = ({ userRoute, matchRoute, share
         {/* Shared Route - Thick Primary Color */}
         {sharedGeometry && (
           <Polyline 
-            positions={formatCoords(sharedGeometry.coordinates as [number, number][])} 
-            pathOptions={{ color: '#8b5cf6', weight: 8, opacity: 0.9 }} 
+            positions={getSharedPositions()} 
+            pathOptions={{ color: '#8b5cf6', weight: 12, opacity: 0.7 }} 
           />
         )}
       </MapContainer>
