@@ -30,6 +30,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { formatTime } from "@/lib/utils";
 import { toast } from "sonner";
+import { ConnectBtn } from "@/components/ConnectBtn";
 import { generateConnectionMessage, encodeMessageForUrl, copyToClipboard } from "@/lib/connection-message";
 
 export const Route = createFileRoute("/matches")({
@@ -499,7 +500,7 @@ const MatchCard = memo(function MatchCard({
   onRequest: () => void;
 }) {
   const vMeta = vehicleMeta(m.vehicle_type);
-  const [isSending, setIsSending] = useState(false);
+  
 
   const getRideTypeLabel = (type: string) => {
     if (type === "instant") return "Instant";
@@ -624,126 +625,18 @@ const MatchCard = memo(function MatchCard({
           <X className="size-4" /> Request Declined
         </button>
       ) : (
-        <button
-          onClick={async () => {
-            setIsSending(true);
-            try {
-              await onRequest();
-            } finally {
-              setIsSending(false);
-            }
-          }}
-          disabled={isSending}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        <Link
+          to="/ride/$id"
+          params={{ id: m.id }}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
         >
-          {isSending ? (
-            <div className="size-4 border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin rounded-full" />
-          ) : (
-            <SendIcon className="size-4" />
-          )}
-          {isSending ? "Sending..." : "Send Request"}
-        </button>
+          View Details
+        </Link>
       )}
     </article>
   );
 });
 
-function ConnectBtn({
-  method,
-  id,
-  active,
-  userName,
-}: {
-  method: "whatsapp" | "instagram" | "telegram";
-  id: string;
-  active: boolean;
-  userName: string;
-}) {
-  const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!active) return;
-
-    const message = generateConnectionMessage(userName);
-    const encodedMessage = encodeMessageForUrl(message);
-
-    if (method === "whatsapp") {
-      // WhatsApp: Open with pre-filled message
-      const phone = id.replace(/[^\d]/g, "");
-      if (!phone) {
-        e.preventDefault();
-        toast.error("Phone number not available");
-        return;
-      }
-      e.currentTarget.href = `https://wa.me/${phone}?text=${encodedMessage}`;
-    } else if (method === "telegram") {
-      // Telegram: Try to pre-fill message, otherwise copy to clipboard
-      const username = id.replace("@", "");
-      if (!username) {
-        e.preventDefault();
-        toast.error("Telegram username not available");
-        return;
-      }
-      // Telegram supports message prefill via share URL
-      e.currentTarget.href = `https://t.me/share/url?url=${encodedMessage}`;
-      // Also copy to clipboard as backup
-      try {
-        await copyToClipboard(message);
-        toast.success("Message copied. Paste it into Telegram.");
-      } catch (err) {
-        console.error("Failed to copy message:", err);
-      }
-    } else if (method === "instagram") {
-      // Instagram: Copy message to clipboard before redirecting
-      const username = id.replace("@", "");
-      if (!username) {
-        e.preventDefault();
-        toast.error("Instagram username not available");
-        return;
-      }
-      try {
-        await copyToClipboard(message);
-        toast.success("Message copied. Paste it into Instagram DM.");
-      } catch (err) {
-        console.error("Failed to copy message:", err);
-        toast.error("Failed to copy message to clipboard");
-      }
-    }
-  };
-
-  const meta = {
-    whatsapp: {
-      label: "WhatsApp",
-      Icon: MessageCircle,
-      href: `https://wa.me/${id.replace(/[^\d]/g, "")}`,
-    },
-    instagram: {
-      label: "Instagram",
-      Icon: Instagram,
-      href: `https://instagram.com/${id.replace("@", "")}`,
-    },
-    telegram: { label: "Telegram", Icon: SendIcon, href: `https://t.me/${id.replace("@", "")}` },
-  }[method];
-
-  if (!active) {
-    return (
-      <div className="flex flex-col items-center gap-1 rounded-xl border px-2 py-2 text-[10px] font-medium border-border bg-background text-muted-foreground opacity-50 cursor-not-allowed">
-        <meta.Icon className="size-4" />
-        {meta.label}
-      </div>
-    );
-  }
-  return (
-    <a
-      href={meta.href}
-      target="_blank"
-      rel="noreferrer"
-      onClick={handleClick}
-      className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2 text-[10px] font-medium transition border-primary bg-primary/10 text-primary`}
-    >
-      <meta.Icon className="size-4" />
-      {meta.label}
-    </a>
-  );
-}
 
 /* ----------------------------- Rating modal ----------------------------- */
 type Step = "answered" | "rode" | "ontime" | "stars" | "done" | "thanks";

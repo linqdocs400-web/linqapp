@@ -21,6 +21,7 @@ import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CareersRouteImport } from './routes/careers'
+import { Route as RideIdRouteImport } from './routes/ride.$id'
 
 const TripsRoute = TripsRouteImport.update({
   id: '/trips',
@@ -77,6 +78,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RideIdRoute = RideIdRouteImport.update({
+  id: '/ride/$id',
+  path: '/ride/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CareersRoute = CareersRouteImport.update({
   id: '/careers',
   path: '/careers',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/trips': typeof TripsRoute
   '/careers': typeof CareersRoute
+  '/ride/$id': typeof RideIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/trips': typeof TripsRoute
   '/careers': typeof CareersRoute
+  '/ride/$id': typeof RideIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/trips': typeof TripsRoute
   '/careers': typeof CareersRoute
+  '/ride/$id': typeof RideIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,9 @@ export interface FileRouteTypes {
     | '/search'
     | '/trips'
     | '/careers'
+    | '/ride/$id'
+    | '/ride/$id'
+    | '/ride/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   TripsRoute: typeof TripsRoute
   CareersRoute: typeof CareersRoute
+  RideIdRoute: typeof RideIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ride/$id': {
+      id: '/ride/$id'
+      path: '/ride/$id'
+      fullPath: '/ride/$id'
+      preLoaderRoute: typeof RideIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/careers': {
       id: '/careers'
       path: '/careers'
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   TripsRoute: TripsRoute,
   CareersRoute: CareersRoute,
+  RideIdRoute: RideIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
