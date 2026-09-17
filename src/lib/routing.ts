@@ -110,21 +110,24 @@ export function calculateOverlap(routeA: RouteData, routeB: RouteData): OverlapM
       ? { type: "LineString", coordinates: sharedSegments[0] }
       : { type: "MultiLineString", coordinates: sharedSegments };
 
-  const routeAKm = routeA.distanceMeters / 1000;
-  
+  // Calculate percentage using Turf's simplified length for consistency
+  const turfRouteAKm = length(lineA, { units: 'kilometers' });
   let overlapPct = 0;
-  if (routeAKm > 0) {
-    overlapPct = Math.round((totalSharedDistanceKm / routeAKm) * 100);
+  
+  if (turfRouteAKm > 0) {
+    overlapPct = Math.round((totalSharedDistanceKm / turfRouteAKm) * 100);
     if (overlapPct > 100) overlapPct = 100;
   }
 
-  const speedKmPerSec = routeAKm / (routeA.durationSeconds || 1);
-  const sharedDurationSec = speedKmPerSec > 0 ? Math.round(totalSharedDistanceKm / speedKmPerSec) : 0;
+  // Project the percentage back onto the actual OSRM road distance/duration
+  const actualRouteAKm = routeA.distanceMeters / 1000;
+  const projectedSharedDistanceKm = (overlapPct / 100) * actualRouteAKm;
+  const projectedSharedDurationSec = Math.round((overlapPct / 100) * routeA.durationSeconds);
 
   return {
     overlapPct,
-    sharedDistanceKm: Number(totalSharedDistanceKm.toFixed(2)),
-    sharedDurationSec,
+    sharedDistanceKm: Number(projectedSharedDistanceKm.toFixed(2)),
+    sharedDurationSec: projectedSharedDurationSec,
     sharedGeometry
   };
 }

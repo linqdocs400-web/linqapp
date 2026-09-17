@@ -162,31 +162,13 @@ function RideDetails() {
             )}
             
             {!isRouting && !routingError && (
-              <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm p-3 rounded-xl border border-border/50 shadow-lg text-xs flex justify-between flex-wrap gap-2">
-                <button 
-                  onClick={() => setActiveMapLayer('user')}
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded transition-colors ${activeMapLayer === 'user' ? 'bg-muted font-semibold' : 'hover:bg-muted/50'}`}
-                >
-                  <div className="w-3 h-1 bg-blue-500 rounded"></div> Your Route
-                </button>
-                <button 
-                  onClick={() => setActiveMapLayer('match')}
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded transition-colors ${activeMapLayer === 'match' ? 'bg-muted font-semibold' : 'hover:bg-muted/50'}`}
-                >
-                  <div className="w-3 h-1 bg-gray-400 rounded"></div> Their Route
-                </button>
+              <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm p-3 rounded-xl border border-border/50 shadow-lg text-xs flex justify-between">
+                <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-blue-500 rounded"></div> Your Route</div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-gray-400 rounded"></div> Their Route</div>
                 {metrics && metrics.overlapPct > 0 && activeMapLayer === 'all' && (
-                  <div className="flex items-center gap-1.5 font-bold px-2 py-1">
+                  <div className="flex items-center gap-1.5 font-bold">
                     <div className="w-3 h-1.5 bg-violet-500 rounded"></div> Shared
                   </div>
-                )}
-                {activeMapLayer !== 'all' && (
-                  <button 
-                    onClick={() => setActiveMapLayer('all')}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 text-primary font-semibold hover:bg-primary/20 transition-colors"
-                  >
-                    Reset Map
-                  </button>
                 )}
               </div>
             )}
@@ -213,19 +195,54 @@ function RideDetails() {
                 </div>
               </div>
 
-              <div className="space-y-4 text-sm">
-                <div className="flex justify-between items-center pb-3 border-b border-border">
-                  <span className="font-medium">Your Route</span>
-                  <span className="text-muted-foreground">
+              <div className="space-y-3 text-sm">
+                <button
+                  onClick={() => setActiveMapLayer(activeMapLayer === 'user' ? 'all' : 'user')}
+                  className={`w-full flex justify-between items-center p-3 rounded-xl border transition-all ${
+                    activeMapLayer === 'user' 
+                      ? 'bg-blue-50/50 border-blue-200 ring-1 ring-blue-500' 
+                      : 'bg-muted/30 border-border hover:bg-muted/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="size-3 rounded-full bg-blue-500 border-2 border-white shadow-sm"></div>
+                    <span className="font-semibold">Your Route</span>
+                  </div>
+                  <span className={activeMapLayer === 'user' ? 'text-blue-700 font-medium' : 'text-muted-foreground'}>
                     {userRoute ? `${(userRoute.distanceMeters / 1000).toFixed(1)} km · ~${Math.round(userRoute.durationSeconds / 60)} min` : "Not provided"}
                   </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Their Route</span>
-                  <span className="text-muted-foreground">
+                </button>
+                
+                <button
+                  onClick={() => setActiveMapLayer(activeMapLayer === 'match' ? 'all' : 'match')}
+                  className={`w-full flex justify-between items-center p-3 rounded-xl border transition-all ${
+                    activeMapLayer === 'match' 
+                      ? 'bg-gray-100 border-gray-300 ring-1 ring-gray-500' 
+                      : 'bg-muted/30 border-border hover:bg-muted/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="size-3 rounded-full bg-gray-500 border-2 border-white shadow-sm"></div>
+                    <span className="font-semibold">Their Route</span>
+                  </div>
+                  <span className={activeMapLayer === 'match' ? 'text-gray-700 font-medium' : 'text-muted-foreground'}>
                     {matchRoute ? `${(matchRoute.distanceMeters / 1000).toFixed(1)} km · ~${Math.round(matchRoute.durationSeconds / 60)} min` : "Not provided"}
                   </span>
-                </div>
+                </button>
+
+                {activeMapLayer !== 'all' && (
+                  <div className="pt-2 animate-in fade-in slide-in-from-top-2">
+                    <button 
+                      onClick={() => setActiveMapLayer('all')}
+                      className="w-full py-2.5 rounded-lg bg-primary/10 text-primary font-semibold hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
+                    >
+                      Reset Map to Default View
+                    </button>
+                    <p className="text-xs text-center text-muted-foreground mt-2">
+                      Currently viewing {activeMapLayer === 'user' ? 'only your route' : 'only their route'}.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
