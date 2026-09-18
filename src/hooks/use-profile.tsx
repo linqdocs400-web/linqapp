@@ -36,7 +36,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         .from("profiles")
         .select("*")
         .eq("user_id", user!.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Profile fetch error:", error);
@@ -59,7 +59,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         .update(updates)
         .eq("user_id", user.id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Profile update error:", error);

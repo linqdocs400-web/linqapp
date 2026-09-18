@@ -29,17 +29,29 @@ export type RidePost = {
   bio?: string;
 };
 
-export function useRidePosts() {
+export function useRidePosts(opts?: { limit?: number; userId?: string; ids?: string[] }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["ride_posts"],
+    queryKey: ["ride_posts", opts],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("ride_posts")
         .select("*, profiles:owner_id(name, connect_method, connect_id, bio)")
         .order("created_at", { ascending: false });
+
+      if (opts?.userId) {
+        q = q.eq("owner_id", opts.userId);
+      }
+      if (opts?.ids && opts.ids.length > 0) {
+        q = q.in("id", opts.ids);
+      }
+      if (opts?.limit) {
+        q = q.limit(opts.limit);
+      }
+
+      const { data, error } = await q;
 
       if (error) throw error;
       return (data || []).map((d: any) => ({

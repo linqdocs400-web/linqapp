@@ -107,7 +107,7 @@ function useRideForm() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { setLastQuery, lastQuery } = useStore();
-  const { createPost } = useRidePosts();
+  const { createPost } = useRidePosts({ limit: 50 });
   const navigate = useNavigate();
 
   const signedIn = !!user && !!profile;
@@ -318,7 +318,7 @@ function LazyHeroVideo({ isMobile = false }) {
 }
 
 function MobileHome() {
-  const { posts, isLoading } = useRidePosts();
+  const { posts, isLoading } = useRidePosts({ limit: 50 });
   const form = useRideForm();
   const { state, set, swap, findMatch, confirmPost } = form;
   const { openPopup } = useCouponStore();

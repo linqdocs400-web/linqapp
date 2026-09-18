@@ -55,7 +55,7 @@ export function useProfile() {
           )
         `)
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== "PGRST116") throw error;
       return data as Profile | null;
@@ -70,7 +70,7 @@ export function useProfile() {
         .from("profiles")
         .upsert({ id: user.id, ...patch })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
