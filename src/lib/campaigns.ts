@@ -18,9 +18,9 @@ export interface Campaign {
 
 export const activeCampaigns: Campaign[] = [
   {
-    id: "camp_student_protest",
-    name: "Student Protest Campaign",
-    code: "STUDENTPROTEST",
+    id: "camp_pool2save",
+    name: "Pool To Save",
+    code: "POOL2SAVE",
     planTarget: "monthly",
     discountPercentage: 100,
     discountAmount: 49,
@@ -32,9 +32,9 @@ export const activeCampaigns: Campaign[] = [
     successMessage: "Your Monthly Membership has been activated.",
   },
   {
-    id: "camp_neet_leak",
-    name: "NEET Leak Relief",
-    code: "NEETLEAK",
+    id: "camp_greenfuture",
+    name: "Green Future",
+    code: "GREENFUTURE",
     planTarget: "weekly",
     discountPercentage: 100,
     discountAmount: 19,
@@ -44,9 +44,9 @@ export const activeCampaigns: Campaign[] = [
     successMessage: "Your Weekly Membership has been activated.",
   },
   {
-    id: "camp_sonum",
-    name: "Sonum Special",
-    code: "SONUM",
+    id: "camp_cutco2",
+    name: "Cut CO2",
+    code: "CUTCO2",
     planTarget: "weekly",
     discountPercentage: 100,
     discountAmount: 19,
@@ -56,9 +56,9 @@ export const activeCampaigns: Campaign[] = [
     successMessage: "Your Weekly Membership has been activated.",
   },
   {
-    id: "camp_genz_lets_go",
-    name: "GenZ Lets Go",
-    code: "GENZ-LETS-GO",
+    id: "camp_bettertogether",
+    name: "Better Together",
+    code: "BETTERTOGETHER",
     planTarget: "monthly",
     discountPercentage: 100,
     discountAmount: 49,
