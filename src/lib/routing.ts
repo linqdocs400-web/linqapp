@@ -45,7 +45,13 @@ export async function getRoute(start: Coordinates, end: Coordinates): Promise<Ro
     typeof start.lat !== 'number' ||
     typeof start.lng !== 'number' ||
     typeof end.lat !== 'number' ||
-    typeof end.lng !== 'number'
+    typeof end.lng !== 'number' ||
+    !Number.isFinite(start.lat) ||
+    !Number.isFinite(start.lng) ||
+    !Number.isFinite(end.lat) ||
+    !Number.isFinite(end.lng) ||
+    (start.lat === 0 && start.lng === 0) ||
+    (end.lat === 0 && end.lng === 0)
   ) {
     throw new Error('Invalid coordinates for routing');
   }

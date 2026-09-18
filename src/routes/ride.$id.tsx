@@ -59,8 +59,11 @@ function RideDetails() {
     async function generateRoutes() {
       if (!matchedRide) return;
       
-      const hasMatchCoords = matchedRide.pickup_lat && matchedRide.pickup_lon && matchedRide.drop_lat && matchedRide.drop_lon;
-      const hasUserCoords = lastQuery?.pickupLat && lastQuery?.pickupLon && lastQuery?.dropLat && lastQuery?.dropLon;
+      const isValidCoord = (lat?: number, lon?: number) =>
+        typeof lat === 'number' && typeof lon === 'number' && Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0);
+      
+      const hasMatchCoords = isValidCoord(matchedRide.pickup_lat, matchedRide.pickup_lon) && isValidCoord(matchedRide.drop_lat, matchedRide.drop_lon);
+      const hasUserCoords = isValidCoord(lastQuery?.pickupLat, lastQuery?.pickupLon) && isValidCoord(lastQuery?.dropLat, lastQuery?.dropLon);
       
       if (!hasMatchCoords) {
         setRoutingError(true);
