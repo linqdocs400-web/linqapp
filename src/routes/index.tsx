@@ -291,6 +291,32 @@ function useRideForm() {
 /* -------------------------------------------------------------------------- */
 /*  MOBILE                                                                    */
 /* -------------------------------------------------------------------------- */
+function LazyHeroVideo({ isMobile = false }) {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  
+  useEffect(() => {
+    // Delay loading the video source until after the main UI paints
+    const timer = setTimeout(() => setShouldLoad(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <video 
+      poster="/L-poster.jpg"
+      loop 
+      autoPlay={shouldLoad} 
+      muted 
+      playsInline 
+      className={`w-full rounded-[2rem] object-cover border border-border ${isMobile ? 'shadow-sm' : 'shadow-lg'}`}
+      preload={shouldLoad ? "auto" : "none"}
+    >
+      {shouldLoad && (
+        <source src={isMobile ? "/L-mobile.mp4" : "/L-desktop.mp4"} type="video/mp4" />
+      )}
+    </video>
+  );
+}
+
 function MobileHome() {
   const { posts, isLoading } = useRidePosts();
   const form = useRideForm();
@@ -351,7 +377,7 @@ function MobileHome() {
 
       {/* Video */}
       <section className="mt-8">
-        <video src="/L.mp4" loop autoPlay muted playsInline className="w-full rounded-[2rem] object-cover shadow-sm border border-border" />
+        <LazyHeroVideo isMobile />
       </section>
 
       {/* Preview matches */}
@@ -491,7 +517,7 @@ function DesktopHome() {
 
             {!state.confirmOpen && (
               <div className="mt-10">
-                <video src="/L.mp4" loop autoPlay muted playsInline className="w-full rounded-[2rem] object-cover shadow-lg border border-border" />
+                <LazyHeroVideo />
               </div>
             )}
           </div>
