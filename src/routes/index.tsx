@@ -291,31 +291,7 @@ function useRideForm() {
 /* -------------------------------------------------------------------------- */
 /*  MOBILE                                                                    */
 /* -------------------------------------------------------------------------- */
-function LazyHeroVideo({ isMobile = false }) {
-  const [shouldLoad, setShouldLoad] = useState(false);
-  
-  useEffect(() => {
-    // Delay loading the video source until after the main UI paints
-    const timer = setTimeout(() => setShouldLoad(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
 
-  return (
-    <video 
-      poster="/L-poster.jpg"
-      loop 
-      autoPlay={shouldLoad} 
-      muted 
-      playsInline 
-      className={`w-full rounded-[2rem] object-cover border border-border ${isMobile ? 'shadow-sm' : 'shadow-lg'}`}
-      preload={shouldLoad ? "auto" : "none"}
-    >
-      {shouldLoad && (
-        <source src={isMobile ? "/L-mobile.mp4" : "/L-desktop.mp4"} type="video/mp4" />
-      )}
-    </video>
-  );
-}
 
 function MobileHome() {
   const { posts, isLoading } = useRidePosts({ limit: 50 });
@@ -375,10 +351,7 @@ function MobileHome() {
       {/* Search/Plan card */}
       <RideForm form={form} className="mt-5" />
 
-      {/* Video */}
-      <section className="mt-8">
-        <LazyHeroVideo isMobile />
-      </section>
+
 
       {/* Preview matches */}
       <section className="mt-8">
@@ -515,11 +488,7 @@ function DesktopHome() {
               )}
             </div>
 
-            {!state.confirmOpen && (
-              <div className="mt-10">
-                <LazyHeroVideo />
-              </div>
-            )}
+
           </div>
 
           <div className="col-span-5 flex flex-col justify-center gap-6">

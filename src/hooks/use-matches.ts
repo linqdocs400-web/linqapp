@@ -147,26 +147,38 @@ export function useMatches(
         }
       }
 
-      // Helper for batched concurrent processing of candidate routes
+      // Helper for fast candidate processing: fast pre-score all candidates & refine top 5 with OSRM
       const processCandidateRides = async (rides: RidePost[]) => {
-        const BATCH_SIZE = 4;
-        const scoredRides: { ride: RidePost; score: number }[] = [];
-
-        for (let i = 0; i < rides.length; i += BATCH_SIZE) {
-          const batch = rides.slice(i, i + BATCH_SIZE);
-          const batchScores = await Promise.all(
-            batch.map(async (ride) => {
-              if (query?.pickup && query?.drop) {
-                const score = await calculateMatchScoreAsync(ride, query, userRoute);
-                return { ride, score };
-              }
-              return { ride, score: 0 };
-            })
-          );
-          scoredRides.push(...batchScores);
+        if (!query?.pickup || !query?.drop) {
+          return rides.map((ride) => ({ ride, score: 0 }));
         }
 
-        return scoredRides;
+        // 1. Instant fallback scoring for all candidate rides (0 network calls)
+        const initialScored = rides.map((ride) => ({
+          ride,
+          score: calculateMatchScore(ride, query),
+        }));
+
+        // Sort descending by initial score
+        initialScored.sort((a, b) => b.score - a.score);
+
+        // 2. Limit live OSRM route calculations to top 5 candidates only
+        const MAX_OSRM_CANDIDATES = 5;
+        const topCandidates = initialScored.slice(0, MAX_OSRM_CANDIDATES);
+        const remainingCandidates = initialScored.slice(MAX_OSRM_CANDIDATES);
+
+        const refinedTopScores = await Promise.all(
+          topCandidates.map(async (item) => {
+            try {
+              const score = await calculateMatchScoreAsync(item.ride, query, userRoute);
+              return { ride: item.ride, score };
+            } catch {
+              return item;
+            }
+          })
+        );
+
+        return [...refinedTopScores, ...remainingCandidates];
       };
 
       const scoredRides = await processCandidateRides(otherUsersRides);

@@ -109,7 +109,7 @@ export function calculateBearing(pt1: [number, number], pt2: [number, number]): 
  * Densifies a list of [lon, lat] points by adding intermediate points along long segments
  * at most maxIntervalKm apart. Returns samples with step lengths.
  */
-function densifyRoute(coordinates: [number, number][], maxIntervalKm = 0.05): { point: [number, number]; distKm: number }[] {
+function densifyRoute(coordinates: [number, number][], maxIntervalKm = 0.2): { point: [number, number]; distKm: number }[] {
   if (coordinates.length < 2) {
     return coordinates.map((pt) => ({ point: pt, distKm: 0 }));
   }
