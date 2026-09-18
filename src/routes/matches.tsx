@@ -582,8 +582,8 @@ const MatchCard = memo(function MatchCard({
       )}
 
       {unlocked ? (
-        <>
-          <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="mt-4 space-y-2">
+          <div className="grid grid-cols-3 gap-2">
             <ConnectBtn
               method="whatsapp"
               id={m.connect_id || m.owner_id}
@@ -603,35 +603,42 @@ const MatchCard = memo(function MatchCard({
               userName={userName}
             />
           </div>
-          <button
-            onClick={onRate}
-            className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 py-2 text-xs font-semibold text-primary"
-          >
-            <Star className="size-3.5" /> Rate this rider
-          </button>
-        </>
-      ) : requestStatus === "pending" ? (
-        <button
-          disabled
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-muted py-2.5 text-sm font-semibold text-muted-foreground cursor-not-allowed"
-        >
-          <Clock className="size-4" /> Request Pending
-        </button>
-      ) : requestStatus === "rejected" ? (
-        <button
-          disabled
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-muted py-2.5 text-sm font-semibold text-muted-foreground cursor-not-allowed"
-        >
-          <X className="size-4" /> Request Declined
-        </button>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={onRate}
+              className="flex items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+            >
+              <Star className="size-3.5" /> Rate rider
+            </button>
+            <Link
+              to="/ride/$id"
+              params={{ id: m.id }}
+              className="flex items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+            >
+              View Details
+            </Link>
+          </div>
+        </div>
       ) : (
-        <Link
-          to="/ride/$id"
-          params={{ id: m.id }}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
-        >
-          View Details
-        </Link>
+        <div className="mt-4 space-y-2">
+          {requestStatus === "pending" && (
+            <div className="flex w-full items-center justify-center gap-2 rounded-full bg-muted py-2 text-xs font-semibold text-muted-foreground">
+              <Clock className="size-3.5" /> Request Pending
+            </div>
+          )}
+          {requestStatus === "rejected" && (
+            <div className="flex w-full items-center justify-center gap-2 rounded-full bg-muted py-2 text-xs font-semibold text-muted-foreground">
+              <X className="size-3.5" /> Request Declined
+            </div>
+          )}
+          <Link
+            to="/ride/$id"
+            params={{ id: m.id }}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+          >
+            View Details
+          </Link>
+        </div>
       )}
     </article>
   );
