@@ -43,6 +43,16 @@ export type PaginatedMatchResult = MatchResult & {
   totalOther: number;
 };
 
+export function isValidCoord(lat?: number, lon?: number): boolean {
+  return (
+    typeof lat === "number" &&
+    typeof lon === "number" &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lon) &&
+    !(lat === 0 && lon === 0)
+  );
+}
+
 export function useMatches(
   query: RideQuery | null,
   page: number = 1,
@@ -121,10 +131,8 @@ export function useMatches(
       const allMatches: RidePost[] = [];
 
       const hasUserCoords =
-        typeof query?.pickupLat === "number" &&
-        typeof query?.pickupLon === "number" &&
-        typeof query?.dropLat === "number" &&
-        typeof query?.dropLon === "number";
+        isValidCoord(query?.pickupLat, query?.pickupLon) &&
+        isValidCoord(query?.dropLat, query?.dropLon);
 
       let userRoute: RouteData | null = null;
       if (hasUserCoords && query) {
@@ -200,21 +208,16 @@ export function useMatches(
 
 // Helper functions for matching logic
 export function haversineDist(lat1?: number, lon1?: number, lat2?: number, lon2?: number) {
-  if (
-    typeof lat1 !== "number" ||
-    typeof lon1 !== "number" ||
-    typeof lat2 !== "number" ||
-    typeof lon2 !== "number"
-  ) {
+  if (!isValidCoord(lat1, lon1) || !isValidCoord(lat2, lon2)) {
     return Infinity;
   }
   const toRad = (x: number) => (x * Math.PI) / 180;
   const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
+  const dLat = toRad(lat2! - lat1!);
+  const dLon = toRad(lon2! - lon1!);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.cos(toRad(lat1!)) * Math.cos(toRad(lat2!)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -247,14 +250,10 @@ export function calcTimeSimilarity(timeStr1?: string, timeStr2?: string) {
  */
 function isRouteFetchPlausible(ride: RidePost, query: RideQuery): boolean {
   if (
-    typeof query.pickupLat !== "number" ||
-    typeof query.pickupLon !== "number" ||
-    typeof query.dropLat !== "number" ||
-    typeof query.dropLon !== "number" ||
-    typeof ride.pickup_lat !== "number" ||
-    typeof ride.pickup_lon !== "number" ||
-    typeof ride.drop_lat !== "number" ||
-    typeof ride.drop_lon !== "number"
+    !isValidCoord(query.pickupLat, query.pickupLon) ||
+    !isValidCoord(query.dropLat, query.dropLon) ||
+    !isValidCoord(ride.pickup_lat, ride.pickup_lon) ||
+    !isValidCoord(ride.drop_lat, ride.drop_lon)
   ) {
     return false;
   }
@@ -267,15 +266,15 @@ function isRouteFetchPlausible(ride: RidePost, query: RideQuery): boolean {
 
   // Bounding box overlap check (with 0.2 deg margin ~ 22km)
   const margin = 0.2;
-  const qMinLat = Math.min(query.pickupLat, query.dropLat) - margin;
-  const qMaxLat = Math.max(query.pickupLat, query.dropLat) + margin;
-  const qMinLon = Math.min(query.pickupLon, query.dropLon) - margin;
-  const qMaxLon = Math.max(query.pickupLon, query.dropLon) + margin;
+  const qMinLat = Math.min(query.pickupLat!, query.dropLat!) - margin;
+  const qMaxLat = Math.max(query.pickupLat!, query.dropLat!) + margin;
+  const qMinLon = Math.min(query.pickupLon!, query.dropLon!) - margin;
+  const qMaxLon = Math.max(query.pickupLon!, query.dropLon!) + margin;
 
-  const rMinLat = Math.min(ride.pickup_lat, ride.drop_lat);
-  const rMaxLat = Math.max(ride.pickup_lat, ride.drop_lat);
-  const rMinLon = Math.min(ride.pickup_lon, ride.drop_lon);
-  const rMaxLon = Math.max(ride.pickup_lon, ride.drop_lon);
+  const rMinLat = Math.min(ride.pickup_lat!, ride.drop_lat!);
+  const rMaxLat = Math.max(ride.pickup_lat!, ride.drop_lat!);
+  const rMinLon = Math.min(ride.pickup_lon!, ride.drop_lon!);
+  const rMaxLon = Math.max(ride.pickup_lon!, ride.drop_lon!);
 
   const latOverlap = qMinLat <= rMaxLat && qMaxLat >= rMinLat;
   const lonOverlap = qMinLon <= rMaxLon && qMaxLon >= rMinLon;
@@ -298,16 +297,12 @@ export async function calculateMatchScoreAsync(
   prefetchedUserRoute: RouteData | null = null
 ): Promise<number> {
   const hasUserCoords =
-    typeof query.pickupLat === "number" &&
-    typeof query.pickupLon === "number" &&
-    typeof query.dropLat === "number" &&
-    typeof query.dropLon === "number";
+    isValidCoord(query.pickupLat, query.pickupLon) &&
+    isValidCoord(query.dropLat, query.dropLon);
 
   const hasCandidateCoords =
-    typeof ride.pickup_lat === "number" &&
-    typeof ride.pickup_lon === "number" &&
-    typeof ride.drop_lat === "number" &&
-    typeof ride.drop_lon === "number";
+    isValidCoord(ride.pickup_lat, ride.pickup_lon) &&
+    isValidCoord(ride.drop_lat, ride.drop_lon);
 
   const pickupDist = haversineDist(query.pickupLat, query.pickupLon, ride.pickup_lat, ride.pickup_lon);
   const dropDist = haversineDist(query.dropLat, query.dropLon, ride.drop_lat, ride.drop_lon);
