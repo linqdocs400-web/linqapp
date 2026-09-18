@@ -479,10 +479,6 @@ function DesktopHome() {
               className="mt-3 text-7xl font-bold leading-[1.02] tracking-tight"
               desktop
             />
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Match with verified riders heading the same way at the same time. Instant pickups,
-              daily commutes, and planned long-distance trips — all in one place.
-            </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <LiveCountPill />
               {signedIn && (
