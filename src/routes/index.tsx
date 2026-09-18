@@ -24,6 +24,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Gift,
+  TrendingDown,
+  Leaf,
+  Clock,
+  Heart,
+  Sparkles,
+  Target,
 } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { useTheme } from "@/lib/theme";
@@ -447,6 +453,136 @@ function DesktopOnboardingHint() {
   );
 }
 
+function DesktopHeroInfoCards() {
+  return (
+    <div className="mt-7 grid grid-cols-3 gap-3">
+      {/* CARD 1 — DAILY COMMUTE COST */}
+      <div className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-4 shadow-xs backdrop-blur-md transition-all hover:border-primary/40 hover:bg-card hover:shadow-sm">
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Your daily commute
+            </h4>
+            <span className="flex size-6 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
+              <TrendingDown className="size-3.5" />
+            </span>
+          </div>
+
+          <div className="space-y-1.5 text-xs">
+            <div className="flex items-center justify-between rounded-xl bg-background/50 px-2.5 py-1.5 border border-border/40">
+              <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
+                <Car className="size-3.5 text-muted-foreground" /> Alone
+              </span>
+              <span className="font-semibold text-foreground">₹180 / day</span>
+            </div>
+
+            <div className="text-center text-[10px] font-bold text-muted-foreground/60 leading-none">
+              +
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl bg-primary/10 px-2.5 py-1.5 border border-primary/20">
+              <span className="flex items-center gap-1.5 text-primary font-semibold">
+                <Users className="size-3.5 text-primary" /> Pool with LinQ
+              </span>
+              <span className="font-bold text-primary">₹90 / day</span>
+            </div>
+          </div>
+
+          <div className="mt-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-2 py-1.5 text-center text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            ₹90 saved × 22 days = <span className="font-bold">₹1,980/month</span>
+          </div>
+        </div>
+
+        <div className="mt-3 text-right">
+          <p
+            style={{ fontFamily: "'Caveat', cursive" }}
+            className="text-sm font-semibold text-muted-foreground/90 tracking-wide"
+          >
+            Same destination. Half the cost?
+          </p>
+        </div>
+      </div>
+
+      {/* CARD 2 — CLEANER AIR */}
+      <div className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-4 shadow-xs backdrop-blur-md transition-all hover:border-primary/40 hover:bg-card hover:shadow-sm">
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Less vehicles, cleaner air
+            </h4>
+            <span className="flex size-6 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
+              <Leaf className="size-3.5" />
+            </span>
+          </div>
+
+          <div className="space-y-2 text-[11px]">
+            <div className="rounded-xl bg-background/50 p-2 border border-border/40 text-muted-foreground leading-snug">
+              More people travelling alone <span className="text-foreground font-medium">= more vehicles = more pollution</span>
+            </div>
+
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2 text-emerald-600 dark:text-emerald-400 font-medium leading-snug">
+              Shared rides → fewer vehicles → cleaner air
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 text-right">
+          <p
+            style={{ fontFamily: "'Caveat', cursive" }}
+            className="text-sm font-semibold text-muted-foreground/90 tracking-wide"
+          >
+            Small rides. Bigger impact.
+          </p>
+        </div>
+      </div>
+
+      {/* CARD 3 — TIME */}
+      <div className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-4 shadow-xs backdrop-blur-md transition-all hover:border-primary/40 hover:bg-card hover:shadow-sm">
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Save time, live more
+            </h4>
+            <span className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <Clock className="size-3.5" />
+            </span>
+          </div>
+
+          <p className="text-[11px] text-foreground/90 font-medium leading-tight mb-2.5">
+            Less time in traffic = <span className="text-primary font-semibold">more time for what you love.</span>
+          </p>
+
+          <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+            {[
+              { label: "Family", Icon: Heart },
+              { label: "Hobbies", Icon: Sparkles },
+              { label: "Fitness", Icon: Activity },
+              { label: "Your goals", Icon: Target },
+            ].map(({ label, Icon }) => (
+              <div
+                key={label}
+                className="flex items-center gap-1.5 rounded-lg bg-background/50 px-2 py-1 border border-border/40 text-muted-foreground font-medium"
+              >
+                <Icon className="size-3 text-primary" />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-3 text-right">
+          <p
+            style={{ fontFamily: "'Caveat', cursive" }}
+            className="text-sm font-semibold text-muted-foreground/90 tracking-wide"
+          >
+            Life is more than traffic.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DesktopHome() {
   const { user } = useAuth();
   const { profile } = useProfile();
@@ -488,7 +624,7 @@ function DesktopHome() {
               )}
             </div>
 
-
+            <DesktopHeroInfoCards />
           </div>
 
           <div className="col-span-5 flex flex-col justify-center gap-6">
