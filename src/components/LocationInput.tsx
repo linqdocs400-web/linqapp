@@ -174,7 +174,7 @@ export default function LocationInput({ placeholder, value, onChange, onSelect, 
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full rounded-2xl border border-border bg-background px-10 py-3 pr-10 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/20"
+          className="w-full rounded-2xl border border-border bg-background px-10 py-2.5 pr-10 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/20"
         />
 
         {value && (

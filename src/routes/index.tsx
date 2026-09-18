@@ -627,26 +627,26 @@ function DesktopHome() {
             <DesktopHeroInfoCards />
           </div>
 
-          <div className="col-span-5 flex flex-col justify-center gap-6">
-            <div className="flex gap-2 bg-card/80 p-2 rounded-[1.5rem] border border-border backdrop-blur-xl shadow-sm relative">
+          <div className="col-span-5 flex flex-col justify-center gap-3.5">
+            <div className="flex gap-1.5 bg-card/80 p-1.5 rounded-2xl border border-border backdrop-blur-xl shadow-sm relative">
               <DesktopOnboardingHint />
               {rideTypes.map((r) => (
                 <button
                   key={r.id}
                   onClick={() => set.setSelected(r.id)}
-                  className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl text-xs font-medium transition-all ${state.selected === r.id ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+                  className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-xl text-xs font-medium transition-all ${state.selected === r.id ? 'bg-primary text-primary-foreground shadow-sm' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
                 >
-                  <r.Icon className="size-4" />
+                  <r.Icon className="size-3.5" />
                   <span className="text-center">{r.id === 'long' ? 'Planned' : r.title}</span>
                 </button>
               ))}
             </div>
 
-            <div className="rounded-3xl border border-border bg-card/80 p-7 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)] backdrop-blur-xl">
-              <div className="mb-5 flex items-center justify-between">
+            <div className="rounded-3xl border border-border bg-card/80 p-5 md:p-5.5 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+              <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold">Plan your ride</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-lg font-bold">Plan your ride</h3>
+                  <p className="text-xs text-muted-foreground">
                     {state.selected === "instant"
                       ? "Get matched in minutes"
                       : state.selected === "daily"
@@ -655,13 +655,13 @@ function DesktopHome() {
                   </p>
                 </div>
                 <span
-                  className="flex size-11 items-center justify-center rounded-2xl"
+                  className="flex size-9 items-center justify-center rounded-xl"
                   style={{
                     background: "color-mix(in oklab, var(--color-primary) 15%, transparent)",
                     color: "var(--color-primary)",
                   }}
                 >
-                  <MapPin className="size-5" />
+                  <MapPin className="size-4" />
                 </span>
               </div>
               <RideForm form={form} embedded />
@@ -770,15 +770,15 @@ function RideForm({
   }, []);
 
   return (
-    <div className={`${embedded ? "" : "rounded-3xl bg-card p-5"} ${className}`}>
+    <div className={`${embedded ? "" : "rounded-3xl bg-card p-4 sm:p-5"} ${className}`}>
       {/* Pickup / drop */}
-      <div className="flex items-start gap-3">
-        <div className="mt-3 flex flex-col items-center">
-          <span className="size-3 rounded-full bg-foreground" />
-          <span className="my-1 h-8 w-px bg-border" />
-          <span className="size-3 rounded-full bg-primary" />
+      <div className="flex items-start gap-2.5">
+        <div className="mt-2.5 flex flex-col items-center">
+          <span className="size-2.5 rounded-full bg-foreground" />
+          <span className="my-1 h-7 w-px bg-border" />
+          <span className="size-2.5 rounded-full bg-primary" />
         </div>
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-1.5">
           <div>
             <p className="text-[10px] font-medium tracking-wider text-muted-foreground">PICKUP</p>
             <LocationInput
@@ -815,27 +815,27 @@ function RideForm({
         </div>
         <button
           onClick={swap}
-          className="mt-1 flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary"
+          className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary"
         >
-          <ArrowUpDown className="size-4" />
+          <ArrowUpDown className="size-3.5" />
         </button>
       </div>
 
       {/* Vehicle */}
-      <div className="mt-4 rounded-2xl border border-border/60 bg-background/40 p-3">
+      <div className="mt-3 rounded-2xl border border-border/60 bg-background/40 p-2.5">
         <div className="flex items-center justify-between">
-          <span className="flex items-center gap-2 text-sm font-medium">
-            <Car className="size-4 text-primary" /> Do you have a vehicle?
+          <span className="flex items-center gap-2 text-xs font-medium">
+            <Car className="size-3.5 text-primary" /> Do you have a vehicle?
           </span>
           <Switch on={state.hasVehicle} onChange={set.setHasVehicle} />
         </div>
         {state.hasVehicle && (
-          <div className="mt-3 space-y-3">
+          <div className="mt-2.5 space-y-2.5">
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Vehicle type
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 {(
                   [
                     { id: "car", label: "Car", Icon: Car },
@@ -849,12 +849,12 @@ function RideForm({
                       type="button"
                       key={v.id}
                       onClick={() => set.setVehicleType(v.id)}
-                      className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2 text-xs font-medium transition ${on
+                      className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs font-medium transition ${on
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-background"
                         }`}
                     >
-                      <v.Icon className="size-4" /> {v.label}
+                      <v.Icon className="size-3.5" /> {v.label}
                     </button>
                   );
                 })}
@@ -872,11 +872,11 @@ function RideForm({
 
       {/* Daily extras */}
       {state.selected === "daily" && (
-        <div className="mt-3 rounded-2xl border border-border/60 bg-background/40 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="mt-2.5 rounded-2xl border border-border/60 bg-background/40 p-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Travel days
           </p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <div className="mt-1.5 flex flex-wrap gap-1">
             {dayLabels.map((d) => {
               const on = state.days.includes(d);
               return (
@@ -885,40 +885,40 @@ function RideForm({
                   onClick={() =>
                     set.setDays(on ? state.days.filter((x) => x !== d) : [...state.days, d])
                   }
-                  className={`rounded-full border px-3 py-1 text-xs font-medium transition ${on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"}`}
+                  className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition ${on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"}`}
                 >
                   {d}
                 </button>
               );
             })}
           </div>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-1.5 flex gap-1.5">
             {presets.map((p) => (
               <button
                 key={p.label}
                 onClick={() => set.setDays(p.days)}
-                className="rounded-full bg-secondary px-3 py-1 text-[11px] font-medium text-muted-foreground"
+                className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground"
               >
                 {p.label}
               </button>
             ))}
           </div>
 
-          <div className="mt-3">
-            <span className="text-xs text-muted-foreground">Travel time</span>
+          <div className="mt-2">
+            <span className="text-[11px] text-muted-foreground">Travel time</span>
             <div className="md:hidden">
               <input
                 type="time"
                 value={state.travelTime}
                 onChange={(e) => set.setTravelTime(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm touch-manipulation"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs touch-manipulation"
               />
             </div>
             <div className="hidden md:block">
               <select
                 value={state.travelTime}
                 onChange={(e) => set.setTravelTime(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs"
               >
                 {timeOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -929,20 +929,20 @@ function RideForm({
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm font-medium">
-              <RefreshCw className="size-4 text-primary" /> Open to return journey?
+          <div className="mt-2 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-xs font-medium">
+              <RefreshCw className="size-3.5 text-primary" /> Open to return journey?
             </span>
             <Switch on={state.returnJourney} onChange={set.setReturnJourney} />
           </div>
           {state.returnJourney && (
-            <div className="mt-3">
-              <span className="text-xs text-muted-foreground">Return time</span>
+            <div className="mt-2">
+              <span className="text-[11px] text-muted-foreground">Return time</span>
               <input
                 type="time"
                 value={state.returnTime}
                 onChange={(e) => set.setReturnTime(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs"
               />
             </div>
           )}
@@ -951,30 +951,30 @@ function RideForm({
 
       {/* Long distance */}
       {state.selected === "long" && (
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-2 rounded-2xl border border-border/60 bg-background/40 p-4 sm:p-3">
+        <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-2xl border border-border/60 bg-background/40 p-2.5">
           <label className="block">
-            <span className="mb-2 sm:mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Date
             </span>
             <input
               type="date"
               value={state.date}
               onChange={(e) => set.setDate(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-3 sm:px-2 sm:py-2 text-sm touch-manipulation"
+              className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs touch-manipulation"
             />
           </label>
           <label className="block">
-            <span className="mb-2 sm:mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Time
             </span>
             <input
               type="time"
               value={state.time}
               onChange={(e) => set.setTime(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-3 sm:px-2 sm:py-2 text-sm touch-manipulation"
+              className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs touch-manipulation"
             />
           </label>
-          <p className="col-span-1 sm:col-span-2 flex items-center gap-1 text-[11px] text-muted-foreground">
+          <p className="col-span-1 sm:col-span-2 flex items-center gap-1 text-[10px] text-muted-foreground">
             <CalendarDays className="size-3 flex-shrink-0" /> For all planned, scheduled &
             city-to-city trips.
           </p>
@@ -982,15 +982,15 @@ function RideForm({
       )}
 
       {state.locationError && (
-        <p className="mt-3 text-xs text-destructive font-medium">{state.locationError}</p>
+        <p className="mt-2 text-xs text-destructive font-medium">{state.locationError}</p>
       )}
 
       <button
         onClick={findMatch}
         disabled={!state.pickup || !state.drop}
-        className="mt-4 sm:mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-4 sm:py-4 font-semibold text-background transition hover:opacity-90 disabled:opacity-50 touch-manipulation"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 font-semibold text-xs sm:text-sm text-background transition hover:opacity-90 disabled:opacity-50 touch-manipulation"
       >
-        <Search className="size-4 flex-shrink-0" /> Find a match
+        <Search className="size-3.5 flex-shrink-0" /> Find a match
       </button>
     </div>
   );
