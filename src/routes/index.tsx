@@ -349,6 +349,11 @@ function MobileHome() {
       {/* Search/Plan card */}
       <RideForm form={form} className="mt-5" />
 
+      {/* Video */}
+      <section className="mt-8">
+        <video src="/L.mp4" loop autoPlay muted playsInline className="w-full rounded-[2rem] object-cover shadow-sm border border-border" />
+      </section>
+
       {/* Preview matches */}
       <section className="mt-8">
         <div className="flex items-end justify-between">
@@ -490,32 +495,26 @@ function DesktopHome() {
 
             {!state.confirmOpen && (
               <div className="mt-10">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                    Choose ride type
-                  </h2>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground relative">
-                    <ChevronLeft className="size-3.5" /> Explore options{" "}
-                    <ChevronRight className="size-3.5" />
-                    <DesktopOnboardingHint />
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {rideTypes.map((r) => (
-                    <RideCard
-                      key={r.id}
-                      r={r}
-                      active={state.selected === r.id}
-                      onClick={() => set.setSelected(r.id)}
-                      fullWidth
-                    />
-                  ))}
-                </div>
+                <video src="/L.mp4" loop autoPlay muted playsInline className="w-full rounded-[2rem] object-cover shadow-lg border border-border" />
               </div>
             )}
           </div>
 
-          <div className="col-span-5 flex flex-col justify-center">
+          <div className="col-span-5 flex flex-col justify-center gap-6">
+            <div className="flex gap-2 bg-card/80 p-2 rounded-[1.5rem] border border-border backdrop-blur-xl shadow-sm relative">
+              <DesktopOnboardingHint />
+              {rideTypes.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => set.setSelected(r.id)}
+                  className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl text-xs font-medium transition-all ${state.selected === r.id ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+                >
+                  <r.Icon className="size-4" />
+                  <span className="text-center">{r.id === 'long' ? 'Planned' : r.title}</span>
+                </button>
+              ))}
+            </div>
+
             <div className="rounded-3xl border border-border bg-card/80 p-7 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)] backdrop-blur-xl">
               <div className="mb-5 flex items-center justify-between">
                 <div>
