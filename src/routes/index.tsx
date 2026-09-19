@@ -461,7 +461,7 @@ function DesktopHeroInfoCards() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Your daily commute
+              EXAMPLE IF YOU..
             </h4>
             <span className="flex size-6 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
               <TrendingDown className="size-3.5" />
