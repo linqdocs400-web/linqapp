@@ -1,0 +1,151 @@
+56:export function useMatches(
+57-  query: RideQuery | null,
+58-  page: number = 1,
+59-  limit: number = 10,
+60-  showAll: boolean = false,
+61-  excludeOwnerIds: string[] = [],
+62-) {
+63-  const excludeSet = new Set(excludeOwnerIds);
+64-  return useQuery({
+65-    queryKey: ["matches", query, page, limit, showAll, excludeOwnerIds],
+66-    queryFn: async (): Promise<PaginatedMatchResult> => {
+67-      // Get all rides (regardless of type) - matching will filter by location compatibility
+68-      const { data, error } = await (supabase as any)
+69-        .from("ride_posts")
+70-        .select("*, profiles:owner_id(name, connect_method, connect_id)")
+71-        .order("created_at", { ascending: false });
+72-
+73-      const allRides = (data || []).map((d: any) => ({
+74-        ...d,
+75-        owner_name: d.profiles?.name || "Member",
+76-        connect_method: d.profiles?.connect_method,
+77-        connect_id: d.profiles?.connect_id,
+78-      })) as RidePost[] | null;
+79-
+80-      if (error) throw error;
+81-
+82-      if (!allRides || allRides.length === 0) {
+83-        return {
+84-          exact: [] as RidePost[],
+85-          nearby: [] as RidePost[],
+86-          routeOverlap: [] as RidePost[],
+87-          other: [] as RidePost[],
+88-          hasMore: false,
+89-          totalExact: 0,
+90-          totalNearby: 0,
+91-          totalRouteOverlap: 0,
+92-          totalOther: 0,
+93-        };
+94-      }
+95-
+96-      // Filter out current user's rides and hotspot members (shown in dedicated section)
+97-      const otherUsersRides = allRides.filter(
+98-        (ride) =>
+99-          ride.owner_id !== query?.userId &&
+100-          ride.status === "active" &&
+101-          !excludeSet.has(ride.owner_id),
+102-      );
+103-
+104-      // If showAll is true, return all rides without matching logic
+105-      if (showAll) {
+106-        const startIndex = (page - 1) * limit;
+107-        const endIndex = startIndex + limit;
+108-        const paginatedRides = otherUsersRides.slice(startIndex, endIndex);
+109-
+110-        return {
+111-          exact: paginatedRides, // Put all rides in exact category for display
+112-          nearby: [] as RidePost[],
+113-          routeOverlap: [] as RidePost[],
+114-          other: [] as RidePost[],
+115-          hasMore: endIndex < otherUsersRides.length,
+116-          totalExact: otherUsersRides.length,
+117-          totalNearby: 0,
+118-          totalRouteOverlap: 0,
+119-          totalOther: 0,
+120-        };
+121-      }
+122-
+123-      // Categorize matches
+124-      const result: MatchResult = {
+125-        exact: [],
+126-        nearby: [],
+127-        routeOverlap: [],
+128-        other: [],
+129-      };
+130-
+131-      const allMatches: RidePost[] = [];
+132-
+133-      const hasUserCoords =
+134-        isValidCoord(query?.pickupLat, query?.pickupLon) &&
+135-        isValidCoord(query?.dropLat, query?.dropLon);
+136-
+137-      let userRoute: RouteData | null = null;
+138-      if (hasUserCoords && query) {
+139-        try {
+140-          userRoute = await getRoute(
+141-            { lat: query.pickupLat!, lng: query.pickupLon! },
+142-            { lat: query.dropLat!, lng: query.dropLon! }
+143-          );
+144-        } catch (err) {
+145-          console.warn("Could not fetch user route for matching:", err);
+146-          userRoute = null;
+147-        }
+148-      }
+149-
+150-      // Helper for fast candidate processing: fast pre-score all candidates & refine top 5 with OSRM
+151-      const processCandidateRides = async (rides: RidePost[]) => {
+152-        if (!query?.pickup || !query?.drop) {
+153-          return rides.map((ride) => ({ ride, score: 0 }));
+154-        }
+155-
+156-        // 1. Instant fallback scoring for all candidate rides (0 network calls)
+157-        const initialScored = rides.map((ride) => ({
+158-          ride,
+159-          score: calculateMatchScore(ride, query),
+160-        }));
+161-
+162-        // Sort descending by initial score
+163-        initialScored.sort((a, b) => b.score - a.score);
+164-
+165-        // 2. Limit live OSRM route calculations to top 5 candidates only
+166-        const MAX_OSRM_CANDIDATES = 5;
+167-        const topCandidates = initialScored.slice(0, MAX_OSRM_CANDIDATES);
+168-        const remainingCandidates = initialScored.slice(MAX_OSRM_CANDIDATES);
+169-
+170-        const refinedTopScores = await Promise.all(
+171-          topCandidates.map(async (item) => {
+172-            try {
+173-              const score = await calculateMatchScoreAsync(item.ride, query, userRoute);
+174-              return { ride: item.ride, score };
+175-            } catch {
+176-              return item;
+177-            }
+178-          })
+179-        );
+180-
+181-        return [...refinedTopScores, ...remainingCandidates];
+182-      };
+183-
+184-      const scoredRides = await processCandidateRides(otherUsersRides);
+185-
+186-      scoredRides.forEach(({ ride, score }) => {
+187-        if (score > 70) {
+188-          result.exact.push(ride); // Strong Match
+189-        } else if (score > 30) {
+190-          result.nearby.push(ride); // Moderate Match
+191-        } else {
+192-          result.other.push(ride); // Weak Match / Other
+193-        }
+194-        allMatches.push(ride);
+195-      });
+196-
+197-      // Apply pagination
+198-      const startIndex = (page - 1) * limit;
+199-      const endIndex = startIndex + limit;
+200-      const paginatedExact = result.exact.slice(startIndex, endIndex);
+201-      const paginatedNearby = result.nearby.slice(startIndex, endIndex);
+202-      const paginatedRouteOverlap = result.routeOverlap.slice(startIndex, endIndex);
+203-      const paginatedOther = result.other.slice(startIndex, endIndex);
+204-
+205-      return {
+206-        exact: paginatedExact,

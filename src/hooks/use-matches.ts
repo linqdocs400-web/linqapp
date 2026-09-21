@@ -28,6 +28,14 @@ export type RideQuery = {
 
 export type MatchCategory = "exact" | "nearby" | "route_overlap" | "other";
 
+export type MatchScoreData = {
+  finalScore: number;
+  routeOverlapPct: number;
+  pickupDist: number;
+  dropDist: number;
+  timeDiffMins: number;
+};
+
 export type MatchResult = {
   exact: RidePost[];
   nearby: RidePost[];
@@ -64,78 +72,102 @@ export function useMatches(
   return useQuery({
     queryKey: ["matches", query, page, limit, showAll, excludeOwnerIds],
     queryFn: async (): Promise<PaginatedMatchResult> => {
-      // Get all rides (regardless of type) - matching will filter by location compatibility
-      const { data, error } = await (supabase as any)
-        .from("ride_posts")
-        .select("*, profiles:owner_id(name, connect_method, connect_id)")
-        .order("created_at", { ascending: false });
+      let otherUsersRides: RidePost[] = [];
 
-      const allRides = (data || []).map((d: any) => ({
-        ...d,
-        owner_name: d.profiles?.name || "Member",
-        connect_method: d.profiles?.connect_method,
-        connect_id: d.profiles?.connect_id,
-      })) as RidePost[] | null;
+      if (showAll || !query || (!isValidCoord(query.pickupLat, query.pickupLon) && !isValidCoord(query.dropLat, query.dropLon))) {
+        // Fallback: fetch active rides
+        const { data, error } = await (supabase as any)
+          .from("ride_posts")
+          .select("*, profiles:owner_id(name, connect_method, connect_id)")
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(100);
 
-      if (error) throw error;
+        if (error) throw error;
+        otherUsersRides = (data || [])
+          .map((d: any) => ({
+            ...d,
+            owner_name: d.profiles?.name || "Member",
+            connect_method: d.profiles?.connect_method,
+            connect_id: d.profiles?.connect_id,
+          }))
+          .filter((r: any) => r.owner_id !== query?.userId && !excludeSet.has(r.owner_id));
+      } else {
+        // STAGE 1 - CHEAP DATABASE FILTERING via RPC
+        const { data, error } = await supabase.rpc("search_ride_matches_by_route", {
+          p_pickup_lat: query.pickupLat!,
+          p_pickup_lon: query.pickupLon!,
+          p_drop_lat: query.dropLat!,
+          p_drop_lon: query.dropLon!,
+          p_limit: 30, // Get top 30 closest candidates
+          p_max_route_km: 800,
+          p_exclude_owner_id: query.userId || null,
+        });
 
-      if (!allRides || allRides.length === 0) {
+        if (error) {
+          console.warn("RPC failed, falling back to standard select", error);
+          const { data: fbData, error: fbError } = await (supabase as any)
+            .from("ride_posts")
+            .select("*, profiles:owner_id(name, connect_method, connect_id)")
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .limit(100);
+          
+          if (fbError) throw fbError;
+          otherUsersRides = (fbData || [])
+            .map((d: any) => ({
+              ...d,
+              owner_name: d.profiles?.name || "Member",
+              connect_method: d.profiles?.connect_method,
+              connect_id: d.profiles?.connect_id,
+            }))
+            .filter((r: any) => r.owner_id !== query?.userId && !excludeSet.has(r.owner_id));
+        } else {
+          // RPC success, fetch full rows
+          const candidateIds = (data || []).map((d: any) => d.ride_id);
+          
+          if (candidateIds.length > 0) {
+            const { data: fullRides, error: fullError } = await (supabase as any)
+              .from("ride_posts")
+              .select("*, profiles:owner_id(name, connect_method, connect_id, bio)")
+              .in("id", candidateIds);
+
+            if (fullError) throw fullError;
+
+            otherUsersRides = (fullRides || [])
+              .map((d: any) => ({
+                ...d,
+                owner_name: d.profiles?.name || "Member",
+                connect_method: d.profiles?.connect_method,
+                connect_id: d.profiles?.connect_id,
+                bio: d.profiles?.bio,
+              }))
+              .filter((r: any) => !excludeSet.has(r.owner_id));
+          }
+        }
+      }
+
+      if (otherUsersRides.length === 0) {
         return {
-          exact: [] as RidePost[],
-          nearby: [] as RidePost[],
-          routeOverlap: [] as RidePost[],
-          other: [] as RidePost[],
-          hasMore: false,
-          totalExact: 0,
-          totalNearby: 0,
-          totalRouteOverlap: 0,
-          totalOther: 0,
+          exact: [], nearby: [], routeOverlap: [], other: [],
+          hasMore: false, totalExact: 0, totalNearby: 0, totalRouteOverlap: 0, totalOther: 0,
         };
       }
 
-      // Filter out current user's rides and hotspot members (shown in dedicated section)
-      const otherUsersRides = allRides.filter(
-        (ride) =>
-          ride.owner_id !== query?.userId &&
-          ride.status === "active" &&
-          !excludeSet.has(ride.owner_id),
-      );
-
-      // If showAll is true, return all rides without matching logic
       if (showAll) {
         const startIndex = (page - 1) * limit;
         const endIndex = startIndex + limit;
         const paginatedRides = otherUsersRides.slice(startIndex, endIndex);
-
         return {
-          exact: paginatedRides, // Put all rides in exact category for display
-          nearby: [] as RidePost[],
-          routeOverlap: [] as RidePost[],
-          other: [] as RidePost[],
+          exact: paginatedRides, nearby: [], routeOverlap: [], other: [],
           hasMore: endIndex < otherUsersRides.length,
-          totalExact: otherUsersRides.length,
-          totalNearby: 0,
-          totalRouteOverlap: 0,
-          totalOther: 0,
+          totalExact: otherUsersRides.length, totalNearby: 0, totalRouteOverlap: 0, totalOther: 0,
         };
       }
 
-      // Categorize matches
-      const result: MatchResult = {
-        exact: [],
-        nearby: [],
-        routeOverlap: [],
-        other: [],
-      };
-
-      const allMatches: RidePost[] = [];
-
-      const hasUserCoords =
-        isValidCoord(query?.pickupLat, query?.pickupLon) &&
-        isValidCoord(query?.dropLat, query?.dropLon);
-
+      // STAGE 2 - ROUTE ANALYSIS
       let userRoute: RouteData | null = null;
-      if (hasUserCoords && query) {
+      if (isValidCoord(query.pickupLat, query.pickupLon) && isValidCoord(query.dropLat, query.dropLon)) {
         try {
           userRoute = await getRoute(
             { lat: query.pickupLat!, lng: query.pickupLon! },
@@ -143,35 +175,30 @@ export function useMatches(
           );
         } catch (err) {
           console.warn("Could not fetch user route for matching:", err);
-          userRoute = null;
         }
       }
 
-      // Helper for fast candidate processing: fast pre-score all candidates & refine top 5 with OSRM
       const processCandidateRides = async (rides: RidePost[]) => {
         if (!query?.pickup || !query?.drop) {
-          return rides.map((ride) => ({ ride, score: 0 }));
+          return rides.map((ride) => ({ ride, matchData: calculateFallbackMatchScore(ride, query) }));
         }
 
-        // 1. Instant fallback scoring for all candidate rides (0 network calls)
+        const MAX_OSRM_CANDIDATES = 15;
+        // Pre-score to pick top 15
         const initialScored = rides.map((ride) => ({
           ride,
-          score: calculateMatchScore(ride, query),
+          matchData: calculateFallbackMatchScore(ride, query),
         }));
+        initialScored.sort((a, b) => b.matchData.finalScore - a.matchData.finalScore);
 
-        // Sort descending by initial score
-        initialScored.sort((a, b) => b.score - a.score);
-
-        // 2. Limit live OSRM route calculations to top 5 candidates only
-        const MAX_OSRM_CANDIDATES = 5;
         const topCandidates = initialScored.slice(0, MAX_OSRM_CANDIDATES);
         const remainingCandidates = initialScored.slice(MAX_OSRM_CANDIDATES);
 
         const refinedTopScores = await Promise.all(
           topCandidates.map(async (item) => {
             try {
-              const score = await calculateMatchScoreAsync(item.ride, query, userRoute);
-              return { ride: item.ride, score };
+              const matchData = await calculateMatchScoreAsync(item.ride, query, userRoute);
+              return { ride: item.ride, matchData };
             } catch {
               return item;
             }
@@ -182,32 +209,41 @@ export function useMatches(
       };
 
       const scoredRides = await processCandidateRides(otherUsersRides);
+      
+      // Sort final results by finalScore descending
+      scoredRides.sort((a, b) => b.matchData.finalScore - a.matchData.finalScore);
 
-      scoredRides.forEach(({ ride, score }) => {
-        if (score > 70) {
-          result.exact.push(ride); // Strong Match
-        } else if (score > 30) {
-          result.nearby.push(ride); // Moderate Match
+      const result: MatchResult = { exact: [], nearby: [], routeOverlap: [], other: [] };
+
+      scoredRides.forEach(({ ride, matchData }) => {
+        (ride as any).matchData = matchData; // Inject matchData directly into the ride object for the UI
+        
+        const score = matchData.finalScore;
+        // Suggested categories:
+        // 90–100%: Excellent Route Match (exact)
+        // 75–89%: Very High Route Match (exact)
+        // 50–74%: High Route Match (routeOverlap)
+        // 30–49%: Moderate Route Match (nearby)
+        // Below 30%: Other
+        if (score >= 75) {
+          result.exact.push(ride);
+        } else if (score >= 50) {
+          result.routeOverlap.push(ride);
+        } else if (score >= 30) {
+          result.nearby.push(ride);
         } else {
-          result.other.push(ride); // Weak Match / Other
+          result.other.push(ride);
         }
-        allMatches.push(ride);
       });
 
-      // Apply pagination
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
-      const paginatedExact = result.exact.slice(startIndex, endIndex);
-      const paginatedNearby = result.nearby.slice(startIndex, endIndex);
-      const paginatedRouteOverlap = result.routeOverlap.slice(startIndex, endIndex);
-      const paginatedOther = result.other.slice(startIndex, endIndex);
-
       return {
-        exact: paginatedExact,
-        nearby: paginatedNearby,
-        routeOverlap: paginatedRouteOverlap,
-        other: paginatedOther,
-        hasMore: endIndex < allMatches.length,
+        exact: result.exact.slice(startIndex, endIndex),
+        nearby: result.nearby.slice(startIndex, endIndex),
+        routeOverlap: result.routeOverlap.slice(startIndex, endIndex),
+        other: result.other.slice(startIndex, endIndex),
+        hasMore: endIndex < scoredRides.length,
         totalExact: result.exact.length,
         totalNearby: result.nearby.length,
         totalRouteOverlap: result.routeOverlap.length,
@@ -218,20 +254,13 @@ export function useMatches(
   });
 }
 
-// Helper functions for matching logic
 export function haversineDist(lat1?: number, lon1?: number, lat2?: number, lon2?: number) {
-  if (!isValidCoord(lat1, lon1) || !isValidCoord(lat2, lon2)) {
-    return Infinity;
-  }
+  if (!isValidCoord(lat1, lon1) || !isValidCoord(lat2, lon2)) return Infinity;
   const toRad = (x: number) => (x * Math.PI) / 180;
-  const R = 6371;
   const dLat = toRad(lat2! - lat1!);
   const dLon = toRad(lon2! - lon1!);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1!)) * Math.cos(toRad(lat2!)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1!)) * Math.cos(toRad(lat2!)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 export function calcTimeSimilarity(timeStr1?: string, timeStr2?: string) {
@@ -241,196 +270,101 @@ export function calcTimeSimilarity(timeStr1?: string, timeStr2?: string) {
       const [time, modifier] = t.trim().split(" ");
       if (!time) return 0;
       const parts = time.split(":").map(Number);
-      let h = parts[0];
-      const m = parts[1];
+      let h = parts[0]; const m = parts[1];
       if (modifier === "PM" && h !== 12) h += 12;
       if (modifier === "AM" && h === 12) h = 0;
       return h * 60 + (m || 0);
     };
     const diff = Math.abs(parse(timeStr1) - parse(timeStr2));
-    if (diff <= 30) {
-      return 1 - diff / 30; // returns 0 to 1
-    }
-  } catch (e) {
-    console.error("Time parsing error", e);
-  }
+    if (diff <= 60) return 1 - diff / 60; // Up to 60 mins diff
+  } catch (e) {}
   return 0;
 }
 
-/**
- * Cheap spatial pre-filtering to decide if OSRM route fetch is plausible
- */
-function isRouteFetchPlausible(ride: RidePost, query: RideQuery): boolean {
-  if (
-    !isValidCoord(query.pickupLat, query.pickupLon) ||
-    !isValidCoord(query.dropLat, query.dropLon) ||
-    !isValidCoord(ride.pickup_lat, ride.pickup_lon) ||
-    !isValidCoord(ride.drop_lat, ride.drop_lon)
-  ) {
-    return false;
-  }
-
-  const pDist = haversineDist(query.pickupLat, query.pickupLon, ride.pickup_lat, ride.pickup_lon);
-  const dDist = haversineDist(query.dropLat, query.dropLon, ride.drop_lat, ride.drop_lon);
-
-  // If pickup or drop is within 25 km, route matching is plausible
-  if (pDist <= 25 || dDist <= 25) return true;
-
-  // Bounding box overlap check (with 0.2 deg margin ~ 22km)
-  const margin = 0.2;
-  const qMinLat = Math.min(query.pickupLat!, query.dropLat!) - margin;
-  const qMaxLat = Math.max(query.pickupLat!, query.dropLat!) + margin;
-  const qMinLon = Math.min(query.pickupLon!, query.dropLon!) - margin;
-  const qMaxLon = Math.max(query.pickupLon!, query.dropLon!) + margin;
-
-  const rMinLat = Math.min(ride.pickup_lat!, ride.drop_lat!);
-  const rMaxLat = Math.max(ride.pickup_lat!, ride.drop_lat!);
-  const rMinLon = Math.min(ride.pickup_lon!, ride.drop_lon!);
-  const rMaxLon = Math.max(ride.pickup_lon!, ride.drop_lon!);
-
-  const latOverlap = qMinLat <= rMaxLat && qMaxLat >= rMinLat;
-  const lonOverlap = qMinLon <= rMaxLon && qMaxLon >= rMinLon;
-
-  return latOverlap && lonOverlap;
-}
-
-/**
- * Async Route-Aware Match Score Calculation (V2 Engine)
- * Total Score = 100 max:
- * - Route Overlap: 60 pts (weighted by direction compatibility)
- * - Direction Compatibility: 15 pts
- * - Pickup Proximity: 10 pts
- * - Drop Proximity: 10 pts
- * - Time Similarity: 5 pts
- */
 export async function calculateMatchScoreAsync(
   ride: RidePost,
   query: RideQuery,
   prefetchedUserRoute: RouteData | null = null
-): Promise<number> {
-  const hasUserCoords =
-    isValidCoord(query.pickupLat, query.pickupLon) &&
-    isValidCoord(query.dropLat, query.dropLon);
-
-  const hasCandidateCoords =
-    isValidCoord(ride.pickup_lat, ride.pickup_lon) &&
-    isValidCoord(ride.drop_lat, ride.drop_lon);
-
+): Promise<MatchScoreData> {
+  const hasUserCoords = isValidCoord(query.pickupLat, query.pickupLon) && isValidCoord(query.dropLat, query.dropLon);
+  const hasCandidateCoords = isValidCoord(ride.pickup_lat, ride.pickup_lon) && isValidCoord(ride.drop_lat, ride.drop_lon);
+  
   const pickupDist = haversineDist(query.pickupLat, query.pickupLon, ride.pickup_lat, ride.pickup_lon);
   const dropDist = haversineDist(query.dropLat, query.dropLon, ride.drop_lat, ride.drop_lon);
-  const timeSim = calcTimeSimilarity(
-    query.time || query.returnTime,
-    ride.journey_time || ride.return_time
-  );
+  
+  const timeSim = calcTimeSimilarity(query.time || query.returnTime, ride.journey_time || ride.return_time);
 
   let userRoute = prefetchedUserRoute;
   let candidateRoute: RouteData | null = null;
   let routeFetchSuccess = false;
 
-  if (hasUserCoords && hasCandidateCoords && isRouteFetchPlausible(ride, query)) {
+  if (hasUserCoords && hasCandidateCoords) {
     try {
       if (!userRoute) {
-        userRoute = await getRoute(
-          { lat: query.pickupLat!, lng: query.pickupLon! },
-          { lat: query.dropLat!, lng: query.dropLon! }
-        );
+        userRoute = await getRoute({ lat: query.pickupLat!, lng: query.pickupLon! }, { lat: query.dropLat!, lng: query.dropLon! });
       }
-      candidateRoute = await getRoute(
-        { lat: ride.pickup_lat!, lng: ride.pickup_lon! },
-        { lat: ride.drop_lat!, lng: ride.drop_lon! }
-      );
+      candidateRoute = await getRoute({ lat: ride.pickup_lat!, lng: ride.pickup_lon! }, { lat: ride.drop_lat!, lng: ride.drop_lon! });
       routeFetchSuccess = !!(userRoute && candidateRoute);
     } catch (e) {
-      console.warn(`OSRM routing failed for candidate ride ${ride.id}:`, e);
-      routeFetchSuccess = false;
+      console.warn("OSRM routing failed for candidate ride", ride.id);
     }
   }
 
-  // If road route matching succeeds: use V2 100-point model
   if (routeFetchSuccess && userRoute && candidateRoute) {
     const routeMatch = calculateRouteMatch(userRoute, candidateRoute);
+    
+    const routeOverlapPct = routeMatch.symmetricOverlapPct;
+    const routeOverlapScore = routeOverlapPct * routeMatch.directionCompatibility;
+    
+    const pickupScore = Math.max(0, 100 - (pickupDist / 5) * 100);
+    const dropScore = Math.max(0, 100 - (dropDist / 5) * 100);
+    const timeScore = timeSim * 100;
 
-    // 1. Route Overlap Score (60 pts max, scaled by direction compatibility)
-    const routeOverlapScore =
-      (routeMatch.symmetricOverlapPct / 100) * 60 * routeMatch.directionCompatibility;
+    const finalScore = (routeOverlapScore * 0.60) + (pickupScore * 0.20) + (dropScore * 0.15) + (timeScore * 0.05);
 
-    // 2. Direction Compatibility Score (15 pts max)
-    const directionScore = routeMatch.directionCompatibility * 15;
-
-    // 3. Pickup Proximity (10 pts max within 5km)
-    let pickupScore = 0;
-    if (pickupDist <= 5) {
-      pickupScore = 10 * (1 - pickupDist / 5);
-    }
-
-    // 4. Drop Proximity (10 pts max within 5km)
-    let dropScore = 0;
-    if (dropDist <= 5) {
-      dropScore = 10 * (1 - dropDist / 5);
-    }
-
-    // 5. Time Similarity (5 pts max within 30 mins)
-    const timeScore = timeSim * 5;
-
-    const totalScore = routeOverlapScore + directionScore + pickupScore + dropScore + timeScore;
-    return Math.min(100, Math.max(0, Math.round(totalScore)));
+    return {
+      finalScore: Math.min(100, Math.max(0, Math.round(finalScore))),
+      routeOverlapPct: Math.round(routeOverlapPct),
+      pickupDist: Math.round(pickupDist * 10) / 10,
+      dropDist: Math.round(dropDist * 10) / 10,
+      timeDiffMins: Math.round((1 - timeSim) * 60)
+    };
   }
 
-  // Graceful Fallback if OSRM is unavailable / failed / coordinates missing:
-  return calculateFallbackMatchScore(ride, query, pickupDist, dropDist, timeSim);
+  return calculateFallbackMatchScore(ride, query);
 }
 
-/**
- * Synchronous Fallback Match Score (Proximity & Time based)
- */
-function calculateFallbackMatchScore(
-  ride: RidePost,
-  query: RideQuery,
-  pickupDist: number,
-  dropDist: number,
-  timeSim: number
-): number {
-  let score = 0;
+function calculateFallbackMatchScore(ride: RidePost, query: RideQuery): MatchScoreData {
+  const pickupDist = haversineDist(query.pickupLat, query.pickupLon, ride.pickup_lat, ride.pickup_lon);
+  const dropDist = haversineDist(query.dropLat, query.dropLon, ride.drop_lat, ride.drop_lon);
+  const timeSim = calcTimeSimilarity(query.time || query.returnTime, ride.journey_time || ride.return_time);
 
-  // 1. Pickup Proximity (40 pts) -> Within 5km
-  if (pickupDist <= 5) score += 40 * (1 - pickupDist / 5);
-
-  // 2. Drop Proximity (40 pts) -> Within 5km
-  if (dropDist <= 5) score += 40 * (1 - dropDist / 5);
-
-  // 3. Time Similarity (10 pts)
-  score += timeSim * 10;
-
-  // 4. Name Similarity (10 pts) -> Fuzzy match
+  let pScore = Math.max(0, 100 - (pickupDist / 10) * 100);
+  let dScore = Math.max(0, 100 - (dropDist / 10) * 100);
+  
   if (query.pickup || query.drop) {
-    const list = [{ name: ride.pickup_location }, { name: ride.drop_location }];
-    const fuse = new Fuse(list, { keys: ["name"], includeScore: true, threshold: 0.6 });
-    let pScore = 0,
-      dScore = 0;
+    const fuse = new Fuse([{ name: ride.pickup_location }, { name: ride.drop_location }], { keys: ["name"], includeScore: true, threshold: 0.6 });
     if (query.pickup) {
       const pRes = fuse.search(query.pickup);
-      if (pRes.length > 0) pScore = 1 - (pRes[0].score || 0);
+      if (pRes.length > 0) pScore = Math.max(pScore, (1 - (pRes[0].score || 0)) * 100);
     }
     if (query.drop) {
       const dRes = fuse.search(query.drop);
-      if (dRes.length > 0) dScore = 1 - (dRes[0].score || 0);
+      if (dRes.length > 0) dScore = Math.max(dScore, (1 - (dRes[0].score || 0)) * 100);
     }
-    const nameScore = Math.min(10, ((pScore + dScore) / 2) * 10);
-    score += nameScore;
   }
 
-  return Math.min(100, Math.max(0, Math.round(score)));
+  const finalScore = (pScore * 0.45) + (dScore * 0.45) + (timeSim * 100 * 0.10);
+  
+  return {
+    finalScore: Math.min(100, Math.max(0, Math.round(finalScore))),
+    routeOverlapPct: 0,
+    pickupDist: pickupDist === Infinity ? 0 : Math.round(pickupDist * 10) / 10,
+    dropDist: dropDist === Infinity ? 0 : Math.round(dropDist * 10) / 10,
+    timeDiffMins: Math.round((1 - timeSim) * 60)
+  };
 }
 
-/**
- * Legacy synchronous calculateMatchScore export for backwards compatibility
- */
 export function calculateMatchScore(ride: RidePost, query: RideQuery): number {
-  const pickupDist = haversineDist(query.pickupLat, query.pickupLon, ride.pickup_lat, ride.pickup_lon);
-  const dropDist = haversineDist(query.dropLat, query.dropLon, ride.drop_lat, ride.drop_lon);
-  const timeSim = calcTimeSimilarity(
-    query.time || query.returnTime,
-    ride.journey_time || ride.return_time
-  );
-  return calculateFallbackMatchScore(ride, query, pickupDist, dropDist, timeSim);
+  return calculateFallbackMatchScore(ride, query).finalScore;
 }
