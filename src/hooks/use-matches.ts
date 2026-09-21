@@ -183,7 +183,7 @@ export function useMatches(
           return rides.map((ride) => ({ ride, matchData: calculateFallbackMatchScore(ride, query) }));
         }
 
-        const MAX_OSRM_CANDIDATES = 15;
+        const MAX_OSRM_CANDIDATES = 5;
         // Pre-score to pick top 15
         const initialScored = rides.map((ride) => ({
           ride,
