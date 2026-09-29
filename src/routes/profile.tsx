@@ -255,7 +255,7 @@ function Profile() {
                 {signedIn && (
                   <div className="mt-3 flex items-center gap-3 text-sm">
                     <span className="inline-flex items-center gap-1 font-semibold">
-                      <Star className="size-4 fill-primary text-primary" /> 4.9
+                      
                     </span>
                     <span className="text-muted-foreground">·</span>
                     <span className="text-muted-foreground">{myPosts.length} trips</span>
@@ -452,10 +452,53 @@ function EditProfileModal({
   const i = initial!;
   const [name, setName] = useState(i.name);
   const [phone, setPhone] = useState(i.phone);
+  const [email, setEmail] = useState((i as any).email ?? "");
   const [bio, setBio] = useState(i.bio);
   const [connectId, setConnectId] = useState(i.connect_id);
   const [emergencyName, setEmergencyName] = useState(i.emergency_name ?? "");
   const [emergencyPhone, setEmergencyPhone] = useState(i.emergency_phone ?? "");
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
+    const val = e.target.value.replace(/\D/g, "");
+    if (val.length <= 10) setter(val);
+  };
+
+  const handleSave = () => {
+    setError(null);
+    if (!phone || phone.length !== 10) {
+      return setError("Phone number must be exactly 10 digits.");
+    }
+    if (emergencyPhone && emergencyPhone.length !== 10) {
+      return setError("Emergency phone number must be exactly 10 digits.");
+    }
+    if (connectId && /^[0-9]+$/.test(connectId) && connectId.length !== 10) {
+      // If they typed numbers only for handle, enforce 10 digits
+      return setError("Contact number must be exactly 10 digits.");
+    }
+    // "Contact handle/number ... Accept exactly 10 digits ... Reject letters"
+    // Wait, the requirement says "For: Phone number, Emergency phone number, Contact handle/number... The fields must: Accept numbers only. Accept exactly 10 digits."
+    if (!connectId || connectId.length !== 10) {
+      return setError("Contact handle/number must be exactly 10 digits.");
+    }
+    
+    if (email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in)$/;
+      if (!emailRegex.test(email)) {
+        return setError("Please enter a valid email address (e.g., @gmail.com, @domain.in).");
+      }
+    }
+
+    onSave({
+      name,
+      phone,
+      email,
+      bio,
+      connect_id: connectId,
+      emergency_name: emergencyName,
+      emergency_phone: emergencyPhone,
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -469,12 +512,16 @@ function EditProfileModal({
             <X className="size-4" />
           </button>
         </div>
-        <div className="mt-5 space-y-4">
+        {error && <p className="mt-3 text-xs font-semibold text-red-500 bg-red-500/10 p-2 rounded-lg">{error}</p>}
+        <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto pr-1">
           <Field label="Full name">
             <input value={name} onChange={(e) => setName(e.target.value)} className="ep-input" />
           </Field>
+          <Field label="Email ID">
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="ep-input" placeholder="example@gmail.com" />
+          </Field>
           <Field label="Phone">
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} className="ep-input" />
+            <input type="tel" inputMode="numeric" value={phone} onChange={(e) => handlePhoneInput(e, setPhone)} className="ep-input" placeholder="10-digit number" />
           </Field>
           <Field label="Short bio">
             <textarea
@@ -486,9 +533,12 @@ function EditProfileModal({
           </Field>
           <Field label="Contact handle / number">
             <input
+              type="tel"
+              inputMode="numeric"
               value={connectId}
-              onChange={(e) => setConnectId(e.target.value)}
+              onChange={(e) => handlePhoneInput(e, setConnectId)}
               className="ep-input"
+              placeholder="10-digit number"
             />
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -501,25 +551,19 @@ function EditProfileModal({
             </Field>
             <Field label="Emergency phone">
               <input
+                type="tel"
+                inputMode="numeric"
                 value={emergencyPhone}
-                onChange={(e) => setEmergencyPhone(e.target.value)}
+                onChange={(e) => handlePhoneInput(e, setEmergencyPhone)}
                 className="ep-input"
+                placeholder="10-digit number"
               />
             </Field>
           </div>
         </div>
         <button
-          onClick={() =>
-            onSave({
-              name,
-              phone,
-              bio,
-              connect_id: connectId,
-              emergency_name: emergencyName,
-              emergency_phone: emergencyPhone,
-            })
-          }
-          className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground"
+          onClick={handleSave}
+          className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           Save changes
         </button>

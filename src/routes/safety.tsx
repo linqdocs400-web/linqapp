@@ -57,7 +57,8 @@ function SafetyPage() {
       const currentTime = new Date().toLocaleString();
 
       // Format phone number (remove non-digits)
-      const phone = profile.emergency_phone.replace(/\D/g, "");
+      let phone = profile.emergency_phone.replace(/\D/g, "");
+      if (phone.length === 10) phone = "91" + phone;
 
       // Create message
       const message = `🚗 Hi!

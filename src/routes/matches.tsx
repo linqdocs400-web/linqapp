@@ -521,7 +521,7 @@ const MatchCard = memo(function MatchCard({
             <BadgeCheck className="size-4 text-primary" />
           </div>
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Star className="size-3 fill-primary text-primary" /> 4.9
+            
             {m.journey_date && ` · ${formatDate(m.journey_date)}`}
           </p>
         </div>

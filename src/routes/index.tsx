@@ -338,9 +338,7 @@ function MobileHome() {
       <section className="mt-7">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Choose ride type</h2>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <ChevronLeft className="size-3" /> Swipe <ChevronRight className="size-3" />
-          </span>
+          
         </div>
         <SwipeRail>
           {rideTypes.map((r) => (
@@ -359,44 +357,7 @@ function MobileHome() {
 
 
 
-      {/* Preview matches */}
-      <section className="mt-8">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">Available matches</h2>
-          </div>
-          <a href="/matches?all=1" className="text-sm font-medium text-primary">
-            See all
-          </a>
-        </div>
-        <div className="mt-3 space-y-3">
-          {posts.slice(0, 3).map((m) => (
-            <article key={m.id} className="flex items-center gap-4 rounded-2xl bg-card p-4">
-              <div className="size-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <Users className="size-6 text-primary/40" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold truncate">{m.owner_name}</p>
-                  <BadgeCheck className="size-3 text-primary" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {m.pickup_location?.split(", ").slice(0, 2).join(", ")} →{" "}
-                  {m.drop_location?.split(", ").slice(0, 2).join(", ")}
-                </p>
-                <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                  <Star className="size-3 fill-primary text-primary" /> 4.9 · {m.ride_type}
-                </p>
-              </div>
-            </article>
-          ))}
-          {posts.length === 0 && !isLoading && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No active rides found. Build yours!
-            </p>
-          )}
-        </div>
-      </section>
+      
 
       {state.confirmOpen && (
         <ConfirmPostModal onCancel={() => set.setConfirmOpen(false)} onChoose={confirmPost} />
@@ -616,12 +577,7 @@ function DesktopHome() {
             />
             <div className="mt-7 flex flex-wrap gap-3">
               <LiveCountPill />
-              {signedIn && (
-                <Pill>
-                  <Star className="size-3.5 fill-primary text-primary" />
-                  4.9 avg rating
-                </Pill>
-              )}
+              
             </div>
 
             <DesktopHeroInfoCards />

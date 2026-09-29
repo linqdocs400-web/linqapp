@@ -8,7 +8,7 @@ export const Route = createFileRoute("/payments")({
   head: () => ({
     meta: [
       { title: "Payments — linQ" },
-      { name: "description", content: "Manage payment methods, plans and billing history." },
+      { name: "description", content: "Manage your subscription plans." },
     ],
   }),
   component: PaymentsPage,
@@ -28,7 +28,7 @@ function PaymentsPage() {
     <main className="min-h-screen bg-background text-foreground">
       <SEO
         title="Payment History"
-        description="View your past transactions and subscription history."
+        description="Manage your subscription plans."
         canonical="https://linqrides.in/payments"
         noindex={true}
       />
@@ -44,7 +44,7 @@ function PaymentsPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">Payments</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Plans, methods and billing history.
+              Manage your plans.
             </p>
           </div>
           <Link
@@ -55,8 +55,8 @@ function PaymentsPage() {
           </Link>
         </header>
 
-        <div className="grid gap-5 lg:grid-cols-3">
-          <section className="rounded-3xl border border-border bg-card p-6 lg:col-span-2">
+        <div className="grid gap-5 grid-cols-1">
+          <section className="rounded-3xl border border-border bg-card p-6">
             <p className="text-sm font-semibold text-muted-foreground">CURRENT PLAN</p>
             <div className="mt-2 flex items-end justify-between">
               <div>
@@ -73,41 +73,10 @@ function PaymentsPage() {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-border bg-card p-6">
-            <p className="text-sm font-semibold text-muted-foreground">PAYMENT METHODS</p>
-            <div className="mt-3 flex items-center gap-3 rounded-xl bg-secondary p-3">
-              <CreditCard className="size-5 text-primary" />
-              <div className="flex-1">
-                <p className="text-sm font-semibold">UPI / Card</p>
-                <p className="text-xs text-muted-foreground">Add at checkout</p>
-              </div>
-            </div>
-            <button className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary">
-              <Plus className="size-4" /> Add method
-            </button>
-          </section>
+          
         </div>
 
-        <section className="mt-6 rounded-3xl border border-border bg-card p-6">
-          <div className="mb-4 flex items-center gap-2">
-            <Receipt className="size-5 text-primary" />
-            <h2 className="text-lg font-semibold">Billing history</h2>
-          </div>
-          <div className="divide-y divide-border">
-            {history.map((h) => (
-              <div key={h.id} className="flex items-center justify-between py-3">
-                <div>
-                  <p className="font-medium">{h.label}</p>
-                  <p className="text-xs text-muted-foreground">{h.date}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">{h.amount}</p>
-                  <p className="text-xs text-muted-foreground">{h.status}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        
       </div>
       <BottomNav />
     </main>

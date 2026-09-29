@@ -254,7 +254,7 @@ function Trips() {
                       <BadgeCheck className="size-3.5 text-primary" />
                     </div>
                     <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Star className="size-3 fill-primary text-primary" /> 4.9 · {m.ride_type}
+                       · {m.ride_type}
                     </p>
                   </div>
                 </div>
@@ -282,6 +282,14 @@ function Trips() {
                     </a>
                   </div>
                 )}
+                <div className="mt-4">
+                  <a
+                    href={`/ride/${m.id}`}
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+                  >
+                    View Details
+                  </a>
+                </div>
               </article>
             ))}
           </div>

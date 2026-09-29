@@ -265,7 +265,7 @@ function RideDetails() {
                   <BadgeCheck className="size-5 text-primary" />
                 </div>
                 <p className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                  <Star className="size-4 fill-primary text-primary" /> 4.9 (12 rides)
+                  
                 </p>
               </div>
             </div>
