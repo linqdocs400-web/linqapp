@@ -33,7 +33,12 @@ import {
 } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { useTheme } from "@/lib/theme";
-import { useStore, type RideType, type RideQuery, type VehicleType } from "@/lib/store";
+import {
+  useStore,
+  type RideType,
+  type RideQuery,
+  type VehicleType,
+} from "@/lib/store";
 import { useLiveRiderCount } from "@/lib/live-count";
 import { Logo } from "@/components/logo";
 import LocationInput from "@/components/LocationInput";
@@ -55,7 +60,10 @@ export const Route = createFileRoute("/")({
           "Verified ride-sharing for instant trips, daily commutes, and planned long-distance journeys.",
       },
       { property: "og:title", content: "linQ — Share the way" },
-      { property: "og:description", content: "Verified ride-sharing carpools." },
+      {
+        property: "og:description",
+        content: "Verified ride-sharing carpools.",
+      },
     ],
   }),
   component: Home,
@@ -68,21 +76,21 @@ const rideTypes: {
   subtitle: string;
   Icon: typeof Zap;
 }[] = [
-    {
-      id: "daily",
-      tag: "COMMUTE",
-      title: "Daily",
-      subtitle: "Office / college route",
-      Icon: Briefcase,
-    },
-    {
-      id: "long",
-      tag: "PLANNED",
-      title: "Planned / Long Distance",
-      subtitle: "Scheduled & city-to-city",
-      Icon: Plane,
-    },
-  ];
+  {
+    id: "daily",
+    tag: "COMMUTE",
+    title: "Daily",
+    subtitle: "Office / college route",
+    Icon: Briefcase,
+  },
+  {
+    id: "long",
+    tag: "PLANNED",
+    title: "Planned / Long Distance",
+    subtitle: "Scheduled & city-to-city",
+    Icon: Plane,
+  },
+];
 
 function Home() {
   return (
@@ -119,11 +127,15 @@ function useRideForm() {
 
   const signedIn = !!user && !!profile;
 
-  const [selected, setSelected] = useState<RideType>(lastQuery?.rideType ?? "daily");
+  const [selected, setSelected] = useState<RideType>(
+    lastQuery?.rideType ?? "daily",
+  );
   const [pickup, setPickup] = useState(lastQuery?.pickup ?? "");
   const [drop, setDrop] = useState(lastQuery?.drop ?? "");
   const [hasVehicle, setHasVehicle] = useState(lastQuery?.hasVehicle ?? false);
-  const [vehicleType, setVehicleType] = useState<VehicleType>(lastQuery?.vehicleType ?? "");
+  const [vehicleType, setVehicleType] = useState<VehicleType>(
+    lastQuery?.vehicleType ?? "",
+  );
   const [seats, setSeats] = useState(lastQuery?.seats ?? 1);
 
   // Auto-set seats to 1 when vehicle type changes to bike
@@ -140,9 +152,13 @@ function useRideForm() {
     }
   }, [pickup, drop]);
   const [days, setDays] = useState<string[]>(lastQuery?.days ?? []);
-  const [returnJourney, setReturnJourney] = useState(lastQuery?.returnJourney ?? false);
+  const [returnJourney, setReturnJourney] = useState(
+    lastQuery?.returnJourney ?? false,
+  );
   const [returnTime, setReturnTime] = useState(lastQuery?.returnTime ?? "");
-  const [travelTime, setTravelTime] = useState(lastQuery?.travelTime ?? "07:00");
+  const [travelTime, setTravelTime] = useState(
+    lastQuery?.travelTime ?? "07:00",
+  );
   const [date, setDate] = useState(lastQuery?.date ?? "");
   const [time, setTime] = useState(lastQuery?.time ?? "");
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -213,8 +229,8 @@ function useRideForm() {
         } else if (q.rideType === "instant") {
           // For instant rides, use current date/time if not provided
           const now = new Date();
-          journeyDate = now.toISOString().split('T')[0];
-          journeyTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+          journeyDate = now.toISOString().split("T")[0];
+          journeyTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
         }
 
         console.log("Creating ride post with data:", {
@@ -299,7 +315,6 @@ function useRideForm() {
 /*  MOBILE                                                                    */
 /* -------------------------------------------------------------------------- */
 
-
 function MobileHome() {
   const { posts, isLoading } = useRidePosts({ limit: 50 });
   const form = useRideForm();
@@ -328,7 +343,9 @@ function MobileHome() {
         </div>
       </header>
 
-      <p className="mt-7 text-xs font-semibold tracking-[0.2em] text-primary">WHERE TO TODAY?</p>
+      <p className="mt-7 text-xs font-semibold tracking-[0.2em] text-primary">
+        WHERE TO TODAY?
+      </p>
       <BlinkingHero className="mt-2 text-5xl font-bold leading-[1.05] tracking-tight" />
 
       <div className="mt-5 flex flex-wrap gap-2">
@@ -341,7 +358,6 @@ function MobileHome() {
       <section className="mt-7">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Choose ride type</h2>
-          
         </div>
         <SwipeRail>
           {rideTypes.map((r) => (
@@ -358,12 +374,11 @@ function MobileHome() {
       {/* Search/Plan card */}
       <RideForm form={form} className="mt-5" />
 
-
-
-      
-
       {state.confirmOpen && (
-        <ConfirmPostModal onCancel={() => set.setConfirmOpen(false)} onChoose={confirmPost} />
+        <ConfirmPostModal
+          onCancel={() => set.setConfirmOpen(false)}
+          onChoose={confirmPost}
+        />
       )}
     </div>
   );
@@ -453,7 +468,8 @@ function DesktopHeroInfoCards() {
           </div>
 
           <div className="mt-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-2 py-1.5 text-center text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            ₹90 saved × 22 days = <span className="font-bold">₹1,980/month</span>
+            ₹90 saved × 22 days ={" "}
+            <span className="font-bold">₹1,980/month</span>
           </div>
         </div>
 
@@ -481,7 +497,10 @@ function DesktopHeroInfoCards() {
 
           <div className="space-y-2 text-[11px]">
             <div className="rounded-xl bg-background/50 p-2 border border-border/40 text-muted-foreground leading-snug">
-              More people travelling alone <span className="text-foreground font-medium">= more vehicles = more pollution</span>
+              More people travelling alone{" "}
+              <span className="text-foreground font-medium">
+                = more vehicles = more pollution
+              </span>
             </div>
 
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2 text-emerald-600 dark:text-emerald-400 font-medium leading-snug">
@@ -513,7 +532,10 @@ function DesktopHeroInfoCards() {
           </div>
 
           <p className="text-[11px] text-foreground/90 font-medium leading-tight mb-2.5">
-            Less time in traffic = <span className="text-primary font-semibold">more time for what you love.</span>
+            Less time in traffic ={" "}
+            <span className="text-primary font-semibold">
+              more time for what you love.
+            </span>
           </p>
 
           <div className="grid grid-cols-2 gap-1.5 text-[10px]">
@@ -559,17 +581,24 @@ function DesktopHome() {
       <section className="relative overflow-hidden border-b border-border/50">
         <div
           className="pointer-events-none absolute -top-40 -left-40 size-[40rem] rounded-full opacity-30 blur-3xl"
-          style={{ background: "radial-gradient(circle, var(--color-primary), transparent 60%)" }}
+          style={{
+            background:
+              "radial-gradient(circle, var(--color-primary), transparent 60%)",
+          }}
         />
         <div
           className="pointer-events-none absolute -bottom-40 -right-32 size-[40rem] rounded-full opacity-20 blur-3xl"
-          style={{ background: "radial-gradient(circle, var(--color-primary), transparent 60%)" }}
+          style={{
+            background:
+              "radial-gradient(circle, var(--color-primary), transparent 60%)",
+          }}
         />
 
         <div className="mx-auto grid w-full max-w-7xl grid-cols-12 gap-10 px-8 py-20">
           <div className="col-span-7 flex flex-col justify-center">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1.5 text-xs font-medium text-muted-foreground">
-              <span className="text-primary">✨</span> Verified ride-sharing, reimagined
+              <span className="text-primary">✨</span> Verified ride-sharing,
+              reimagined
             </span>
             <p className="mt-6 text-sm font-semibold tracking-[0.25em] text-primary">
               WHERE TO TODAY?
@@ -580,7 +609,6 @@ function DesktopHome() {
             />
             <div className="mt-7 flex flex-wrap gap-3">
               <LiveCountPill />
-              
             </div>
 
             <LaunchCountdown />
@@ -595,10 +623,12 @@ function DesktopHome() {
                 <button
                   key={r.id}
                   onClick={() => set.setSelected(r.id)}
-                  className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-xl text-xs font-medium transition-all ${state.selected === r.id ? 'bg-primary text-primary-foreground shadow-sm' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+                  className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-xl text-xs font-medium transition-all ${state.selected === r.id ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-muted text-muted-foreground hover:text-foreground"}`}
                 >
                   <r.Icon className="size-3.5" />
-                  <span className="text-center">{r.id === 'long' ? 'Planned' : r.title}</span>
+                  <span className="text-center">
+                    {r.id === "long" ? "Planned" : r.title}
+                  </span>
                 </button>
               ))}
             </div>
@@ -618,7 +648,8 @@ function DesktopHome() {
                 <span
                   className="flex size-9 items-center justify-center rounded-xl"
                   style={{
-                    background: "color-mix(in oklab, var(--color-primary) 15%, transparent)",
+                    background:
+                      "color-mix(in oklab, var(--color-primary) 15%, transparent)",
                     color: "var(--color-primary)",
                   }}
                 >
@@ -636,33 +667,51 @@ function DesktopHome() {
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
             How it works
           </p>
-          <h2 className="mt-2 text-4xl font-bold tracking-tight">Three taps to a shared ride</h2>
+          <h2 className="mt-2 text-4xl font-bold tracking-tight">
+            Three taps to a shared ride
+          </h2>
         </div>
         <div className="mt-12 grid grid-cols-3 gap-6">
           {[
-            { Icon: MapPin, title: "Set your route", desc: "Pickup, drop, ride type — done." },
-            { Icon: Users, title: "Match instantly", desc: "Verified riders going the same way." },
+            {
+              Icon: MapPin,
+              title: "Set your route",
+              desc: "Pickup, drop, ride type — done.",
+            },
+            {
+              Icon: Users,
+              title: "Match instantly",
+              desc: "Verified riders going the same way.",
+            },
             {
               Icon: Activity,
               title: "Ride together",
               desc: "Split costs, save the planet, stay connected.",
             },
           ].map((s, i) => (
-            <div key={s.title} className="rounded-3xl border border-border bg-card p-7">
+            <div
+              key={s.title}
+              className="rounded-3xl border border-border bg-card p-7"
+            >
               <div className="flex items-center gap-3">
                 <span
                   className="flex size-11 items-center justify-center rounded-2xl"
                   style={{
-                    background: "color-mix(in oklab, var(--color-primary) 15%, transparent)",
+                    background:
+                      "color-mix(in oklab, var(--color-primary) 15%, transparent)",
                     color: "var(--color-primary)",
                   }}
                 >
                   <s.Icon className="size-5" />
                 </span>
-                <span className="text-xs font-semibold text-muted-foreground">STEP 0{i + 1}</span>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  STEP 0{i + 1}
+                </span>
               </div>
               <h3 className="mt-5 text-xl font-bold">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {s.desc}
+              </p>
             </div>
           ))}
         </div>
@@ -686,7 +735,10 @@ function DesktopHome() {
       </footer>
 
       {state.confirmOpen && (
-        <ConfirmPostModal onCancel={() => set.setConfirmOpen(false)} onChoose={confirmPost} />
+        <ConfirmPostModal
+          onCancel={() => set.setConfirmOpen(false)}
+          onChoose={confirmPost}
+        />
       )}
     </>
   );
@@ -731,7 +783,9 @@ function RideForm({
   }, []);
 
   return (
-    <div className={`${embedded ? "" : "rounded-3xl bg-card p-4 sm:p-5"} ${className}`}>
+    <div
+      className={`${embedded ? "" : "rounded-3xl bg-card p-4 sm:p-5"} ${className}`}
+    >
       {/* Pickup / drop */}
       <div className="flex items-start gap-2.5">
         <div className="mt-2.5 flex flex-col items-center">
@@ -741,7 +795,9 @@ function RideForm({
         </div>
         <div className="flex-1 space-y-1.5">
           <div>
-            <p className="text-[10px] font-medium tracking-wider text-muted-foreground">PICKUP</p>
+            <p className="text-[10px] font-medium tracking-wider text-muted-foreground">
+              PICKUP
+            </p>
             <LocationInput
               placeholder="Pickup location"
               value={state.pickup}
@@ -758,7 +814,9 @@ function RideForm({
           </div>
           <div className="h-px bg-border" />
           <div>
-            <p className="text-[10px] font-medium tracking-wider text-muted-foreground">DROP</p>
+            <p className="text-[10px] font-medium tracking-wider text-muted-foreground">
+              DROP
+            </p>
             <LocationInput
               placeholder="Drop location"
               value={state.drop}
@@ -810,10 +868,11 @@ function RideForm({
                       type="button"
                       key={v.id}
                       onClick={() => set.setVehicleType(v.id)}
-                      className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs font-medium transition ${on
+                      className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs font-medium transition ${
+                        on
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-background"
-                        }`}
+                      }`}
                     >
                       <v.Icon className="size-3.5" /> {v.label}
                     </button>
@@ -823,8 +882,15 @@ function RideForm({
             </div>
             {state.hasVehicle && state.vehicleType !== "bike" && (
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Seats available</span>
-                <NumberStep value={state.seats} setValue={set.setSeats} min={1} max={6} />
+                <span className="text-xs text-muted-foreground">
+                  Seats available
+                </span>
+                <NumberStep
+                  value={state.seats}
+                  setValue={set.setSeats}
+                  min={1}
+                  max={6}
+                />
               </div>
             )}
           </div>
@@ -844,7 +910,11 @@ function RideForm({
                 <button
                   key={d}
                   onClick={() =>
-                    set.setDays(on ? state.days.filter((x) => x !== d) : [...state.days, d])
+                    set.setDays(
+                      on
+                        ? state.days.filter((x) => x !== d)
+                        : [...state.days, d],
+                    )
                   }
                   className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition ${on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"}`}
                 >
@@ -866,7 +936,9 @@ function RideForm({
           </div>
 
           <div className="mt-2">
-            <span className="text-[11px] text-muted-foreground">Travel time</span>
+            <span className="text-[11px] text-muted-foreground">
+              Travel time
+            </span>
             <div className="md:hidden">
               <input
                 type="time"
@@ -892,13 +964,16 @@ function RideForm({
 
           <div className="mt-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-xs font-medium">
-              <RefreshCw className="size-3.5 text-primary" /> Open to return journey?
+              <RefreshCw className="size-3.5 text-primary" /> Open to return
+              journey?
             </span>
             <Switch on={state.returnJourney} onChange={set.setReturnJourney} />
           </div>
           {state.returnJourney && (
             <div className="mt-2">
-              <span className="text-[11px] text-muted-foreground">Return time</span>
+              <span className="text-[11px] text-muted-foreground">
+                Return time
+              </span>
               <input
                 type="time"
                 value={state.returnTime}
@@ -936,14 +1011,16 @@ function RideForm({
             />
           </label>
           <p className="col-span-1 sm:col-span-2 flex items-center gap-1 text-[10px] text-muted-foreground">
-            <CalendarDays className="size-3 flex-shrink-0" /> For all planned, scheduled &
-            city-to-city trips.
+            <CalendarDays className="size-3 flex-shrink-0" /> For all planned,
+            scheduled & city-to-city trips.
           </p>
         </div>
       )}
 
       {state.locationError && (
-        <p className="mt-2 text-xs text-destructive font-medium">{state.locationError}</p>
+        <p className="mt-2 text-xs text-destructive font-medium">
+          {state.locationError}
+        </p>
       )}
 
       <button
@@ -977,12 +1054,12 @@ function ConfirmPostModal({
         <span className="text-primary">✨</span>
         <h2 className="mt-3 text-xl font-bold">Post this ride too?</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Make your route visible so others heading the same way can match with you. You can edit or
-          delete it from Trips later.
+          Make your route visible so others heading the same way can match with
+          you. You can edit or delete it from Trips later.
         </p>
         <div className="mt-4 rounded-xl border border-primary/20 bg-primary/10 p-3.5 text-xs font-medium leading-relaxed text-primary">
-          ✨ Yayyyyy! You just chose an eco-friendly way to travel — helping reduce fuel usage,
-          traffic, and travel expenses. Kudosss 🌍💚
+          ✨ Yayyyyy! You just chose an eco-friendly way to travel — helping
+          reduce fuel usage, traffic, and travel expenses. Kudosss 🌍💚
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3">
           <button
@@ -1020,11 +1097,12 @@ function RideCard({
       style={
         active
           ? {
-            background: "color-mix(in oklab, var(--color-primary) 18%, var(--color-card))",
-            borderColor: "var(--color-primary)",
-            boxShadow:
-              "0 10px 30px -12px color-mix(in oklab, var(--color-primary) 45%, transparent)",
-          }
+              background:
+                "color-mix(in oklab, var(--color-primary) 18%, var(--color-card))",
+              borderColor: "var(--color-primary)",
+              boxShadow:
+                "0 10px 30px -12px color-mix(in oklab, var(--color-primary) 45%, transparent)",
+            }
           : undefined
       }
       className={`relative flex h-44 ${fullWidth ? "w-full" : "min-w-[10.5rem] shrink-0 snap-start"} flex-col justify-between rounded-3xl border p-4 text-left transition ${active ? "border-primary" : "border-border bg-card/60 hover:border-primary/40"}`}
@@ -1047,7 +1125,13 @@ function RideCard({
   );
 }
 
-function Switch({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+function Switch({
+  on,
+  onChange,
+}: {
+  on: boolean;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <button
       onClick={() => onChange(!on)}
@@ -1134,7 +1218,10 @@ function BlinkingHero({
   }, []);
   return (
     <h1 className={className}>
-      <span key={i} className="inline-block animate-in fade-in zoom-in-95 duration-500">
+      <span
+        key={i}
+        className="inline-block animate-in fade-in zoom-in-95 duration-500"
+      >
         {i === 0 ? (
           <>
             Go Together
