@@ -6,7 +6,7 @@ const target = new Date(
   now.getTime() +
     3 * 24 * 60 * 60 * 1000 +
     20 * 60 * 60 * 1000 +
-    25 * 60 * 1000 +
+    25 * 60 * 60 * 1000 +
     42 * 1000
 );
 
@@ -41,19 +41,19 @@ export function LaunchCountdown() {
 
   const { days, hours, minutes, seconds } = remaining;
   return (
-    <div className="mt-4 text-center">
-      <p className="text-xs font-semibold tracking-[0.2em] text-primary mb-2">App Lauching in</p>
-      <div className="inline-flex gap-2">
-        <span className="font-bold text-2xl">
+    <div className="mt-8 text-center">
+      <p className="text-lg font-bold text-primary mb-4">App Lauching in</p>
+      <div className="space-y-2 mx-auto w-max">
+        <span className="text-sm font-medium text-primary">
           {days.toString().padStart(2, '0')}days:
         </span>
-        <span className="font-bold text-2xl">
+        <span className="text-sm font-medium text-primary">
           {hours.toString().padStart(2, '0')}hours:
         </span>
-        <span className="font-bold text-2xl">
+        <span className="text-sm font-medium text-primary">
           {minutes.toString().padStart(2, '0')}mins:
         </span>
-        <span className="font-bold text-2xl">
+        <span className="text-sm font-medium text-primary">
           {seconds.toString().padStart(2, '0')}secs
         </span>
       </div>
