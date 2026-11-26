@@ -43,6 +43,7 @@ import { useRidePosts } from "@/hooks/use-ride-posts";
 import { CampaignBanner } from "@/components/CampaignBanner";
 import { SEO, SchemaBuilders } from "@/components/seo";
 import { useCouponStore } from "@/lib/coupon-provider";
+import { LaunchCountdown } from "@/components/LaunchCountdown";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -334,6 +335,8 @@ function MobileHome() {
         <LiveCountPill />
       </div>
 
+      <LaunchCountdown />
+
       {/* Ride type */}
       <section className="mt-7">
         <div className="mb-3 flex items-center justify-between">
@@ -579,6 +582,8 @@ function DesktopHome() {
               <LiveCountPill />
               
             </div>
+
+            <LaunchCountdown />
 
             <DesktopHeroInfoCards />
           </div>
